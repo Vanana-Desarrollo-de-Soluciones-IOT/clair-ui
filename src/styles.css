@@ -1,15 +1,109 @@
+:root {
+  --app-font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  --app-font-headline: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  /* Dark surfaces + light foregrounds (your app uses a dark background) */
+  --mat-sys-background: #0d0d0d;
+  --mat-sys-surface: #0d0d0d;
+  --mat-sys-surface-bright: #161616;
+  --mat-sys-surface-dim: #0a0a0a;
+  --mat-sys-surface-container-lowest: #0b0b0b;
+  --mat-sys-surface-container-low: #101010;
+  --mat-sys-surface-container: #141414;
+  --mat-sys-surface-container-high: #1a1a1a;
+  --mat-sys-surface-container-highest: #202020;
+
+  --mat-sys-on-background: #ffffff;
+  --mat-sys-on-surface: #ffffff;
+  --mat-sys-on-surface-variant: rgba(255, 255, 255, 0.72);
+  --mat-sys-outline: rgba(255, 255, 255, 0.45);
+  --mat-sys-outline-variant: rgba(255, 255, 255, 0.25);
+
+  /* MDC component-specific text colors (not all widgets read mat-sys tokens directly) */
+  --mdc-outlined-text-field-input-text-color: #ffffff;
+  --mdc-outlined-text-field-label-text-color: rgba(255, 255, 255, 0.72);
+  --mdc-outlined-text-field-focus-label-text-color: #ffffff;
+  --mdc-outlined-text-field-supporting-text-color: rgba(255, 255, 255, 0.72);
+
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  --mdc-filled-text-field-label-text-color: rgba(255, 255, 255, 0.72);
+  --mdc-filled-text-field-focus-label-text-color: #ffffff;
+  --mdc-filled-text-field-supporting-text-color: rgba(255, 255, 255, 0.72);
+
+  --mdc-circular-progress-active-indicator-color: #ffffff;
+
+  /* Angular Material (M3) typography tokens */
+  --mat-sys-body-large-font: var(--app-font-body);
+  --mat-sys-body-medium-font: var(--app-font-body);
+  --mat-sys-body-small-font: var(--app-font-body);
+  --mat-sys-body-large: var(--mat-sys-body-large-weight) var(--mat-sys-body-large-size) / var(--mat-sys-body-large-line-height)
+    var(--app-font-body);
+  --mat-sys-body-medium: var(--mat-sys-body-medium-weight) var(--mat-sys-body-medium-size) / var(--mat-sys-body-medium-line-height)
+    var(--app-font-body);
+  --mat-sys-body-small: var(--mat-sys-body-small-weight) var(--mat-sys-body-small-size) / var(--mat-sys-body-small-line-height)
+    var(--app-font-body);
+
+  --mat-sys-label-large-font: var(--app-font-headline);
+  --mat-sys-label-medium-font: var(--app-font-headline);
+  --mat-sys-label-small-font: var(--app-font-headline);
+  --mat-sys-label-large: var(--mat-sys-label-large-weight) var(--mat-sys-label-large-size) / var(--mat-sys-label-large-line-height)
+    var(--app-font-headline);
+  --mat-sys-label-medium: var(--mat-sys-label-medium-weight) var(--mat-sys-label-medium-size) / var(--mat-sys-label-medium-line-height)
+    var(--app-font-headline);
+  --mat-sys-label-small: var(--mat-sys-label-small-weight) var(--mat-sys-label-small-size) / var(--mat-sys-label-small-line-height)
+    var(--app-font-headline);
+
+  --mat-sys-headline-large-font: var(--app-font-headline);
+  --mat-sys-headline-medium-font: var(--app-font-headline);
+  --mat-sys-headline-small-font: var(--app-font-headline);
+  --mat-sys-headline-large: var(--mat-sys-headline-large-weight) var(--mat-sys-headline-large-size) / var(--mat-sys-headline-large-line-height)
+    var(--app-font-headline);
+  --mat-sys-headline-medium: var(--mat-sys-headline-medium-weight) var(--mat-sys-headline-medium-size) / var(--mat-sys-headline-medium-line-height)
+    var(--app-font-headline);
+  --mat-sys-headline-small: var(--mat-sys-headline-small-weight) var(--mat-sys-headline-small-size) / var(--mat-sys-headline-small-line-height)
+    var(--app-font-headline);
+
+  --mat-sys-display-large-font: var(--app-font-headline);
+  --mat-sys-display-medium-font: var(--app-font-headline);
+  --mat-sys-display-small-font: var(--app-font-headline);
+  --mat-sys-display-large: var(--mat-sys-display-large-weight) var(--mat-sys-display-large-size) / var(--mat-sys-display-large-line-height)
+    var(--app-font-headline);
+  --mat-sys-display-medium: var(--mat-sys-display-medium-weight) var(--mat-sys-display-medium-size) / var(--mat-sys-display-medium-line-height)
+    var(--app-font-headline);
+  --mat-sys-display-small: var(--mat-sys-display-small-weight) var(--mat-sys-display-small-size) / var(--mat-sys-display-small-line-height)
+    var(--app-font-headline);
+
+  /* Titles typically render as “headlines” in UI */
+  --mat-sys-title-large-font: var(--app-font-headline);
+  --mat-sys-title-medium-font: var(--app-font-headline);
+  --mat-sys-title-small-font: var(--app-font-headline);
+  --mat-sys-title-large: var(--mat-sys-title-large-weight) var(--mat-sys-title-large-size) / var(--mat-sys-title-large-line-height)
+    var(--app-font-headline);
+  --mat-sys-title-medium: var(--mat-sys-title-medium-weight) var(--mat-sys-title-medium-size) / var(--mat-sys-title-medium-line-height)
+    var(--app-font-headline);
+  --mat-sys-title-small: var(--mat-sys-title-small-weight) var(--mat-sys-title-small-size) / var(--mat-sys-title-small-line-height)
+    var(--app-font-headline);
+}
+
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   background-color: #0d0d0d;
   color: #ffffff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--app-font-body);
 }
 
 body {
   display: block;
   min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6,
+label {
+  font-family: var(--app-font-headline);
 }
 
 /* Angular Material form field overrides for dark theme consistency */
