@@ -1,0 +1,93 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0d0d0d;
+  padding: 1rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+.title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background-color: #262626;
+  color: #ffffff;
+}
+
+.submit-button:hover {
+  background-color: #333333;
+}
+
+.submit-button:disabled {
+  background-color: #1f1f1f;
+  color: #666666;
+}
+
+.footer-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.footer-text a {
+  color: #e5e7eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-text a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  color: #22c55e;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.spinner {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
