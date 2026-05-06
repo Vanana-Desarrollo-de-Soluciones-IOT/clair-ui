@@ -16,6 +16,7 @@ export interface AuthGateway {
   refreshToken(resource: RefreshTokenResource): Observable<RefreshTokenResponseResource>;
   confirmRegistration(resource: ConfirmRegistrationResource): Observable<ConfirmRegistrationResponseResource>;
   verifyToken(token: string): Observable<TokenMetadataResource>;
+  signOut(accessToken: string): Observable<void>;
 }
 
 export const AUTH_GATEWAY = new InjectionToken<AuthGateway>('AuthGateway');
