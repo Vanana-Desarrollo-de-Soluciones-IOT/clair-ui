@@ -39,4 +39,10 @@ export class AuthHttpGateway implements AuthGateway {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
+
+  signOut(accessToken: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/sign-out`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
 }

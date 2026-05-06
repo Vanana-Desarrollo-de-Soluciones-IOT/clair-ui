@@ -6,6 +6,7 @@ import { SignUpCommand } from '../../../domain/model/commands/sign-up.command';
 import { SignInCommand } from '../../../domain/model/commands/sign-in.command';
 import { RefreshTokenCommand } from '../../../domain/model/commands/refresh-token.command';
 import { ConfirmRegistrationCommand } from '../../../domain/model/commands/confirm-registration.command';
+import { SignOutCommand } from '../../../domain/model/commands/sign-out.command';
 import { UserId, createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
 import { AccessToken, createAccessToken } from '../../../domain/model/valueobjects/access-token.value-object';
 import { RefreshToken, createRefreshToken } from '../../../domain/model/valueobjects/refresh-token.value-object';
@@ -55,5 +56,9 @@ export class AuthCommandServiceImpl implements AuthCommandService {
         email: response.email,
       }))
     );
+  }
+
+  handleSignOut(command: SignOutCommand): Observable<void> {
+    return this.authGateway.signOut(command.accessToken.value);
   }
 }

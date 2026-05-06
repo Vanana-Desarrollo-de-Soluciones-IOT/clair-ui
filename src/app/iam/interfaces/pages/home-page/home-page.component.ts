@@ -1,9 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
+import { createSignOutCommand } from '../../../domain/model/commands/sign-out.command';
+import { createAccessToken } from '../../../domain/model/valueobjects/access-token.value-object';
 
 @Component({
   selector: 'app-home-page',
@@ -14,9 +17,9 @@ import { MatIconModule } from '@angular/material/icon';
       <mat-card class="home-card">
         <h1>Welcome to Clair IOT</h1>
         <p>You are successfully logged in.</p>
-        <button mat-flat-button color="warn" (click)="logout()">
+        <button mat-flat-button color="warn" [disabled]="isLoggingOut" (click)="logout()">
           <mat-icon>logout</mat-icon>
-          Logout
+          {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
         </button>
       </mat-card>
     </div>
@@ -47,10 +50,31 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class HomePageComponent {
   private readonly router = inject(Router);
+  private readonly authCommandService = inject(AuthCommandServiceImpl);
+
+  isLoggingOut = false;
 
   logout(): void {
+    const rawToken = localStorage.getItem('accessToken');
+    if (!rawToken) {
+      this.clearSessionAndNavigate();
+      return;
+    }
+
+    this.isLoggingOut = true;
+    const accessToken = createAccessToken(rawToken);
+    const command = createSignOutCommand(accessToken);
+
+    this.authCommandService.handleSignOut(command).subscribe({
+      next: () => this.clearSessionAndNavigate(),
+      error: () => this.clearSessionAndNavigate(),
+    });
+  }
+
+  private clearSessionAndNavigate(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    this.isLoggingOut = false;
     this.router.navigate(['/login']);
   }
 }
