@@ -2,9 +2,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #0d0d0d;
   padding: 1rem;
+  overflow-y: auto;
 }
 
 .auth-card {
