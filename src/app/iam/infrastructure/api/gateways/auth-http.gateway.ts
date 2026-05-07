@@ -34,15 +34,11 @@ export class AuthHttpGateway implements AuthGateway {
     return this.http.post<ConfirmRegistrationResponseResource>(`${this.baseUrl}/confirm`, resource);
   }
 
-  verifyToken(token: string): Observable<TokenMetadataResource> {
-    return this.http.get<TokenMetadataResource>(`${this.baseUrl}/verify`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  verifyToken(): Observable<TokenMetadataResource> {
+    return this.http.get<TokenMetadataResource>(`${this.baseUrl}/verify`);
   }
 
-  signOut(accessToken: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/sign-out`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+  signOut(): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/sign-out`);
   }
 }

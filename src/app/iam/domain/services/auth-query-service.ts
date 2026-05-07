@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { VerifyTokenQuery } from '../model/queries/verify-token.query';
+
 
 export type TokenMetadata = Readonly<{
   valid: boolean;
@@ -8,5 +8,5 @@ export type TokenMetadata = Readonly<{
 }>;
 
 export interface AuthQueryService {
-  handleVerifyToken(query: VerifyTokenQuery): Observable<TokenMetadata>;
+  handleVerifyToken(): Observable<TokenMetadata>;
 }
