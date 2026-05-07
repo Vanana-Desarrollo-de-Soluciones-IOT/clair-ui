@@ -5,8 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
-import { createSignOutCommand } from '../../../domain/model/commands/sign-out.command';
-import { createAccessToken } from '../../../domain/model/valueobjects/access-token.value-object';
+import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 
 @Component({
   selector: 'app-home-page',
@@ -51,29 +50,21 @@ import { createAccessToken } from '../../../domain/model/valueobjects/access-tok
 export class HomePageComponent {
   private readonly router = inject(Router);
   private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
 
   isLoggingOut = false;
 
   logout(): void {
-    const rawToken = localStorage.getItem('accessToken');
-    if (!rawToken) {
-      this.clearSessionAndNavigate();
-      return;
-    }
-
     this.isLoggingOut = true;
-    const accessToken = createAccessToken(rawToken);
-    const command = createSignOutCommand(accessToken);
 
-    this.authCommandService.handleSignOut(command).subscribe({
+    this.authCommandService.handleSignOut().subscribe({
       next: () => this.clearSessionAndNavigate(),
       error: () => this.clearSessionAndNavigate(),
     });
   }
 
   private clearSessionAndNavigate(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    this.tokenStorage.clearTokens();
     this.isLoggingOut = false;
     this.router.navigate(['/login']);
   }

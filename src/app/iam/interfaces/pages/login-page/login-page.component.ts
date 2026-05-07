@@ -13,6 +13,7 @@ import { AuthCommandServiceImpl } from '../../../application/internal/commandser
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
 import { createSignInCommand } from '../../../domain/model/commands/sign-in.command';
+import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 
 @Component({
   selector: 'app-login-page',
@@ -35,6 +36,7 @@ import { createSignInCommand } from '../../../domain/model/commands/sign-in.comm
 export class LoginPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly router = inject(Router);
 
   loginForm: FormGroup = this.fb.group({
@@ -68,8 +70,7 @@ export class LoginPageComponent {
         next: (result) => {
           console.log('[Login] Success');
           this.loading = false;
-          localStorage.setItem('accessToken', result.accessToken.value);
-          localStorage.setItem('refreshToken', result.refreshToken.value);
+          this.tokenStorage.setTokens(result.accessToken.value, result.refreshToken.value);
           this.router.navigate(['/']);
         },
         error: (err) => {

@@ -1,14 +1,17 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { AuthQueryServiceImpl } from '../../application/internal/queryservices/auth-query-service.impl';
+import { map, catchError, of } from 'rxjs';
 
 export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const token = localStorage.getItem('accessToken');
+  const authQueryService = inject(AuthQueryServiceImpl);
 
-  if (!token) {
-    router.navigate(['/login']);
-    return false;
-  }
-
-  return true;
+  return authQueryService.handleVerifyToken().pipe(
+    map(() => true),
+    catchError(() => {
+      router.navigate(['/login']);
+      return of(false);
+    })
+  );
 };
