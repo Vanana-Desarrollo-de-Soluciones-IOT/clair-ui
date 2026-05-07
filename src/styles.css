@@ -87,6 +87,12 @@
     var(--app-font-headline);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -98,7 +104,8 @@ html, body {
 
 body {
   display: block;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 h1, h2, h3, h4, h5, h6,
