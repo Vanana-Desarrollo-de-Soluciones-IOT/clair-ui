@@ -4,46 +4,36 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, SidebarComponent],
   template: `
-    <div class="home-container">
-      <mat-card class="home-card">
-        <h1>Welcome to Clair IOT</h1>
-        <p>You are successfully logged in.</p>
-        <button mat-flat-button color="warn" [disabled]="isLoggingOut" (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
-        </button>
-      </mat-card>
+    <div class="flex h-screen bg-[#0a0a0a]">
+      <app-sidebar></app-sidebar>
+
+      <main class="flex-1 flex items-center justify-center p-6 overflow-auto">
+        <mat-card class="home-card !bg-[#141414] !border !border-white/10 !rounded-2xl">
+          <h1 class="text-white text-2xl font-semibold mb-2">Welcome to Clair IOT</h1>
+          <p class="text-gray-400 mb-6">You are successfully logged in.</p>
+          <button mat-flat-button color="warn" [disabled]="isLoggingOut" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+          </button>
+        </mat-card>
+      </main>
     </div>
   `,
   styles: [`
-    .home-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
     .home-card {
       max-width: 500px;
       width: 100%;
       padding: 40px;
       text-align: center;
-    }
-    h1 {
-      margin-bottom: 16px;
-      color: #333;
-    }
-    p {
-      margin-bottom: 24px;
-      color: #666;
     }
   `],
 })

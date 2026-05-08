@@ -1,0 +1,143 @@
+:host {
+  display: block;
+}
+
+.sidebar-container {
+  height: 100vh;
+  width: 260px;
+  background-color: #050505;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-left: 4px;
+}
+
+.menu-button {
+  color: #d1d5db !important;
+}
+
+.logo {
+  width: 72px;
+  height: auto;
+  display: block;
+}
+
+.search-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #60a5fa;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.search-input {
+  width: 100%;
+  background-color: #162544;
+  color: #e5e7eb;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px 10px 40px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: #6b7280;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-align: left;
+  line-height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: inherit;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+}
+
+.nav-item.active {
+  background-color: #27272a;
+  color: #ffffff;
+}
+
+.settings-wrapper {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Collapsed state */
+.sidebar-container.collapsed {
+  width: 72px;
+}
+
+.sidebar-container.collapsed .sidebar-header {
+  justify-content: center;
+  padding-left: 0;
+}
+
+.sidebar-container.collapsed .menu-button {
+  margin: 0;
+}
+
+.sidebar-container.collapsed .nav-item {
+  justify-content: center;
+  padding: 12px;
+}
+
+.sidebar-container.collapsed .settings-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-container.collapsed .settings-wrapper .nav-item {
+  padding: 12px;
+}

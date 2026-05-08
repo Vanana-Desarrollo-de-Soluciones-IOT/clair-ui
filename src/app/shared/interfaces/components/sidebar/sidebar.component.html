@@ -1,0 +1,35 @@
+<aside class="sidebar-container" [class.collapsed]="!isOpen()">
+  <!-- Top: Menu + Logo -->
+  <div class="sidebar-header">
+    <button mat-icon-button class="menu-button" (click)="toggle()">
+      <mat-icon>{{ isOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+    <app-clair-lyrics *ngIf="isOpen()" class="logo"></app-clair-lyrics>
+  </div>
+
+  <!-- Search -->
+  <div *ngIf="isOpen()" class="search-wrapper">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input type="text" placeholder="Search" class="search-input" />
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav-list">
+    <button
+      *ngFor="let item of navItems"
+      class="nav-item"
+      [class.active]="item.active"
+    >
+      <mat-icon>{{ item.icon }}</mat-icon>
+      <span *ngIf="isOpen()">{{ item.label }}</span>
+    </button>
+  </nav>
+
+  <!-- Settings -->
+  <div class="settings-wrapper">
+    <button class="nav-item">
+      <mat-icon>settings</mat-icon>
+      <span *ngIf="isOpen()">Settings</span>
+    </button>
+  </div>
+</aside>
