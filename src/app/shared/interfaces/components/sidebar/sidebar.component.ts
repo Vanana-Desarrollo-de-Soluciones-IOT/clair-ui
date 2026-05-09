@@ -25,6 +25,12 @@ export class SidebarComponent {
     this.isOpen.update(open => !open);
   }
 
+  onNavItemClick(): void {
+    if (window.innerWidth <= 768) {
+      this.isOpen.set(false);
+    }
+  }
+
   readonly navItems: NavItem[] = [
     { label: 'Overview', icon: 'dashboard', active: true },
     { label: 'Air Quality', icon: 'air' },

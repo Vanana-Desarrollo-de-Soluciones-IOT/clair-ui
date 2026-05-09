@@ -11,6 +11,8 @@
   padding: 16px;
   box-sizing: border-box;
   font-family: 'Inter', 'Roboto', sans-serif;
+  transition: width 0.25s ease, padding 0.25s ease;
+  flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -116,7 +118,8 @@
 
 /* Collapsed state */
 .sidebar-container.collapsed {
-  width: 72px;
+  width: 80px;
+  padding: 16px 8px;
 }
 
 .sidebar-container.collapsed .sidebar-header {
@@ -131,6 +134,7 @@
 .sidebar-container.collapsed .nav-item {
   justify-content: center;
   padding: 12px;
+  gap: 0;
 }
 
 .sidebar-container.collapsed .settings-wrapper {
@@ -140,4 +144,87 @@
 
 .sidebar-container.collapsed .settings-wrapper .nav-item {
   padding: 12px;
+  gap: 0;
+}
+
+/* Responsive: mobile overlay */
+@media (max-width: 768px) {
+  .sidebar-container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    width: 260px;
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+  }
+
+  .sidebar-container.collapsed {
+    width: 260px;
+    padding: 16px;
+    transform: translateX(-100%);
+  }
+
+  .sidebar-container.collapsed .sidebar-header {
+    justify-content: flex-start;
+    padding-left: 4px;
+  }
+
+  .sidebar-container.collapsed .nav-item {
+    justify-content: flex-start;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+
+  .sidebar-container.collapsed .settings-wrapper {
+    display: block;
+  }
+
+  .sidebar-container.collapsed .settings-wrapper .nav-item {
+    justify-content: flex-start;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+}
+
+/* Mobile floating toggle button */
+.mobile-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: #141414;
+    color: #d1d5db;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .mobile-toggle:hover {
+    background-color: #1f1f1f;
+    transform: scale(1.05);
+  }
+
+  .mobile-toggle:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-toggle mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
 }
