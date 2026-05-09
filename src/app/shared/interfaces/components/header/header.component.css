@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.header-container {
+  height: 84px;
+  background-color: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.menu-button {
+  color: #d1d5db !important;
+}
+
+.action-button {
+  color: #d1d5db !important;
+}
+
+.logo {
+  width: 72px;
+  height: auto;
+  display: block;
+}
