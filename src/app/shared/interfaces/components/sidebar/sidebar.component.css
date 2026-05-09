@@ -3,7 +3,7 @@
 }
 
 .sidebar-container {
-  height: 100vh;
+  height: calc(100vh - 84px);
   width: 260px;
   background-color: #050505;
   display: flex;
@@ -13,24 +13,7 @@
   font-family: 'Inter', 'Roboto', sans-serif;
   transition: width 0.25s ease, padding 0.25s ease;
   flex-shrink: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-left: 4px;
-}
-
-.menu-button {
-  color: #d1d5db !important;
-}
-
-.logo {
-  width: 72px;
-  height: auto;
-  display: block;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .search-wrapper {
@@ -122,15 +105,6 @@
   padding: 16px 8px;
 }
 
-.sidebar-container.collapsed .sidebar-header {
-  justify-content: center;
-  padding-left: 0;
-}
-
-.sidebar-container.collapsed .menu-button {
-  margin: 0;
-}
-
 .sidebar-container.collapsed .nav-item {
   justify-content: center;
   padding: 12px;
@@ -152,7 +126,7 @@
   .sidebar-container {
     position: fixed;
     left: 0;
-    top: 0;
+    top: 84px;
     z-index: 1000;
     width: 260px;
     transform: translateX(0);
@@ -164,11 +138,6 @@
     width: 260px;
     padding: 16px;
     transform: translateX(-100%);
-  }
-
-  .sidebar-container.collapsed .sidebar-header {
-    justify-content: flex-start;
-    padding-left: 4px;
   }
 
   .sidebar-container.collapsed .nav-item {
@@ -185,46 +154,5 @@
     justify-content: flex-start;
     padding: 10px 16px;
     gap: 12px;
-  }
-}
-
-/* Mobile floating toggle button */
-.mobile-toggle {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .mobile-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 999;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background-color: #141414;
-    color: #d1d5db;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-    transition: background-color 0.15s ease, transform 0.15s ease;
-  }
-
-  .mobile-toggle:hover {
-    background-color: #1f1f1f;
-    transform: scale(1.05);
-  }
-
-  .mobile-toggle:active {
-    transform: scale(0.95);
-  }
-
-  .mobile-toggle mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
   }
 }

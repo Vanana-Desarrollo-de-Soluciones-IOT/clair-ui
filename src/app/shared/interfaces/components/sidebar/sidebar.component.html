@@ -1,46 +1,30 @@
-<aside class="sidebar-container" [class.collapsed]="!isOpen()">
-  <!-- Top: Menu + Logo -->
-  <div class="sidebar-header">
-    <button mat-icon-button class="menu-button" (click)="toggle()">
-      <mat-icon>{{ isOpen() ? 'menu_open' : 'menu' }}</mat-icon>
-    </button>
-    <app-clair-lyrics *ngIf="isOpen()" class="logo"></app-clair-lyrics>
-  </div>
-
+<aside class="sidebar-container" [class.collapsed]="!isOpen">
   <!-- Search -->
-  <div *ngIf="isOpen()" class="search-wrapper">
+  <div *ngIf="isOpen" class="search-wrapper">
     <mat-icon class="search-icon">search</mat-icon>
     <input type="text" placeholder="Search" class="search-input" />
   </div>
 
   <!-- Navigation -->
   <nav class="nav-list">
-    <button
+    <a
       *ngFor="let item of navItems"
       class="nav-item"
-      [class.active]="item.active"
+      [routerLink]="item.route || null"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
       (click)="onNavItemClick()"
     >
       <mat-icon>{{ item.icon }}</mat-icon>
-      <span *ngIf="isOpen()">{{ item.label }}</span>
-    </button>
+      <span *ngIf="isOpen">{{ item.label }}</span>
+    </a>
   </nav>
 
   <!-- Settings -->
   <div class="settings-wrapper">
-    <button class="nav-item" (click)="onNavItemClick()">
+    <a class="nav-item" routerLink="/settings" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
       <mat-icon>settings</mat-icon>
-      <span *ngIf="isOpen()">Settings</span>
-    </button>
+      <span *ngIf="isOpen">Settings</span>
+    </a>
   </div>
 </aside>
-
-<!-- Mobile toggle button (visible only when sidebar is closed) -->
-<button
-  *ngIf="!isOpen()"
-  class="mobile-toggle"
-  (click)="toggle()"
-  aria-label="Open menu"
->
-  <mat-icon>menu</mat-icon>
-</button>

@@ -1,38 +1,35 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { ClairLyricsComponent } from '../clair-lyrics/clair-lyrics.component';
 
 interface NavItem {
   label: string;
   icon: string;
-  active?: boolean;
+  route?: string;
 }
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, ClairLyricsComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
-  readonly isOpen = signal(true);
-
-  toggle(): void {
-    this.isOpen.update(open => !open);
-  }
+  @Input() isOpen = true;
+  @Output() closeRequested = new EventEmitter<void>();
 
   onNavItemClick(): void {
     if (window.innerWidth <= 768) {
-      this.isOpen.set(false);
+      this.closeRequested.emit();
     }
   }
 
   readonly navItems: NavItem[] = [
-    { label: 'Overview', icon: 'dashboard', active: true },
+    { label: 'Overview', icon: 'dashboard', route: '/overview' },
     { label: 'Air Quality', icon: 'air' },
     { label: 'Alerts & Actions', icon: 'warning_amber' },
     { label: 'Reports', icon: 'description' },

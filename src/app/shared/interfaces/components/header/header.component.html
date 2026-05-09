@@ -1,0 +1,17 @@
+<header class="header-container">
+  <div class="header-left">
+    <button mat-icon-button class="menu-button" (click)="onToggleSidebar()" aria-label="Toggle sidebar">
+      <mat-icon>{{ isSidebarOpen ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+    <app-clair-lyrics class="logo"></app-clair-lyrics>
+  </div>
+
+  <div class="header-right">
+    <button mat-icon-button class="action-button" aria-label="Notifications">
+      <mat-icon>notifications</mat-icon>
+    </button>
+    <button mat-icon-button class="action-button" aria-label="User profile">
+      <mat-icon>person</mat-icon>
+    </button>
+  </div>
+</header>
