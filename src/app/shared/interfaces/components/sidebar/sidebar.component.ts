@@ -3,17 +3,22 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AirQualityComponent } from '../icons/air-quality/air-quality.component';
+import { AlertsActionsComponent } from '../icons/alerts-actions/alerts-actions.component';
+import { OverviewComponent } from '../icons/overview/overview.component';
+import { ReportsComponent } from '../icons/reports/reports.component';
+import { SpaceDevicesComponent } from '../icons/space-devices/space-devices.component';
 
 interface NavItem {
   label: string;
-  icon: string;
+  component: string;
   route?: string;
 }
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule, AirQualityComponent, AlertsActionsComponent, OverviewComponent, ReportsComponent, SpaceDevicesComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,10 +34,10 @@ export class SidebarComponent {
   }
 
   readonly navItems: NavItem[] = [
-    { label: 'Overview', icon: 'dashboard', route: '/overview' },
-    { label: 'Air Quality', icon: 'air' },
-    { label: 'Alerts & Actions', icon: 'warning_amber' },
-    { label: 'Reports', icon: 'description' },
-    { label: 'Space & Devices', icon: 'hub' },
+    { label: 'Overview', component: 'overview', route: '/overview' },
+    { label: 'Air Quality', component: 'air-quality' },
+    { label: 'Alerts & Actions', component: 'alerts-actions' },
+    { label: 'Reports', component: 'reports' },
+    { label: 'Space & Devices', component: 'space-devices' },
   ];
 }

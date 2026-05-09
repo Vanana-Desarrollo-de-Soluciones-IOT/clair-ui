@@ -15,7 +15,13 @@
       [routerLinkActiveOptions]="{ exact: true }"
       (click)="onNavItemClick()"
     >
-      <mat-icon>{{ item.icon }}</mat-icon>
+      <div [ngSwitch]="item.component" class="icon-container">
+        <app-overview *ngSwitchCase="'overview'" class="nav-icon"></app-overview>
+        <app-air-quality *ngSwitchCase="'air-quality'" class="nav-icon"></app-air-quality>
+        <app-alerts-actions *ngSwitchCase="'alerts-actions'" class="nav-icon"></app-alerts-actions>
+        <app-reports *ngSwitchCase="'reports'" class="nav-icon"></app-reports>
+        <app-space-devices *ngSwitchCase="'space-devices'" class="nav-icon"></app-space-devices>
+      </div>
       <span *ngIf="isOpen">{{ item.label }}</span>
     </a>
   </nav>

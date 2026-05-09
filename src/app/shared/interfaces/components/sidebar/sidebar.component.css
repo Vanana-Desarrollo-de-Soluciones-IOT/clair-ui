@@ -77,7 +77,7 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.nav-item mat-icon {
+.nav-item .nav-icon {
   font-size: 20px;
   width: 20px;
   height: 20px;
