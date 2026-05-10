@@ -3,6 +3,7 @@ import { SignUpCommand } from '../model/commands/sign-up.command';
 import { SignInCommand } from '../model/commands/sign-in.command';
 import { RefreshTokenCommand } from '../model/commands/refresh-token.command';
 import { ConfirmRegistrationCommand } from '../model/commands/confirm-registration.command';
+import { SignInWithGoogleCommand } from '../model/commands/sign-in-with-google.command';
 
 import { UserId } from '../model/valueobjects/user-id.value-object';
 import { AccessToken } from '../model/valueobjects/access-token.value-object';
@@ -14,4 +15,6 @@ export interface AuthCommandService {
   handleRefreshToken(command: RefreshTokenCommand): Observable<{ accessToken: AccessToken; refreshToken: RefreshToken }>;
   handleConfirmRegistration(command: ConfirmRegistrationCommand): Observable<{ userId: UserId; email: string }>;
   handleSignOut(): Observable<void>;
+  handleGoogleSignIn(command: SignInWithGoogleCommand): Observable<{ accessToken: AccessToken; refreshToken: RefreshToken }>;
+  getGoogleAuthorizeUrl(): string;
 }

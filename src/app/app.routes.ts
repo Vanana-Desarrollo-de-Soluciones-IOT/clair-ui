@@ -4,6 +4,7 @@ import { RegisterPageComponent } from './iam/interfaces/pages/register-page/regi
 import { ConfirmPageComponent } from './iam/interfaces/pages/confirm-page/confirm-page.component';
 import { OverviewPageComponent } from './iam/interfaces/pages/overview-page/overview-page.component';
 import { SettingsPageComponent } from './iam/interfaces/pages/settings-page/settings-page.component';
+import { AuthCallbackPageComponent } from './iam/interfaces/pages/auth-callback-page/auth-callback-page.component';
 import { authGuard } from './iam/interfaces/guards/auth.guard';
 
 export const routes: Routes = [
@@ -11,6 +12,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginPageComponent },
   { path: 'register', component: RegisterPageComponent },
   { path: 'confirm', component: ConfirmPageComponent },
+  { path: 'auth/callback', component: AuthCallbackPageComponent },
   { path: 'overview', component: OverviewPageComponent, canActivate: [authGuard] },
   { path: 'home', redirectTo: 'overview', pathMatch: 'full' },
   { path: 'settings', component: SettingsPageComponent, canActivate: [authGuard] },
