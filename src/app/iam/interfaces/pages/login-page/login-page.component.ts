@@ -94,8 +94,4 @@ export class LoginPageComponent {
     }
   }
 
-  onGoogleSignIn(): void {
-    const authorizeUrl = this.authCommandService.getGoogleAuthorizeUrl();
-    window.location.href = authorizeUrl;
-  }
 }

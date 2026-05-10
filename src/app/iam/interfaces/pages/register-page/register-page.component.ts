@@ -9,7 +9,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
+import { GoogleIconComponent } from '../../../../shared/interfaces/components/icons/google/google-icon.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
@@ -28,8 +30,10 @@ import { createSignUpCommand } from '../../../domain/model/commands/sign-up.comm
     MatIconModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatCheckboxModule,
     RouterLink,
     ClairLogoComponent,
+    GoogleIconComponent,
   ],
   templateUrl: './register-page.component.html',
   styleUrl: './register-page.component.css',
@@ -42,13 +46,12 @@ export class RegisterPageComponent {
   registerForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', [Validators.required]],
+    acceptTerms: [false, [Validators.requiredTrue]],
   });
 
   loading = false;
   errorMessage: string | null = null;
   hidePassword = true;
-  hideConfirmPassword = true;
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
@@ -56,12 +59,7 @@ export class RegisterPageComponent {
       return;
     }
 
-    const { email, password, confirmPassword } = this.registerForm.value;
-
-    if (password !== confirmPassword) {
-      this.errorMessage = 'Passwords do not match';
-      return;
-    }
+    const { email, password } = this.registerForm.value;
 
     this.loading = true;
     this.errorMessage = null;
