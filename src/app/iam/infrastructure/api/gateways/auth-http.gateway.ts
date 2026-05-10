@@ -11,6 +11,7 @@ import { RefreshTokenResponseResource } from '../../../interfaces/rest/resources
 import { ConfirmRegistrationResource } from '../../../interfaces/rest/resources/confirm-registration.resource';
 import { ConfirmRegistrationResponseResource } from '../../../interfaces/rest/resources/confirm-registration-response.resource';
 import { TokenMetadataResource } from '../../../interfaces/rest/resources/token-metadata.resource';
+import { GoogleSignInResource } from '../../../interfaces/rest/resources/google-sign-in.resource';
 
 @Injectable({ providedIn: 'root' })
 export class AuthHttpGateway implements AuthGateway {
@@ -40,5 +41,13 @@ export class AuthHttpGateway implements AuthGateway {
 
   signOut(): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/sign-out`);
+  }
+
+  googleSignIn(resource: GoogleSignInResource): Observable<SignInResponseResource> {
+    return this.http.post<SignInResponseResource>(`${this.baseUrl}/google/sign-in`, resource);
+  }
+
+  getGoogleAuthorizeUrl(): string {
+    return `${this.baseUrl}/google/authorize`;
   }
 }

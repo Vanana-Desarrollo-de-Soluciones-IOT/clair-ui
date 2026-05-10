@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
 import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
@@ -27,6 +28,7 @@ import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastruct
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDividerModule,
     RouterLink,
     ClairLogoComponent,
   ],
@@ -90,5 +92,10 @@ export class LoginPageComponent {
       this.loading = false;
       this.errorMessage = err.message || 'Validation error';
     }
+  }
+
+  onGoogleSignIn(): void {
+    const authorizeUrl = this.authCommandService.getGoogleAuthorizeUrl();
+    window.location.href = authorizeUrl;
   }
 }

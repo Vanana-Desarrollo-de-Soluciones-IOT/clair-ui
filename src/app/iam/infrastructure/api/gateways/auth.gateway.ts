@@ -9,6 +9,7 @@ import { RefreshTokenResponseResource } from '../../../interfaces/rest/resources
 import { ConfirmRegistrationResource } from '../../../interfaces/rest/resources/confirm-registration.resource';
 import { ConfirmRegistrationResponseResource } from '../../../interfaces/rest/resources/confirm-registration-response.resource';
 import { TokenMetadataResource } from '../../../interfaces/rest/resources/token-metadata.resource';
+import { GoogleSignInResource } from '../../../interfaces/rest/resources/google-sign-in.resource';
 
 export interface AuthGateway {
   signUp(resource: SignUpResource): Observable<SignUpResponseResource>;
@@ -17,6 +18,8 @@ export interface AuthGateway {
   confirmRegistration(resource: ConfirmRegistrationResource): Observable<ConfirmRegistrationResponseResource>;
   verifyToken(): Observable<TokenMetadataResource>;
   signOut(): Observable<void>;
+  googleSignIn(resource: GoogleSignInResource): Observable<SignInResponseResource>;
+  getGoogleAuthorizeUrl(): string;
 }
 
 export const AUTH_GATEWAY = new InjectionToken<AuthGateway>('AuthGateway');

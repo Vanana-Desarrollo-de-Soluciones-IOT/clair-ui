@@ -6,6 +6,7 @@ import { SignUpCommand } from '../../../domain/model/commands/sign-up.command';
 import { SignInCommand } from '../../../domain/model/commands/sign-in.command';
 import { RefreshTokenCommand } from '../../../domain/model/commands/refresh-token.command';
 import { ConfirmRegistrationCommand } from '../../../domain/model/commands/confirm-registration.command';
+import { SignInWithGoogleCommand } from '../../../domain/model/commands/sign-in-with-google.command';
 
 import { UserId, createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
 import { AccessToken, createAccessToken } from '../../../domain/model/valueobjects/access-token.value-object';
@@ -15,6 +16,7 @@ import {
   signInCommandToResource,
   refreshTokenCommandToResource,
   confirmRegistrationCommandToResource,
+  signInWithGoogleCommandToResource,
 } from '../../../interfaces/rest/transform/auth-transform';
 
 @Injectable({ providedIn: 'root' })
@@ -60,5 +62,19 @@ export class AuthCommandServiceImpl implements AuthCommandService {
 
   handleSignOut(): Observable<void> {
     return this.authGateway.signOut();
+  }
+
+  handleGoogleSignIn(command: SignInWithGoogleCommand): Observable<{ accessToken: AccessToken; refreshToken: RefreshToken }> {
+    const resource = signInWithGoogleCommandToResource(command);
+    return this.authGateway.googleSignIn(resource).pipe(
+      map((response) => ({
+        accessToken: createAccessToken(response.token),
+        refreshToken: createRefreshToken(response.refreshToken),
+      }))
+    );
+  }
+
+  getGoogleAuthorizeUrl(): string {
+    return this.authGateway.getGoogleAuthorizeUrl();
   }
 }
