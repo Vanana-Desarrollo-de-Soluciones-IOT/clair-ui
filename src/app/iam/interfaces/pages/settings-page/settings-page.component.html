@@ -1,0 +1,21 @@
+<div class="layout">
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
+
+  <div class="body-layout">
+    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
+
+    <main class="content">
+      <mat-card class="settings-card" appearance="outlined">
+        <h1>Settings</h1>
+        <p>Manage your account session.</p>
+
+        <button mat-flat-button color="warn" [disabled]="isLoggingOut" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+        </button>
+
+        <p class="status" *ngIf="statusMessage">{{ statusMessage }}</p>
+      </mat-card>
+    </main>
+  </div>
+</div>

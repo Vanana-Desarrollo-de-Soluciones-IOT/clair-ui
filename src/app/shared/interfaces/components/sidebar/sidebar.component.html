@@ -1,0 +1,36 @@
+<aside class="sidebar-container" [class.collapsed]="!isOpen">
+  <!-- Search -->
+  <div *ngIf="isOpen" class="search-wrapper">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input type="text" placeholder="Search" class="search-input" />
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav-list">
+    <a
+      *ngFor="let item of navItems"
+      class="nav-item"
+      [routerLink]="item.route || null"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="onNavItemClick()"
+    >
+      <div [ngSwitch]="item.component" class="icon-container">
+        <app-overview *ngSwitchCase="'overview'" class="nav-icon"></app-overview>
+        <app-air-quality *ngSwitchCase="'air-quality'" class="nav-icon"></app-air-quality>
+        <app-alerts-actions *ngSwitchCase="'alerts-actions'" class="nav-icon"></app-alerts-actions>
+        <app-reports *ngSwitchCase="'reports'" class="nav-icon"></app-reports>
+        <app-space-devices *ngSwitchCase="'space-devices'" class="nav-icon"></app-space-devices>
+      </div>
+      <span *ngIf="isOpen">{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <!-- Settings -->
+  <div class="settings-wrapper">
+    <a class="nav-item" routerLink="/settings" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
+      <mat-icon>settings</mat-icon>
+      <span *ngIf="isOpen">Settings</span>
+    </a>
+  </div>
+</aside>
