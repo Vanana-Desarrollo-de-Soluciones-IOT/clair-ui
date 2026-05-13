@@ -1,6 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/angular-project/browser",
-  "routes": [{ "handle": "filesystem" }, { "src": "/.*", "dest": "/index.html" }]
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "${CLAIR_BACKEND_BASE_URL}/api/$1",
+      "env": ["CLAIR_BACKEND_BASE_URL"]
+    },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
