@@ -12,6 +12,7 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../storage/token-storage.gateway';
 import { RefreshTokenResponseResource } from '../../../interfaces/rest/resources/refresh-token-response.resource';
+import { API_CONFIG } from '../../../../api.config';
 
 @Injectable()
 export class AuthHttpInterceptor implements HttpInterceptor {
@@ -21,7 +22,7 @@ export class AuthHttpInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private readonly refreshSubject = new BehaviorSubject<string | null>(null);
 
-  private readonly baseUrl = 'http://localhost:8080/api/v1/auth';
+  private readonly baseUrl = API_CONFIG.baseUrl + API_CONFIG.endpoints.iam;
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     if (this.isPublicUrl(req.url)) {

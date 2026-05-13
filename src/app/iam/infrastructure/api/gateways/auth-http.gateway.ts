@@ -12,10 +12,11 @@ import { ConfirmRegistrationResource } from '../../../interfaces/rest/resources/
 import { ConfirmRegistrationResponseResource } from '../../../interfaces/rest/resources/confirm-registration-response.resource';
 import { TokenMetadataResource } from '../../../interfaces/rest/resources/token-metadata.resource';
 import { GoogleSignInResource } from '../../../interfaces/rest/resources/google-sign-in.resource';
+import { API_CONFIG } from '../../../../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class AuthHttpGateway implements AuthGateway {
-  private readonly baseUrl = 'http://localhost:8080/api/v1/auth';
+  private readonly baseUrl = API_CONFIG.baseUrl + API_CONFIG.endpoints.iam;
 
   constructor(private readonly http: HttpClient) {}
 
