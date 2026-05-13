@@ -12,9 +12,16 @@ npm start
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Backend URL
+## Backend URL / Environments
 
-Define la URL del backend en `src/environments/environment.ts` (se usa para `npm start` y `npm run build`).
+- `src/environments/environment.ts` (production)
+- `src/environments/environment.development.ts` (development)
+
+CRITICAL: lo que pongas en `src/environments/` se empaqueta en el frontend (no guardar secretos).
+
+Para desarrollo, `npm start` usa `proxy.conf.cjs` y lee `.env` para redirigir `/api/*` al backend:
+
+- `.env`: `CLAIR_BACKEND_BASE_URL=http://localhost:8080`
 
 ## Code scaffolding
 
