@@ -23,6 +23,8 @@ Para desarrollo, `npm start` usa `proxy.conf.cjs` y lee `.env` para redirigir `/
 
 - `.env`: `CLAIR_BACKEND_BASE_URL=http://localhost:8080`
 
+En Vercel (producción), `/api/*` se atiende por la Function `api/[...path].ts` y usa la variable de entorno `CLAIR_BACKEND_BASE_URL` configurada en el proyecto de Vercel.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
