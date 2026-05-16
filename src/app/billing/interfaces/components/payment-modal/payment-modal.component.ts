@@ -55,14 +55,26 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
       }
     }
 
-    // Obtenemos la clave de los archivos de environment de Angular
-    const stripeKey = environment.stripePublicKey;
+    const stripeKey = await this.getStripePublicKey();
     if (!stripeKey) {
-      console.error('Stripe public key is missing in environment file.');
+      console.error('Stripe public key is missing in backend config.');
       return;
     }
     
     this.stripe = await loadStripe(stripeKey);
+  }
+
+  private async getStripePublicKey(): Promise<string | null> {
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/config/stripe-public-key`);
+      if (!response.ok) return null;
+
+      const data = await response.json() as { stripePublicKey?: string };
+      return data.stripePublicKey ?? null;
+    } catch (error) {
+      console.error('Error loading Stripe public key', error);
+      return null;
+    }
   }
 
   ngAfterViewInit() {
