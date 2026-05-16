@@ -7,75 +7,29 @@
     <main class="content">
       <div class="workspace">
         <!-- Left panel: Organizations -->
-        <app-organizations-bar
-          [organizations]="organizations"
-          [expandedOrganizationIds]="expandedOrganizationIds"
-          [spacesByOrganizationId]="spacesByOrganizationId"
-          [loadingSpacesByOrganizationId]="loadingSpacesByOrganizationId"
-          [errorSpacesByOrganizationId]="errorSpacesByOrganizationId"
-          [deviceCountsBySpaceId]="deviceCountsBySpaceId"
-          [selectedSpaceId]="selectedSpaceId?.value ?? null"
-          (organizationToggled)="toggleOrganization($event)"
+        <app-organizations-panel
+          [selectedSpaceId]="selectedSpace?.id?.value ?? null"
           (spaceSelected)="selectSpace($event)"
-          (addSpaceRequested)="openAddSpaceDialog($event)"
-          (editSpaceRequested)="openEditSpaceDialog($event)"
-          (editOrganizationRequested)="openEditOrganizationDialog($event)"
-          (deleteOrganizationRequested)="openDeleteOrganizationDialog($event)"
-          (addOrganizationRequested)="openAddOrganizationDialog()"
-        ></app-organizations-bar>
+          (selectedSpaceCleared)="clearSelectedSpace()"
+        ></app-organizations-panel>
 
         <!-- Right panel: Spaces & Devices -->
         <section class="detail-panel">
-          <div *ngIf="selectedSpace" class="detail-header">
-            <div class="detail-title">
-              <h1>{{ selectedSpace.name }}</h1>
-              <p class="subtitle">Updates every minute</p>
-            </div>
-            <div class="detail-actions">
-              <button mat-fab class="action-button action-button--primary" (click)="openRegisterDeviceDialog()" aria-label="Register device">
-                <mat-icon>add</mat-icon>
-              </button>
-              <button mat-fab class="action-button action-button--secondary" type="button" aria-label="More options">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-            </div>
-          </div>
+          <app-space-detail-header
+            [space]="selectedSpace"
+            (registerDeviceRequested)="openRegisterDeviceDialog()"
+          ></app-space-detail-header>
 
-          <div *ngIf="selectedSpace" class="view-toggle">
-            <button mat-button [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" aria-label="Grid view">
-              <mat-icon>grid_view</mat-icon>
-              Grid
-            </button>
-            <button mat-button [class.active]="viewMode === 'list'" (click)="setViewMode('list')" aria-label="List view">
-              <mat-icon>view_list</mat-icon>
-              List
-            </button>
-          </div>
-
-          <div *ngIf="!selectedSpace && !loadingSpaces" class="empty-state centered">
-            Select an organization with spaces to view devices.
-          </div>
-
-          <div *ngIf="loadingDevices" class="loading-state centered">
-            <mat-spinner diameter="24"></mat-spinner>
-            <span>Loading devices...</span>
-          </div>
-
-          <div *ngIf="errorDevices && !loadingDevices" class="error-state centered">{{ errorDevices }}</div>
-
-          <div *ngIf="!loadingDevices && devicesPage && devicesPage.content.length === 0" class="empty-state centered">
-            No devices registered in this space.
-          </div>
-
-          <div *ngIf="!loadingDevices && devicesPage && devicesPage.content.length > 0" [class.device-grid]="viewMode === 'grid'" [class.device-list]="viewMode === 'list'">
-            <app-device-card
-              *ngFor="let device of devicesPage.content"
-              [device]="device"
-              [viewMode]="viewMode"
-              (editNameRequested)="openEditDeviceNameDialog($event)"
-              (editSerialNumberRequested)="openEditDeviceSerialNumberDialog($event)"
-            ></app-device-card>
-          </div>
+          <app-device-list
+            [selectedSpace]="selectedSpace"
+            [devicesPage]="devicesPage"
+            [loadingDevices]="loadingDevices"
+            [errorDevices]="errorDevices"
+            [viewMode]="viewMode"
+            (viewModeChanged)="setViewMode($event)"
+            (editDeviceNameRequested)="openEditDeviceNameDialog($event)"
+            (editDeviceSerialNumberRequested)="openEditDeviceSerialNumberDialog($event)"
+          ></app-device-list>
         </section>
       </div>
     </main>

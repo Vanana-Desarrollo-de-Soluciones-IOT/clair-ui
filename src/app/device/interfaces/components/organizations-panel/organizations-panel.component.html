@@ -1,0 +1,16 @@
+<app-organizations-bar
+  [organizations]="organizations"
+  [expandedOrganizationIds]="expandedOrganizationIds"
+  [spacesByOrganizationId]="spacesByOrganizationId"
+  [loadingSpacesByOrganizationId]="loadingSpacesByOrganizationId"
+  [errorSpacesByOrganizationId]="errorSpacesByOrganizationId"
+  [deviceCountsBySpaceId]="deviceCountsBySpaceId"
+  [selectedSpaceId]="selectedSpaceId"
+  (organizationToggled)="toggleOrganization($event)"
+  (spaceSelected)="selectSpace($event)"
+  (addSpaceRequested)="openAddSpaceDialog($event)"
+  (editSpaceRequested)="openEditSpaceDialog($event)"
+  (editOrganizationRequested)="openEditOrganizationDialog($event)"
+  (deleteOrganizationRequested)="openDeleteOrganizationDialog($event)"
+  (addOrganizationRequested)="openAddOrganizationDialog()"
+></app-organizations-bar>
