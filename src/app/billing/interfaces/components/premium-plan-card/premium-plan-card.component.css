@@ -1,0 +1,94 @@
+.plan-card {
+  width: 100%;
+  max-width: 380px;
+  background-color: #0d0d0d;
+  border: 1px solid #757676;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.plan-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.plan-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.plan-price-section {
+  margin-bottom: 2rem;
+}
+
+.plan-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+}
+
+.plan-price-subtitle {
+  font-size: 1rem;
+  color: #757676;
+  margin: 0;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 8px;
+  background-color: #141414;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 2.5rem;
+}
+
+.submit-button:hover {
+  background-color: #1a1a1a;
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.features-list-header {
+  font-size: 1rem;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.feature-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  font-size: 1rem;
+  color: #757676;
+  margin: 0;
+  line-height: 1.5;
+}

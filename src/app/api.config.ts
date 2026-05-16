@@ -3,6 +3,7 @@ import { environment } from '../environments/environment';
 export const API_CONFIG = {
   baseUrl: environment.apiBaseUrl,
   endpoints: {
-    iam: '/v1/auth'
+    iam: '/v1/auth',
+    subscriptions: '/v1/subscriptions'
   }
 } as const;
