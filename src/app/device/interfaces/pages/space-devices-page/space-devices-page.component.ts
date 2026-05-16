@@ -13,6 +13,8 @@ import { SidebarComponent } from '../../../../shared/interfaces/components/sideb
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { DeviceCardComponent } from '../../components/device-card/device-card.component';
 import { AddOrganizationDialogComponent } from '../../components/add-organization-dialog/add-organization-dialog.component';
+import { EditOrganizationDialogComponent } from '../../components/edit-organization-dialog/edit-organization-dialog.component';
+import { DeleteOrganizationDialogComponent } from '../../components/delete-organization-dialog/delete-organization-dialog.component';
 import { AddSpaceDialogComponent } from '../../components/add-space-dialog/add-space-dialog.component';
 import { OrganizationsBarComponent } from '../../components/organizations-bar/organizations-bar.component';
 import { RegisterDeviceDialogComponent } from '../../components/register-device-dialog/register-device-dialog.component';
@@ -25,6 +27,8 @@ import { createGetOrganizationsByOwnerQuery } from '../../../domain/model/querie
 import { createGetSpacesByOrganizationQuery } from '../../../domain/model/queries/get-spaces-by-organization.query';
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { createCreateOrganizationCommand } from '../../../domain/model/commands/create-organization.command';
+import { createUpdateOrganizationNameCommand } from '../../../domain/model/commands/update-organization-name.command';
+import { createDeleteOrganizationCommand } from '../../../domain/model/commands/delete-organization.command';
 import { createCreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
 import { createRegisterDeviceCommand } from '../../../domain/model/commands/register-device.command';
 import { createSerialNumber } from '../../../domain/model/valueobjects/serial-number.value-object';
@@ -271,6 +275,51 @@ export class SpaceDevicesPageComponent implements OnInit {
         },
         error: () => {
           this.snackBar.open('Failed to create organization', 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
+  openEditOrganizationDialog(orgId: OrganizationId): void {
+    const organization = this.organizations.find((org) => org.id.value === orgId.value);
+    if (!organization) return;
+    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+      width: '400px',
+      data: { currentName: organization.name },
+    });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const command = createUpdateOrganizationNameCommand(orgId, name);
+      this.deviceCommandService.handleUpdateOrganizationName(command).subscribe({
+        next: () => {
+          this.snackBar.open('Organization updated', 'Close', { duration: 3000 });
+          this.loadOrganizations();
+        },
+        error: () => {
+          this.snackBar.open('Failed to update organization', 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
+  openDeleteOrganizationDialog(orgId: OrganizationId): void {
+    const dialogRef = this.dialog.open(DeleteOrganizationDialogComponent, { width: '400px' });
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      const command = createDeleteOrganizationCommand(orgId);
+      this.deviceCommandService.handleDeleteOrganization(command).subscribe({
+        next: () => {
+          this.snackBar.open('Organization deleted', 'Close', { duration: 3000 });
+          if (this.selectedOrganizationId?.value === orgId.value) {
+            this.selectedOrganizationId = null;
+            this.selectedOrganization = null;
+            this.selectedSpaceId = null;
+            this.devicesPage = null;
+          }
+          this.loadOrganizations();
+        },
+        error: () => {
+          this.snackBar.open('Failed to delete organization', 'Close', { duration: 3000 });
         },
       });
     });

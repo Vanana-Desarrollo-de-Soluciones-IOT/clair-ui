@@ -29,6 +29,8 @@ export class OrganizationsBarComponent implements OnInit {
   @Output() organizationToggled = new EventEmitter<OrganizationId>();
   @Output() spaceSelected = new EventEmitter<SpaceId>();
   @Output() addSpaceRequested = new EventEmitter<OrganizationId>();
+  @Output() editOrganizationRequested = new EventEmitter<OrganizationId>();
+  @Output() deleteOrganizationRequested = new EventEmitter<OrganizationId>();
   @Output() addOrganizationRequested = new EventEmitter<void>();
 
   ngOnInit(): void {}
@@ -43,6 +45,14 @@ export class OrganizationsBarComponent implements OnInit {
 
   openAddSpaceDialog(orgId: OrganizationId): void {
     this.addSpaceRequested.emit(orgId);
+  }
+
+  openEditOrganizationDialog(orgId: OrganizationId): void {
+    this.editOrganizationRequested.emit(orgId);
+  }
+
+  openDeleteOrganizationDialog(orgId: OrganizationId): void {
+    this.deleteOrganizationRequested.emit(orgId);
   }
 
   openAddOrganizationDialog(): void {
