@@ -64,7 +64,7 @@ export class SidebarComponent implements OnInit {
 
           this.billingQueryService.handleGetUserPlan(query).subscribe({
             next: (domainPlan) => {
-              this.isUpgradeVisible = domainPlan.plan === 'VISITOR' || domainPlan.plan === 'FREEMIUM';
+              this.isUpgradeVisible = domainPlan.plan === 'FREEMIUM';
               this.cdr.markForCheck();
             },
             error: (err) => console.error('Failed to get user plan', err)

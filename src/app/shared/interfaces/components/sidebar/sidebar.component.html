@@ -7,14 +7,8 @@
 
   <!-- Navigation -->
   <nav class="nav-list">
-    <a
-      *ngFor="let item of navItems"
-      class="nav-item"
-      [routerLink]="item.route || null"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      (click)="onNavItemClick()"
-    >
+    <a *ngFor="let item of navItems" class="nav-item" [routerLink]="item.route || null" routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
       <div [ngSwitch]="item.component" class="icon-container">
         <app-overview *ngSwitchCase="'overview'" class="nav-icon"></app-overview>
         <app-air-quality *ngSwitchCase="'air-quality'" class="nav-icon"></app-air-quality>
@@ -24,15 +18,19 @@
       </div>
       <span *ngIf="isOpen">{{ item.label }}</span>
     </a>
+
   </nav>
+  <!-- Upgrade Plan -->
+  <a *ngIf="isUpgradeVisible" class="nav-item upgrade-btn" routerLink="/select-plan" routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
+    <mat-icon>workspace_premium</mat-icon>
+    <span *ngIf="isOpen">Upgrade Plan</span>
+  </a>
 
   <!-- Settings -->
   <div class="settings-wrapper">
-    <a *ngIf="isUpgradeVisible" class="nav-item" routerLink="/select-plan" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
-      <mat-icon>workspace_premium</mat-icon>
-      <span *ngIf="isOpen">Upgrade Plan</span>
-    </a>
-    <a class="nav-item" routerLink="/settings" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
+    <a class="nav-item" routerLink="/settings" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      (click)="onNavItemClick()">
       <mat-icon>settings</mat-icon>
       <span *ngIf="isOpen">Settings</span>
     </a>
