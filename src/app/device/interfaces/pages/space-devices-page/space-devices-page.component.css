@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #0a0a0a;
+  background-color: #000000;
   color: #e5e5e5;
 }
 
@@ -28,7 +28,7 @@
 .org-panel {
   width: 280px;
   min-width: 280px;
-  background: #141414;
+  background: #000000;
   border-radius: 12px;
   padding: 1rem;
   display: flex;
