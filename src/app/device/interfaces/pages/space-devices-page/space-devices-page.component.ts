@@ -14,6 +14,7 @@ import { HeaderComponent } from '../../../../shared/interfaces/components/header
 import { DeviceCardComponent } from '../../components/device-card/device-card.component';
 import { AddOrganizationDialogComponent } from '../../components/add-organization-dialog/add-organization-dialog.component';
 import { AddSpaceDialogComponent } from '../../components/add-space-dialog/add-space-dialog.component';
+import { OrganizationsBarComponent } from '../../components/organizations-bar/organizations-bar.component';
 import { RegisterDeviceDialogComponent } from '../../components/register-device-dialog/register-device-dialog.component';
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
@@ -50,6 +51,7 @@ type ViewMode = 'grid' | 'list';
     SidebarComponent,
     HeaderComponent,
     DeviceCardComponent,
+    OrganizationsBarComponent,
   ],
   templateUrl: './space-devices-page.component.html',
   styleUrl: './space-devices-page.component.css',
@@ -82,13 +84,7 @@ export class SpaceDevicesPageComponent implements OnInit {
   errorSpaces = '';
   errorDevices = '';
 
-  searchControl = this.fb.control('');
-
-  get filteredOrganizations(): Organization[] {
-    const term = this.searchControl.value?.toLowerCase() ?? '';
-    if (!term) return this.organizations;
-    return this.organizations.filter((o) => o.name.toLowerCase().includes(term));
-  }
+  
 
   get selectedSpace(): Space | null {
     return this.spaces.find((s) => s.id.value === this.selectedSpaceId?.value) ?? null;
