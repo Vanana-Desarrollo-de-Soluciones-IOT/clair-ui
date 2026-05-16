@@ -1,0 +1,109 @@
+<div class="page-layout">
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
+
+  <div class="page-body">
+    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
+
+    <main class="content">
+      <div class="workspace">
+        <!-- Left panel: Organizations -->
+        <aside class="org-panel">
+          <h2 class="panel-title">Organizations</h2>
+
+          <div class="search-wrapper">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input type="text" placeholder="Search" class="search-input" [formControl]="searchControl" />
+          </div>
+
+          <div class="org-list">
+            <div *ngIf="loadingOrgs" class="loading-state">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Loading organizations...</span>
+            </div>
+            <div *ngIf="errorOrgs && !loadingOrgs" class="error-state">{{ errorOrgs }}</div>
+            <div *ngIf="!loadingOrgs && !errorOrgs && filteredOrganizations.length === 0" class="empty-state">
+              No organizations found.
+            </div>
+
+            <div *ngFor="let org of filteredOrganizations" class="org-item" [class.active]="org.id.value === selectedOrganizationId?.value" (click)="selectOrganization(org.id)">
+              <div class="org-row">
+                <span class="org-name">{{ org.name }}</span>
+                <span class="org-count">{{ spaces.length }} spaces</span>
+              </div>
+            </div>
+          </div>
+
+          <button mat-stroked-button class="add-org-button" (click)="openAddOrganizationDialog()">
+            <mat-icon>add_business</mat-icon>
+            Add Organization
+          </button>
+        </aside>
+
+        <!-- Right panel: Spaces & Devices -->
+        <section class="detail-panel">
+          <div *ngIf="selectedSpace" class="detail-header">
+            <div class="detail-title">
+              <h1>{{ selectedSpace.name }}</h1>
+              <p class="subtitle">Updates every minute</p>
+            </div>
+            <div class="detail-actions">
+              <div class="view-toggle">
+                <button mat-icon-button [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" aria-label="Grid view">
+                  <mat-icon>grid_view</mat-icon>
+                </button>
+                <button mat-icon-button [class.active]="viewMode === 'list'" (click)="setViewMode('list')" aria-label="List view">
+                  <mat-icon>view_list</mat-icon>
+                </button>
+              </div>
+              <button mat-fab color="primary" (click)="openAddSpaceDialog()" aria-label="Add space">
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-fab color="accent" (click)="openRegisterDeviceDialog()" aria-label="Register device">
+                <mat-icon>devices</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="!selectedSpace && !loadingSpaces" class="empty-state centered">
+            Select an organization with spaces to view devices.
+          </div>
+
+          <div *ngIf="loadingSpaces" class="loading-state centered">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Loading spaces...</span>
+          </div>
+
+          <div *ngIf="selectedSpace" class="spaces-bar">
+            <button
+              *ngFor="let space of spaces"
+              mat-button
+              [class.active-space]="space.id.value === selectedSpaceId?.value"
+              (click)="selectSpace(space.id)"
+            >
+              {{ space.name }}
+            </button>
+          </div>
+
+          <div *ngIf="loadingDevices" class="loading-state centered">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Loading devices...</span>
+          </div>
+
+          <div *ngIf="errorDevices && !loadingDevices" class="error-state centered">{{ errorDevices }}</div>
+
+          <div *ngIf="!loadingDevices && devicesPage && devicesPage.content.length === 0" class="empty-state centered">
+            No devices registered in this space.
+          </div>
+
+          <div *ngIf="!loadingDevices && devicesPage && devicesPage.content.length > 0" [class.device-grid]="viewMode === 'grid'" [class.device-list]="viewMode === 'list'">
+            <app-device-card
+              *ngFor="let device of devicesPage.content"
+              [device]="device"
+              [viewMode]="viewMode"
+            ></app-device-card>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>

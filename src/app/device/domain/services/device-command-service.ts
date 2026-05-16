@@ -1,0 +1,23 @@
+import { Observable } from 'rxjs';
+import { CreateOrganizationCommand } from '../model/commands/create-organization.command';
+import { CreateSpaceCommand } from '../model/commands/create-space.command';
+import { RegisterDeviceCommand } from '../model/commands/register-device.command';
+import { DeleteOrganizationCommand } from '../model/commands/delete-organization.command';
+import { DeleteSpaceCommand } from '../model/commands/delete-space.command';
+import { DeleteDeviceCommand } from '../model/commands/delete-device.command';
+import { UpdateDeviceStatusCommand } from '../model/commands/update-device-status.command';
+import { UpdateDeviceConfigurationCommand } from '../model/commands/update-device-configuration.command';
+import { Organization } from './device-query-service';
+import { Space } from './device-query-service';
+import { Device } from './device-query-service';
+
+export interface DeviceCommandService {
+  handleCreateOrganization(command: CreateOrganizationCommand): Observable<Organization>;
+  handleCreateSpace(command: CreateSpaceCommand): Observable<Space>;
+  handleRegisterDevice(command: RegisterDeviceCommand): Observable<Device>;
+  handleDeleteOrganization(command: DeleteOrganizationCommand): Observable<void>;
+  handleDeleteSpace(command: DeleteSpaceCommand): Observable<void>;
+  handleDeleteDevice(command: DeleteDeviceCommand): Observable<void>;
+  handleUpdateDeviceStatus(command: UpdateDeviceStatusCommand): Observable<void>;
+  handleUpdateDeviceConfiguration(command: UpdateDeviceConfigurationCommand): Observable<void>;
+}

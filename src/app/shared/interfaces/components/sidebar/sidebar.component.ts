@@ -38,6 +38,6 @@ export class SidebarComponent {
     { label: 'Air Quality', component: 'air-quality' },
     { label: 'Alerts & Actions', component: 'alerts-actions' },
     { label: 'Reports', component: 'reports' },
-    { label: 'Space & Devices', component: 'space-devices' },
+    { label: 'Space & Devices', component: 'space-devices', route: '/space-devices' },
   ];
 }

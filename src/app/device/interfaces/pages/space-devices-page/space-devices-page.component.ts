@@ -1,0 +1,254 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
+import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
+import { DeviceCardComponent } from '../../components/device-card/device-card.component';
+import { AddOrganizationDialogComponent } from '../../components/add-organization-dialog/add-organization-dialog.component';
+import { AddSpaceDialogComponent } from '../../components/add-space-dialog/add-space-dialog.component';
+import { RegisterDeviceDialogComponent } from '../../components/register-device-dialog/register-device-dialog.component';
+import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
+import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
+import { Organization, Space, DevicePage } from '../../../domain/services/device-query-service';
+import { OrganizationId, createOrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
+import { SpaceId, createSpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
+import { createGetOrganizationsByOwnerQuery } from '../../../domain/model/queries/get-organizations-by-owner.query';
+import { createGetSpacesByOrganizationQuery } from '../../../domain/model/queries/get-spaces-by-organization.query';
+import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
+import { createCreateOrganizationCommand } from '../../../domain/model/commands/create-organization.command';
+import { createCreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
+import { createRegisterDeviceCommand } from '../../../domain/model/commands/register-device.command';
+import { createSerialNumber } from '../../../domain/model/valueobjects/serial-number.value-object';
+import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
+import { jwtDecode } from 'jwt-decode';
+import { TOKEN_STORAGE_GATEWAY, TokenStorageGateway } from '../../../../iam/infrastructure/storage/token-storage.gateway';
+
+type ViewMode = 'grid' | 'list';
+
+@Component({
+  selector: 'app-space-devices-page',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    SidebarComponent,
+    HeaderComponent,
+    DeviceCardComponent,
+  ],
+  templateUrl: './space-devices-page.component.html',
+  styleUrl: './space-devices-page.component.css',
+})
+export class SpaceDevicesPageComponent implements OnInit {
+  private readonly deviceCommandService = inject(DeviceCommandServiceImpl);
+  private readonly deviceQueryService = inject(DeviceQueryServiceImpl);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly tokenStorage = inject<TokenStorageGateway>(TOKEN_STORAGE_GATEWAY);
+  private readonly fb = inject(FormBuilder);
+
+  isSidebarOpen = true;
+
+  organizations: Organization[] = [];
+  selectedOrganizationId: OrganizationId | null = null;
+
+  spaces: Space[] = [];
+  selectedSpaceId: SpaceId | null = null;
+
+  devicesPage: DevicePage | null = null;
+  viewMode: ViewMode = 'grid';
+
+  loadingOrgs = false;
+  loadingSpaces = false;
+  loadingDevices = false;
+
+  errorOrgs = '';
+  errorSpaces = '';
+  errorDevices = '';
+
+  searchControl = this.fb.control('');
+
+  get filteredOrganizations(): Organization[] {
+    const term = this.searchControl.value?.toLowerCase() ?? '';
+    if (!term) return this.organizations;
+    return this.organizations.filter((o) => o.name.toLowerCase().includes(term));
+  }
+
+  get selectedSpace(): Space | null {
+    return this.spaces.find((s) => s.id.value === this.selectedSpaceId?.value) ?? null;
+  }
+
+  ngOnInit(): void {
+    this.loadOrganizations();
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
+
+  private getCurrentUserId(): string | null {
+    const token = this.tokenStorage.getAccessToken();
+    if (!token) return null;
+    try {
+      const payload = jwtDecode<{ sub: string }>(token);
+      return payload.sub ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  loadOrganizations(): void {
+    this.loadingOrgs = true;
+    this.errorOrgs = '';
+    const userId = this.getCurrentUserId();
+    const query = createGetOrganizationsByOwnerQuery(
+      createUserId(userId ?? 'unknown')
+    );
+    this.deviceQueryService.handleGetOrganizationsByOwner(query).subscribe({
+      next: (orgs) => {
+        this.organizations = orgs;
+        this.loadingOrgs = false;
+        if (orgs.length > 0 && !this.selectedOrganizationId) {
+          this.selectOrganization(orgs[0].id);
+        }
+      },
+      error: (err) => {
+        this.errorOrgs = 'Failed to load organizations';
+        this.loadingOrgs = false;
+      },
+    });
+  }
+
+  selectOrganization(orgId: OrganizationId): void {
+    this.selectedOrganizationId = orgId;
+    this.loadSpaces(orgId);
+  }
+
+  loadSpaces(orgId: OrganizationId): void {
+    this.loadingSpaces = true;
+    this.errorSpaces = '';
+    this.spaces = [];
+    this.selectedSpaceId = null;
+    this.devicesPage = null;
+    const query = createGetSpacesByOrganizationQuery(orgId);
+    this.deviceQueryService.handleGetSpacesByOrganization(query).subscribe({
+      next: (spaces) => {
+        this.spaces = spaces;
+        this.loadingSpaces = false;
+        if (spaces.length > 0) {
+          this.selectSpace(spaces[0].id);
+        }
+      },
+      error: (err) => {
+        this.errorSpaces = 'Failed to load spaces';
+        this.loadingSpaces = false;
+      },
+    });
+  }
+
+  selectSpace(spaceId: SpaceId): void {
+    this.selectedSpaceId = spaceId;
+    this.loadDevices(spaceId);
+  }
+
+  loadDevices(spaceId: SpaceId): void {
+    this.loadingDevices = true;
+    this.errorDevices = '';
+    this.devicesPage = null;
+    const query = createGetDevicesBySpaceQuery(spaceId, 0, 50);
+    this.deviceQueryService.handleGetDevicesBySpace(query).subscribe({
+      next: (page) => {
+        this.devicesPage = page;
+        this.loadingDevices = false;
+      },
+      error: (err) => {
+        this.errorDevices = 'Failed to load devices';
+        this.loadingDevices = false;
+      },
+    });
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+  }
+
+  openAddOrganizationDialog(): void {
+    const dialogRef = this.dialog.open(AddOrganizationDialogComponent, { width: '400px' });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const userId = this.getCurrentUserId();
+      if (!userId) return;
+      const command = createCreateOrganizationCommand(name, createUserId(userId));
+      this.deviceCommandService.handleCreateOrganization(command).subscribe({
+        next: () => {
+          this.snackBar.open('Organization created', 'Close', { duration: 3000 });
+          this.loadOrganizations();
+        },
+        error: () => {
+          this.snackBar.open('Failed to create organization', 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
+  openAddSpaceDialog(): void {
+    if (!this.selectedOrganizationId) return;
+    const dialogRef = this.dialog.open(AddSpaceDialogComponent, { width: '400px' });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const userId = this.getCurrentUserId();
+      if (!userId) return;
+      const command = createCreateSpaceCommand(name, this.selectedOrganizationId!, createUserId(userId));
+      this.deviceCommandService.handleCreateSpace(command).subscribe({
+        next: () => {
+          this.snackBar.open('Space created', 'Close', { duration: 3000 });
+          this.loadSpaces(this.selectedOrganizationId!);
+        },
+        error: () => {
+          this.snackBar.open('Failed to create space', 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
+  openRegisterDeviceDialog(): void {
+    if (!this.selectedSpaceId) return;
+    const dialogRef = this.dialog.open(RegisterDeviceDialogComponent, { width: '400px' });
+    dialogRef.afterClosed().subscribe((result: { serialNumber: string; name: string } | undefined) => {
+      if (!result) return;
+      const command = createRegisterDeviceCommand(
+        createSerialNumber(result.serialNumber),
+        result.name,
+        this.selectedSpaceId!
+      );
+      this.deviceCommandService.handleRegisterDevice(command).subscribe({
+        next: () => {
+          this.snackBar.open('Device registered', 'Close', { duration: 3000 });
+          this.loadDevices(this.selectedSpaceId!);
+        },
+        error: () => {
+          this.snackBar.open('Failed to register device', 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+}

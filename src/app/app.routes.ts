@@ -18,4 +18,5 @@ export const routes: Routes = [
   { path: 'settings', component: SettingsPageComponent, canActivate: [authGuard] },
   { path: 'billing/select-plan', loadComponent: () => import('./billing/interfaces/pages/select-plan/select-plan.component').then(c => c.SelectPlanComponent), canActivate: [authGuard] },
   { path: 'billing/checkout-premium', loadComponent: () => import('./billing/interfaces/pages/premium-checkout/premium-checkout.component').then(c => c.PremiumCheckoutComponent), canActivate: [authGuard] },
+  { path: 'space-devices', loadComponent: () => import('./device/interfaces/pages/space-devices-page/space-devices-page.component').then(c => c.SpaceDevicesPageComponent), canActivate: [authGuard] },
 ];
