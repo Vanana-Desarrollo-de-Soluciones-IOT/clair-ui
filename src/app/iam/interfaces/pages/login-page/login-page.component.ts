@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
 import { GoogleIconComponent } from '../../../../shared/interfaces/components/icons/google/google-icon.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
@@ -30,6 +31,7 @@ import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastruct
     MatIconModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatSnackBarModule,
     RouterLink,
     ClairLogoComponent,
     GoogleIconComponent,
@@ -42,6 +44,7 @@ export class LoginPageComponent {
   private readonly authCommandService = inject(AuthCommandServiceImpl);
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -80,6 +83,7 @@ export class LoginPageComponent {
           console.log('[Login] Success');
           this.loading = false;
           this.tokenStorage.setTokens(result.accessToken.value, result.refreshToken.value);
+          this.snackBar.open('Login successful', 'Close', { duration: 2500 });
           this.router.navigate(['/']);
         },
         error: (err) => {
@@ -91,6 +95,10 @@ export class LoginPageComponent {
             this.errorMessage = 'Cannot connect to server. Is the backend running?';
           } else {
             this.errorMessage = err?.error?.message || 'An unexpected error occurred. Please try again.';
+          }
+
+          if (this.errorMessage) {
+            this.snackBar.open(this.errorMessage, 'Close', { duration: 4000 });
           }
         },
       });

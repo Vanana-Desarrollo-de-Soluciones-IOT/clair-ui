@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
@@ -12,7 +14,16 @@ import { TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-sto
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, SidebarComponent, HeaderComponent],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    SidebarComponent,
+    HeaderComponent,
+  ],
   templateUrl: './settings-page.component.html',
   styleUrl: './settings-page.component.css',
 })
@@ -20,6 +31,7 @@ export class SettingsPageComponent {
   private readonly router = inject(Router);
   private readonly authCommandService = inject(AuthCommandServiceImpl);
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
+  private readonly snackBar = inject(MatSnackBar);
 
   isLoggingOut = false;
   isSidebarOpen = true;
@@ -48,6 +60,7 @@ export class SettingsPageComponent {
     this.tokenStorage.clearTokens();
     this.statusMessage = message;
     this.isLoggingOut = false;
+    this.snackBar.open(message, 'Close', { duration: 3000 });
     this.router.navigate(['/login']);
   }
 }

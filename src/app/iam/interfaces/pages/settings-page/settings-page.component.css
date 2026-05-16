@@ -40,6 +40,11 @@ p {
   margin-bottom: 0;
 }
 
+.logout-spinner {
+  display: inline-block;
+  margin: 0 8px;
+}
+
 @media (max-width: 768px) {
   .content {
     padding: 16px;

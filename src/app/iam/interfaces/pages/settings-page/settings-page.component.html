@@ -11,6 +11,7 @@
 
         <button mat-flat-button color="warn" [disabled]="isLoggingOut" (click)="logout()">
           <mat-icon>logout</mat-icon>
+          <mat-spinner *ngIf="isLoggingOut" diameter="16" class="logout-spinner"></mat-spinner>
           {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
         </button>
 

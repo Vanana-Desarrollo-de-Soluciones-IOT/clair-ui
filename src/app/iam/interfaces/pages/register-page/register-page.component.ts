@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
 import { GoogleIconComponent } from '../../../../shared/interfaces/components/icons/google/google-icon.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
@@ -31,6 +32,7 @@ import { createSignUpCommand } from '../../../domain/model/commands/sign-up.comm
     MatProgressSpinnerModule,
     MatDividerModule,
     MatCheckboxModule,
+    MatSnackBarModule,
     RouterLink,
     ClairLogoComponent,
     GoogleIconComponent,
@@ -42,6 +44,7 @@ export class RegisterPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authCommandService = inject(AuthCommandServiceImpl);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   registerForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -72,16 +75,19 @@ export class RegisterPageComponent {
       this.authCommandService.handleSignUp(command).subscribe({
         next: (result) => {
           this.loading = false;
+          this.snackBar.open('Registration successful. Check your email to confirm.', 'Close', { duration: 3000 });
           this.router.navigate(['/confirm'], { queryParams: { sessionId: result.sessionId } });
         },
         error: (err) => {
           this.loading = false;
           this.errorMessage = err?.error?.message || 'Registration failed. Please try again.';
+          this.snackBar.open(this.errorMessage ?? 'Registration failed. Please try again.', 'Close', { duration: 4000 });
         },
       });
     } catch (err: any) {
       this.loading = false;
       this.errorMessage = err.message || 'Validation error';
+      this.snackBar.open(this.errorMessage ?? 'Validation error', 'Close', { duration: 4000 });
     }
   }
 
