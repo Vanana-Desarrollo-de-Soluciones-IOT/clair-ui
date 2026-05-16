@@ -9,11 +9,15 @@
         <!-- Left panel: Organizations -->
         <app-organizations-bar
           [organizations]="organizations"
-          [selectedOrganizationId]="selectedOrganizationId"
-          [loadingOrgs]="loadingOrgs"
-          [errorOrgs]="errorOrgs"
-          [spaceCount]="spaces.length"
-          (organizationSelected)="selectOrganization($event)"
+          [expandedOrganizationIds]="expandedOrganizationIds"
+          [spacesByOrganizationId]="spacesByOrganizationId"
+          [loadingSpacesByOrganizationId]="loadingSpacesByOrganizationId"
+          [errorSpacesByOrganizationId]="errorSpacesByOrganizationId"
+          [deviceCountsBySpaceId]="deviceCountsBySpaceId"
+          [selectedSpaceId]="selectedSpaceId?.value ?? null"
+          (organizationToggled)="toggleOrganization($event)"
+          (spaceSelected)="selectSpace($event)"
+          (addSpaceRequested)="openAddSpaceDialog($event)"
           (addOrganizationRequested)="openAddOrganizationDialog()"
         ></app-organizations-bar>
 
@@ -44,22 +48,6 @@
 
           <div *ngIf="!selectedSpace && !loadingSpaces" class="empty-state centered">
             Select an organization with spaces to view devices.
-          </div>
-
-          <div *ngIf="loadingSpaces" class="loading-state centered">
-            <mat-spinner diameter="24"></mat-spinner>
-            <span>Loading spaces...</span>
-          </div>
-
-          <div *ngIf="selectedSpace" class="spaces-bar">
-            <button
-              *ngFor="let space of spaces"
-              mat-button
-              [class.active-space]="space.id.value === selectedSpaceId?.value"
-              (click)="selectSpace(space.id)"
-            >
-              {{ space.name }}
-            </button>
           </div>
 
           <div *ngIf="loadingDevices" class="loading-state centered">

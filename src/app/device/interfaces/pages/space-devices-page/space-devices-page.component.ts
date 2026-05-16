@@ -31,6 +31,8 @@ import { createSerialNumber } from '../../../domain/model/valueobjects/serial-nu
 import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
 import { jwtDecode } from 'jwt-decode';
 import { TOKEN_STORAGE_GATEWAY, TokenStorageGateway } from '../../../../iam/infrastructure/storage/token-storage.gateway';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 type ViewMode = 'grid' | 'list';
 
@@ -69,9 +71,14 @@ export class SpaceDevicesPageComponent implements OnInit {
 
   organizations: Organization[] = [];
   selectedOrganizationId: OrganizationId | null = null;
+  selectedOrganization: Organization | null = null;
 
   spaces: Space[] = [];
   selectedSpaceId: SpaceId | null = null;
+  expandedOrganizationIds: Record<string, boolean> = {};
+  spacesByOrganizationId: Record<string, Space[]> = {};
+  loadingSpacesByOrganizationId: Record<string, boolean> = {};
+  errorSpacesByOrganizationId: Record<string, string> = {};
 
   devicesPage: DevicePage | null = null;
   viewMode: ViewMode = 'grid';
@@ -83,6 +90,7 @@ export class SpaceDevicesPageComponent implements OnInit {
   errorOrgs = '';
   errorSpaces = '';
   errorDevices = '';
+  deviceCountsBySpaceId: Record<string, number> = {};
 
   
 
@@ -126,6 +134,7 @@ export class SpaceDevicesPageComponent implements OnInit {
         this.organizations = orgs;
         this.loadingOrgs = false;
         if (orgs.length > 0 && !this.selectedOrganizationId) {
+          this.expandedOrganizationIds = { ...this.expandedOrganizationIds, [orgs[0].id.value]: true };
           this.selectOrganization(orgs[0].id);
         }
         this.cdr.markForCheck();
@@ -140,31 +149,88 @@ export class SpaceDevicesPageComponent implements OnInit {
 
   selectOrganization(orgId: OrganizationId): void {
     this.selectedOrganizationId = orgId;
+    this.selectedOrganization = this.organizations.find((org) => org.id.value === orgId.value) ?? null;
     this.loadSpaces(orgId);
   }
 
+  toggleOrganization(orgId: OrganizationId): void {
+    const key = orgId.value;
+    this.expandedOrganizationIds = {
+      ...this.expandedOrganizationIds,
+      [key]: !this.expandedOrganizationIds[key],
+    };
+
+    if (this.expandedOrganizationIds[key] && !this.spacesByOrganizationId[key] && !this.loadingSpacesByOrganizationId[key]) {
+      this.loadSpaces(orgId);
+    }
+  }
+
   loadSpaces(orgId: OrganizationId): void {
-    this.loadingSpaces = true;
-    this.errorSpaces = '';
-    this.spaces = [];
-    this.selectedSpaceId = null;
-    this.devicesPage = null;
+    const key = orgId.value;
+    this.loadingSpacesByOrganizationId = {
+      ...this.loadingSpacesByOrganizationId,
+      [key]: true,
+    };
+    this.errorSpacesByOrganizationId = {
+      ...this.errorSpacesByOrganizationId,
+      [key]: '',
+    };
     this.cdr.markForCheck();
     const query = createGetSpacesByOrganizationQuery(orgId);
     this.deviceQueryService.handleGetSpacesByOrganization(query).subscribe({
       next: (spaces) => {
-        this.spaces = spaces;
-        this.loadingSpaces = false;
-        if (spaces.length > 0) {
-          this.selectSpace(spaces[0].id);
+        this.spacesByOrganizationId = {
+          ...this.spacesByOrganizationId,
+          [key]: spaces,
+        };
+        this.loadingSpacesByOrganizationId = {
+          ...this.loadingSpacesByOrganizationId,
+          [key]: false,
+        };
+        this.loadDeviceCountsForSpaces(spaces);
+        if (orgId.value === this.selectedOrganizationId?.value) {
+          this.spaces = spaces;
+          this.selectedSpaceId = spaces.length > 0 ? spaces[0].id : null;
+          this.devicesPage = null;
+          if (spaces.length > 0) {
+            this.loadDevices(spaces[0].id);
+          }
         }
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.errorSpaces = 'Failed to load spaces';
-        this.loadingSpaces = false;
+        this.errorSpacesByOrganizationId = {
+          ...this.errorSpacesByOrganizationId,
+          [key]: 'Failed to load spaces',
+        };
+        this.loadingSpacesByOrganizationId = {
+          ...this.loadingSpacesByOrganizationId,
+          [key]: false,
+        };
         this.cdr.markForCheck();
       },
+    });
+  }
+
+  private loadDeviceCountsForSpaces(spaces: Space[]): void {
+    if (spaces.length === 0) {
+      this.deviceCountsBySpaceId = {};
+      return;
+    }
+
+    const requests = spaces.map((space) =>
+      this.deviceQueryService.handleGetDevicesBySpace(createGetDevicesBySpaceQuery(space.id, 0, 1)).pipe(
+        map((page) => ({ spaceId: space.id.value, totalElements: page.totalElements })),
+        catchError(() => of({ spaceId: space.id.value, totalElements: 0 }))
+      )
+    );
+
+    forkJoin(requests).subscribe((results) => {
+      this.deviceCountsBySpaceId = results.reduce<Record<string, number>>((acc, item) => {
+        acc[item.spaceId] = item.totalElements;
+        return acc;
+      }, {});
+      this.cdr.markForCheck();
     });
   }
 
@@ -216,18 +282,19 @@ export class SpaceDevicesPageComponent implements OnInit {
     });
   }
 
-  openAddSpaceDialog(): void {
-    if (!this.selectedOrganizationId) return;
+  openAddSpaceDialog(orgId?: OrganizationId): void {
+    const organizationId = orgId ?? this.selectedOrganizationId;
+    if (!organizationId) return;
     const dialogRef = this.dialog.open(AddSpaceDialogComponent, { width: '400px' });
     dialogRef.afterClosed().subscribe((name: string | undefined) => {
       if (!name) return;
       const userId = this.getCurrentUserId();
       if (!userId) return;
-      const command = createCreateSpaceCommand(name, this.selectedOrganizationId!, createUserId(userId));
+      const command = createCreateSpaceCommand(name, organizationId, createUserId(userId));
       this.deviceCommandService.handleCreateSpace(command).subscribe({
         next: () => {
           this.snackBar.open('Space created', 'Close', { duration: 3000 });
-          this.loadSpaces(this.selectedOrganizationId!);
+          this.loadSpaces(organizationId);
         },
         error: () => {
           this.snackBar.open('Failed to create space', 'Close', { duration: 3000 });

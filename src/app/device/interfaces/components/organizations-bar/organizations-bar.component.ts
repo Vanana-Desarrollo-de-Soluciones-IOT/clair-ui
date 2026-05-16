@@ -1,10 +1,9 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Organization } from '../../../domain/services/device-query-service';
+import { Organization, Space } from '../../../domain/services/device-query-service';
+import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { OrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
 
 @Component({
@@ -12,8 +11,6 @@ import { OrganizationId } from '../../../domain/model/valueobjects/organization-
   standalone: true,
   imports: [
     CommonModule,
-    MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
     MatProgressSpinnerModule,
   ],
@@ -22,23 +19,41 @@ import { OrganizationId } from '../../../domain/model/valueobjects/organization-
 })
 export class OrganizationsBarComponent implements OnInit {
   @Input() organizations: Organization[] = [];
-  @Input() selectedOrganizationId: OrganizationId | null = null;
-  @Input() loadingOrgs = false;
-  @Input() errorOrgs = '';
-  @Input() spaceCount = 0;
+  @Input() expandedOrganizationIds: Record<string, boolean> = {};
+  @Input() spacesByOrganizationId: Record<string, Space[]> = {};
+  @Input() loadingSpacesByOrganizationId: Record<string, boolean> = {};
+  @Input() errorSpacesByOrganizationId: Record<string, string> = {};
+  @Input() deviceCountsBySpaceId: Record<string, number> = {};
+  @Input() selectedSpaceId: string | null = null;
 
-  @Output() organizationSelected = new EventEmitter<OrganizationId>();
+  @Output() organizationToggled = new EventEmitter<OrganizationId>();
+  @Output() spaceSelected = new EventEmitter<SpaceId>();
+  @Output() addSpaceRequested = new EventEmitter<OrganizationId>();
   @Output() addOrganizationRequested = new EventEmitter<void>();
-
-  private readonly cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {}
 
-  selectOrganization(orgId: OrganizationId): void {
-    this.organizationSelected.emit(orgId);
+  toggleOrganization(orgId: OrganizationId): void {
+    this.organizationToggled.emit(orgId);
+  }
+
+  selectSpace(spaceId: SpaceId): void {
+    this.spaceSelected.emit(spaceId);
+  }
+
+  openAddSpaceDialog(orgId: OrganizationId): void {
+    this.addSpaceRequested.emit(orgId);
   }
 
   openAddOrganizationDialog(): void {
     this.addOrganizationRequested.emit();
+  }
+
+  trackBySpaceId(_: number, space: Space): string {
+    return space.id.value;
+  }
+
+  trackByOrganizationId(_: number, organization: Organization): string {
+    return organization.id.value;
   }
 }
