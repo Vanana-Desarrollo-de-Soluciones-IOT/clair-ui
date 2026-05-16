@@ -1,0 +1,112 @@
+.payment-modal-container {
+  background-color: #141414;
+  padding: 2rem;
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: var(--app-font-body);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.modal-title {
+  font-family: var(--app-font-headline);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.form-label {
+  font-family: var(--app-font-headline);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.custom-input {
+  background-color: transparent;
+  border: 1px solid #757676;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: var(--app-font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.custom-input::placeholder {
+  color: #757676;
+}
+
+.custom-input:focus-within {
+  border-color: #ffffff;
+}
+
+.stripe-element {
+  padding: 0.85rem 1rem; /* Adjust padding for Stripe Elements */
+}
+
+#card-errors {
+  color: #ff5252;
+  font-size: 0.875rem;
+  margin-top: -0.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-cancel, .btn-add {
+  flex: 1;
+  padding: 0.75rem 0;
+  border-radius: 8px;
+  font-family: var(--app-font-headline);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background-color: transparent;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+.btn-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-add {
+  background-color: #ffffff;
+  border: 1px solid #ffffff;
+  color: #000000;
+}
+
+.btn-add:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-add:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

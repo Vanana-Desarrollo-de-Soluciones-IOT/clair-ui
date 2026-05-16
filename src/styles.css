@@ -121,3 +121,19 @@ label {
 .mat-mdc-form-field-subscript-wrapper {
   height: auto;
 }
+
+/* Custom Snackbar Styles */
+.subtle-snackbar {
+  --mdc-snackbar-container-color: #141414;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+  border: 1px solid #757676;
+  border-radius: 8px;
+}
+.subtle-snackbar .mdc-snackbar__surface {
+  border-radius: 8px;
+}
+.subtle-snackbar .mat-mdc-button {
+  font-family: var(--app-font-headline);
+  font-weight: 700;
+}

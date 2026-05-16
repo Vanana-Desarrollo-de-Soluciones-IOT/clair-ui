@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Location } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { PaymentModalComponent } from '../../components/payment-modal/payment-modal.component';
 
 @Component({
   selector: 'app-premium-checkout',
@@ -11,7 +13,7 @@ import { Location } from '@angular/common';
 export class PremiumCheckoutComponent {
   autorenewDate: string;
 
-  constructor(private location: Location) {
+  constructor(private location: Location, private dialog: MatDialog) {
     const date = new Date();
     date.setDate(date.getDate() + 20);
     this.autorenewDate = date.toLocaleDateString('en-GB'); // dd/mm/yyyy format
@@ -22,6 +24,10 @@ export class PremiumCheckoutComponent {
   }
 
   onPress() {
-    console.log('Action triggered');
+    this.dialog.open(PaymentModalComponent, {
+      width: '400px',
+      panelClass: 'custom-dialog-container',
+      disableClose: true
+    });
   }
 }
