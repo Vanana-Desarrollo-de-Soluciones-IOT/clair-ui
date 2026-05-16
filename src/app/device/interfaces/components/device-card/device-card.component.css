@@ -1,103 +1,56 @@
-.device-card {
+.device-card,
+.device-list-item {
   background: #141414;
-  color: #e5e5e5;
   border: 1px solid #262626;
-  border-radius: 12px;
-  padding: 0.75rem;
+  color: #e5e5e5;
+}
+
+.device-card {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 12px;
 }
 
-.card-header {
+.card-header,
+.card-body,
+.card-footer,
+.device-list-item,
+.list-info,
+.list-meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
+.card-header,
+.device-list-item { justify-content: space-between; }
+.card-body { gap: 0.5rem; }
+.card-footer { gap: 0.4rem; font-size: 0.75rem; }
+.card-footer,
+.list-meta,
+.list-serial { color: #9ca3af; }
+
 .badge {
   background: #262626;
-  color: #e5e5e5;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
 }
 
-.card-body {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+.device-name { margin: 0; font-size: 1.1rem; font-weight: 600; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; }
+.footer-icon { font-size: 0.9rem; width: 0.9rem; height: 0.9rem; }
+.footer-text { flex: 1; }
 
-.device-name {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #9ca3af;
-  font-size: 0.75rem;
-}
-
-.footer-icon {
-  font-size: 0.9rem;
-  width: 0.9rem;
-  height: 0.9rem;
-}
-
-.footer-text {
-  flex: 1;
-}
-
-/* List view */
 .device-list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #141414;
-  border: 1px solid #262626;
   border-radius: 10px;
   padding: 0.75rem 1rem;
 }
 
-.list-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.list-name {
-  font-weight: 600;
-  min-width: 120px;
-}
-
-.list-serial {
-  color: #9ca3af;
-  font-size: 0.875rem;
-  min-width: 140px;
-}
-
-.list-status {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.list-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #9ca3af;
-  font-size: 0.8rem;
-}
+.list-info { gap: 1rem; }
+.list-name { font-weight: 600; min-width: 120px; }
+.list-serial { font-size: 0.875rem; min-width: 140px; }
+.list-status { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+.list-meta { gap: 0.5rem; font-size: 0.8rem; }
