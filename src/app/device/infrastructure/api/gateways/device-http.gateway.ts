@@ -10,6 +10,10 @@ import { CreateSpaceResource } from '../../../interfaces/rest/resources/create-s
 import { RegisterDeviceResource } from '../../../interfaces/rest/resources/register-device.resource';
 import { UpdateDeviceStatusResource } from '../../../interfaces/rest/resources/update-device-status.resource';
 import { UpdateDeviceConfigurationResource } from '../../../interfaces/rest/resources/update-device-configuration.resource';
+import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
+import { UpdateDeviceSerialNumberResource } from '../../../interfaces/rest/resources/update-device-serial-number.resource';
+import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
+import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
 import { API_CONFIG } from '../../../../api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -36,6 +40,10 @@ export class DeviceHttpGateway implements DeviceGateway {
     return this.http.delete<void>(`${this.orgUrl}/${organizationId}`);
   }
 
+  updateOrganizationName(organizationId: string, resource: UpdateOrganizationNameResource): Observable<void> {
+    return this.http.patch<void>(`${this.orgUrl}/${organizationId}/name`, resource);
+  }
+
   createSpace(organizationId: string, resource: CreateSpaceResource): Observable<SpaceResource> {
     return this.http.post<SpaceResource>(`${this.spaceUrl}?organizationId=${organizationId}`, resource);
   }
@@ -44,12 +52,20 @@ export class DeviceHttpGateway implements DeviceGateway {
     return this.http.get<SpaceResource[]>(`${this.spaceUrl}?organizationId=${organizationId}`);
   }
 
+  getSpacesByOwner(): Observable<SpaceResource[]> {
+    return this.http.get<SpaceResource[]>(this.spaceUrl);
+  }
+
   getSpaceById(spaceId: string): Observable<SpaceResource> {
     return this.http.get<SpaceResource>(`${this.spaceUrl}/${spaceId}`);
   }
 
   deleteSpace(spaceId: string): Observable<void> {
     return this.http.delete<void>(`${this.spaceUrl}/${spaceId}`);
+  }
+
+  updateSpaceName(spaceId: string, resource: UpdateSpaceNameResource): Observable<void> {
+    return this.http.patch<void>(`${this.spaceUrl}/${spaceId}/name`, resource);
   }
 
   registerDevice(resource: RegisterDeviceResource): Observable<DeviceResource> {
@@ -68,12 +84,24 @@ export class DeviceHttpGateway implements DeviceGateway {
     return this.http.get<DeviceResource>(`${this.deviceUrl}/${deviceId}`);
   }
 
+  getDeviceBySerialNumber(serialNumber: string): Observable<DeviceResource> {
+    return this.http.get<DeviceResource>(`${this.deviceUrl}/serial-number/${serialNumber}`);
+  }
+
   updateDeviceStatus(deviceId: string, resource: UpdateDeviceStatusResource): Observable<void> {
     return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/status`, resource);
   }
 
   updateDeviceConfiguration(deviceId: string, resource: UpdateDeviceConfigurationResource): Observable<void> {
     return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/configuration`, resource);
+  }
+
+  updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void> {
+    return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/name`, resource);
+  }
+
+  updateDeviceSerialNumber(deviceId: string, resource: UpdateDeviceSerialNumberResource): Observable<void> {
+    return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/serial-number`, resource);
   }
 
   deleteDevice(deviceId: string): Observable<void> {
