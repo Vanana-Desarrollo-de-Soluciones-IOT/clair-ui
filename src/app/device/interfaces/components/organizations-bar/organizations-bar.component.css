@@ -88,8 +88,8 @@
   font-size: 0.7rem;
 }
 
-.chevron { color: #9ca3af; transition: transform 0.2s ease; }
-.chevron.expanded { transform: rotate(180deg); }
+.chevron { color: #9ca3af; transform: rotate(-90deg); transition: transform 0.2s ease; }
+.chevron.expanded { transform: rotate(0deg); }
 
 .add-space-button {
   width: 14px;
