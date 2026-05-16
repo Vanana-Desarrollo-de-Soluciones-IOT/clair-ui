@@ -29,7 +29,5 @@
     *ngFor="let device of devicesPage.content"
     [device]="device"
     [viewMode]="viewMode"
-    (editNameRequested)="editDeviceNameRequested.emit($event)"
-    (editSerialNumberRequested)="editDeviceSerialNumberRequested.emit($event)"
   ></app-device-card>
 </div>
