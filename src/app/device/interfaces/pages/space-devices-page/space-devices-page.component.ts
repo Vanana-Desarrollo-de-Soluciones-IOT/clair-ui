@@ -95,7 +95,10 @@ export class SpaceDevicesPageComponent implements OnInit {
   
 
   get selectedSpace(): Space | null {
-    return this.spaces.find((s) => s.id.value === this.selectedSpaceId?.value) ?? null;
+    if (!this.selectedSpaceId) return null;
+    return Object.values(this.spacesByOrganizationId)
+      .flat()
+      .find((s) => s.id.value === this.selectedSpaceId?.value) ?? null;
   }
 
   ngOnInit(): void {
@@ -135,7 +138,7 @@ export class SpaceDevicesPageComponent implements OnInit {
         this.loadingOrgs = false;
         if (orgs.length > 0 && !this.selectedOrganizationId) {
           this.expandedOrganizationIds = { ...this.expandedOrganizationIds, [orgs[0].id.value]: true };
-          this.selectOrganization(orgs[0].id);
+          this.loadSpaces(orgs[0].id);
         }
         this.cdr.markForCheck();
       },
@@ -190,11 +193,6 @@ export class SpaceDevicesPageComponent implements OnInit {
         this.loadDeviceCountsForSpaces(spaces);
         if (orgId.value === this.selectedOrganizationId?.value) {
           this.spaces = spaces;
-          this.selectedSpaceId = spaces.length > 0 ? spaces[0].id : null;
-          this.devicesPage = null;
-          if (spaces.length > 0) {
-            this.loadDevices(spaces[0].id);
-          }
         }
         this.cdr.markForCheck();
       },

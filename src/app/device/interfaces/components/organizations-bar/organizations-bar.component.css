@@ -13,6 +13,7 @@
   box-sizing: border-box;
   gap: 0.75rem;
   padding: 1rem;
+  border-right: 1px solid #3f3f46;
   background: #000;
 }
 
@@ -64,6 +65,11 @@
   border: none;
   background: transparent;
   color: #e5e7eb;
+}
+
+.org-item--organization:hover,
+.org-item--organization:focus-within {
+  background: transparent;
 }
 
 .org-item--organization .org-row--organization {
