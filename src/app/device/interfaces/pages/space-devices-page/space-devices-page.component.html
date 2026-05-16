@@ -29,21 +29,24 @@
               <p class="subtitle">Updates every minute</p>
             </div>
             <div class="detail-actions">
-              <div class="view-toggle">
-                <button mat-icon-button [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" aria-label="Grid view">
-                  <mat-icon>grid_view</mat-icon>
-                </button>
-                <button mat-icon-button [class.active]="viewMode === 'list'" (click)="setViewMode('list')" aria-label="List view">
-                  <mat-icon>view_list</mat-icon>
-                </button>
-              </div>
-              <button mat-fab color="primary" (click)="openAddSpaceDialog()" aria-label="Add space">
+              <button mat-fab class="action-button action-button--primary" (click)="openRegisterDeviceDialog()" aria-label="Register device">
                 <mat-icon>add</mat-icon>
               </button>
-              <button mat-fab color="accent" (click)="openRegisterDeviceDialog()" aria-label="Register device">
-                <mat-icon>devices</mat-icon>
+              <button mat-fab class="action-button action-button--secondary" type="button" aria-label="More options">
+                <mat-icon>more_vert</mat-icon>
               </button>
             </div>
+          </div>
+
+          <div *ngIf="selectedSpace" class="view-toggle">
+            <button mat-button [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" aria-label="Grid view">
+              <mat-icon>grid_view</mat-icon>
+              Grid
+            </button>
+            <button mat-button [class.active]="viewMode === 'list'" (click)="setViewMode('list')" aria-label="List view">
+              <mat-icon>view_list</mat-icon>
+              List
+            </button>
           </div>
 
           <div *ngIf="!selectedSpace && !loadingSpaces" class="empty-state centered">

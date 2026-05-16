@@ -1,23 +1,28 @@
 .device-card,
 .device-list-item {
-  background: #141414;
-  border: 1px solid #262626;
+  background: #171717;
+  border: none;
   color: #e5e5e5;
 }
 
 .device-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  justify-content: space-between;
+  width: 270px;
+  min-height: 178px;
+  gap: 1.35rem;
+  padding: 1.1rem 1.25rem;
   border-radius: 12px;
+  box-sizing: border-box;
 }
 
 .card-header,
 .card-body,
 .card-footer,
 .device-list-item,
-.list-info,
+.list-main,
+.list-name-row,
 .list-meta {
   display: flex;
   align-items: center;
@@ -25,32 +30,58 @@
 
 .card-header,
 .device-list-item { justify-content: space-between; }
-.card-body { gap: 0.5rem; }
-.card-footer { gap: 0.4rem; font-size: 0.75rem; }
+.card-body { gap: 0.7rem; }
+.card-footer { gap: 0.5rem; font-size: 0.75rem; }
 .card-footer,
 .list-meta,
-.list-serial { color: #9ca3af; }
+.list-date { color: #9ca3af; }
 
 .badge {
-  background: #262626;
-  padding: 0.25rem 0.6rem;
+  background: #3f3f3f;
+  padding: 0.25rem 0.9rem;
   border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
-.device-name { margin: 0; font-size: 1.1rem; font-weight: 600; }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; }
-.footer-icon { font-size: 0.9rem; width: 0.9rem; height: 0.9rem; }
+.device-name { margin: 0; font-size: 1.55rem; font-weight: 700; }
+.signal-icon { color: #fff; font-size: 20px; width: 20px; height: 20px; }
+.status-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+.footer-icon { font-size: 1rem; width: 1rem; height: 1rem; }
 .footer-text { flex: 1; }
+.go-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #3a3a3a;
+  color: #fff;
+}
+.go-button mat-icon { margin: 0; font-size: 18px; width: 18px; height: 18px; line-height: 18px; }
 
 .device-list-item {
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
+  min-height: 110px;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-sizing: border-box;
 }
 
-.list-info { gap: 1rem; }
-.list-name { font-weight: 600; min-width: 120px; }
-.list-serial { font-size: 0.875rem; min-width: 140px; }
-.list-status { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-.list-meta { gap: 0.5rem; font-size: 0.8rem; }
+.list-main {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.list-name-row { gap: 0.75rem; }
+.list-name { color: #fff; font-size: 1.65rem; font-weight: 700; }
+.list-meta { gap: 0.6rem; font-size: 0.8rem; }
