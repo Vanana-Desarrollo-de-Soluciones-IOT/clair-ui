@@ -16,4 +16,6 @@ export const routes: Routes = [
   { path: 'overview', component: OverviewPageComponent, canActivate: [authGuard] },
   { path: 'home', redirectTo: 'overview', pathMatch: 'full' },
   { path: 'settings', component: SettingsPageComponent, canActivate: [authGuard] },
+  { path: 'billing/select-plan', loadComponent: () => import('./billing/interfaces/pages/select-plan/select-plan.component').then(c => c.SelectPlanComponent), canActivate: [authGuard] },
+  { path: 'billing/checkout-premium', loadComponent: () => import('./billing/interfaces/pages/premium-checkout/premium-checkout.component').then(c => c.PremiumCheckoutComponent), canActivate: [authGuard] },
 ];

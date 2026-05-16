@@ -1,0 +1,38 @@
+<div class="payment-modal-container">
+  <h2 class="modal-title">Payment method</h2>
+  
+  <div class="form-group">
+    <label class="form-label">Full name</label>
+    <input type="text" class="custom-input" placeholder="Name" [(ngModel)]="fullName" />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Address line</label>
+    <input type="text" class="custom-input" placeholder="Avenue" [(ngModel)]="addressLine" />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Card number</label>
+    <div id="card-number-element" class="custom-input stripe-element"></div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group half-width">
+      <label class="form-label">Expiration date</label>
+      <div id="card-expiry-element" class="custom-input stripe-element"></div>
+    </div>
+    <div class="form-group half-width">
+      <label class="form-label">Security code</label>
+      <div id="card-cvc-element" class="custom-input stripe-element"></div>
+    </div>
+  </div>
+
+  <div id="card-errors" role="alert" *ngIf="cardError">{{ cardError }}</div>
+
+  <div class="modal-actions">
+    <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+    <button class="btn-add" (click)="onAdd()" [disabled]="isProcessing">
+      {{ isProcessing ? 'Processing...' : 'Add' }}
+    </button>
+  </div>
+</div>
