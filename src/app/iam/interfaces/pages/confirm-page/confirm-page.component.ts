@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
 import { createVerificationCode } from '../../../domain/model/valueobjects/verification-code.value-object';
 import { createConfirmRegistrationCommand } from '../../../domain/model/commands/confirm-registration.command';
@@ -24,6 +25,7 @@ import { createConfirmRegistrationCommand } from '../../../domain/model/commands
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     RouterLink,
   ],
   templateUrl: './confirm-page.component.html',
@@ -34,6 +36,7 @@ export class ConfirmPageComponent implements OnInit {
   private readonly authCommandService = inject(AuthCommandServiceImpl);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   confirmForm: FormGroup = this.fb.group({
     code: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{4}-[A-Z0-9]{4}$')]],
@@ -48,6 +51,7 @@ export class ConfirmPageComponent implements OnInit {
     this.sessionId = this.route.snapshot.queryParamMap.get('sessionId');
     if (!this.sessionId) {
       this.errorMessage = 'Invalid registration session. Please register again.';
+      this.snackBar.open(this.errorMessage, 'Close', { duration: 4000 });
     }
   }
 
@@ -71,6 +75,7 @@ export class ConfirmPageComponent implements OnInit {
         next: () => {
           this.loading = false;
           this.successMessage = 'Account verified successfully. Redirecting to login...';
+          this.snackBar.open(this.successMessage, 'Close', { duration: 2500 });
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 1500);
@@ -78,11 +83,13 @@ export class ConfirmPageComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.errorMessage = err?.error?.message || 'Invalid verification code. Please try again.';
+          this.snackBar.open(this.errorMessage ?? 'Invalid verification code. Please try again.', 'Close', { duration: 4000 });
         },
       });
     } catch (err: any) {
       this.loading = false;
       this.errorMessage = err.message || 'Validation error';
+      this.snackBar.open(this.errorMessage ?? 'Validation error', 'Close', { duration: 4000 });
     }
   }
 }
