@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -60,6 +60,7 @@ export class SpaceDevicesPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly tokenStorage = inject<TokenStorageGateway>(TOKEN_STORAGE_GATEWAY);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly fb = inject(FormBuilder);
 
   isSidebarOpen = true;
@@ -119,6 +120,7 @@ export class SpaceDevicesPageComponent implements OnInit {
   loadOrganizations(): void {
     this.loadingOrgs = true;
     this.errorOrgs = '';
+    this.cdr.markForCheck();
     const userId = this.getCurrentUserId();
     const query = createGetOrganizationsByOwnerQuery(
       createUserId(userId ?? 'unknown')
@@ -130,10 +132,12 @@ export class SpaceDevicesPageComponent implements OnInit {
         if (orgs.length > 0 && !this.selectedOrganizationId) {
           this.selectOrganization(orgs[0].id);
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.errorOrgs = 'Failed to load organizations';
         this.loadingOrgs = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -149,6 +153,7 @@ export class SpaceDevicesPageComponent implements OnInit {
     this.spaces = [];
     this.selectedSpaceId = null;
     this.devicesPage = null;
+    this.cdr.markForCheck();
     const query = createGetSpacesByOrganizationQuery(orgId);
     this.deviceQueryService.handleGetSpacesByOrganization(query).subscribe({
       next: (spaces) => {
@@ -157,10 +162,12 @@ export class SpaceDevicesPageComponent implements OnInit {
         if (spaces.length > 0) {
           this.selectSpace(spaces[0].id);
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.errorSpaces = 'Failed to load spaces';
         this.loadingSpaces = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -174,15 +181,18 @@ export class SpaceDevicesPageComponent implements OnInit {
     this.loadingDevices = true;
     this.errorDevices = '';
     this.devicesPage = null;
+    this.cdr.markForCheck();
     const query = createGetDevicesBySpaceQuery(spaceId, 0, 50);
     this.deviceQueryService.handleGetDevicesBySpace(query).subscribe({
       next: (page) => {
         this.devicesPage = page;
         this.loadingDevices = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.errorDevices = 'Failed to load devices';
         this.loadingDevices = false;
+        this.cdr.markForCheck();
       },
     });
   }
