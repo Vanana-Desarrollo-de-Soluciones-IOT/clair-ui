@@ -81,7 +81,7 @@
   background: transparent;
 }
 
-.org-item--space { margin-left: 0.8rem; width: calc(100% - 0.8rem); }
+.org-item--space { margin-left: 2rem; width: calc(100% - 2rem); }
 .org-row--organization { padding-right: 0.25rem; }
 .org-name { color: #e5e7eb; font-size: 0.95rem; font-weight: 500; }
 

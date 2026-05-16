@@ -136,10 +136,6 @@ export class SpaceDevicesPageComponent implements OnInit {
       next: (orgs) => {
         this.organizations = orgs;
         this.loadingOrgs = false;
-        if (orgs.length > 0 && !this.selectedOrganizationId) {
-          this.expandedOrganizationIds = { ...this.expandedOrganizationIds, [orgs[0].id.value]: true };
-          this.loadSpaces(orgs[0].id);
-        }
         this.cdr.markForCheck();
       },
       error: (err) => {
