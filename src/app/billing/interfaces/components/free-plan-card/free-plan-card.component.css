@@ -17,8 +17,11 @@
 }
 
 .plan-icon {
-  width: 36px;
-  height: 36px;
+  font-size: 36px;
+  color: #ffffff;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
 
 .plan-title {
@@ -48,6 +51,7 @@
 .submit-button {
   width: 100%;
   padding: 1rem 0;
+  font-family: var(--app-font-headline);
   font-size: 1rem;
   font-weight: 700;
   border-radius: 8px;
@@ -85,4 +89,12 @@
   color: #757676;
   margin: 0;
   line-height: 1.5;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
 }
