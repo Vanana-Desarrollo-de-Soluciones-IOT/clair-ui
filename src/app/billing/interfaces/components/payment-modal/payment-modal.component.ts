@@ -5,8 +5,13 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { loadStripe, Stripe, StripeElements, StripeCardNumberElement, StripeCardExpiryElement, StripeCardCvcElement } from '@stripe/stripe-js';
 import { jwtDecode } from 'jwt-decode';
+import { firstValueFrom } from 'rxjs';
 import { TOKEN_STORAGE_GATEWAY, TokenStorageGateway } from '../../../../iam/infrastructure/storage/token-storage.gateway';
-import { environment } from '../../../../../environments/environment';
+import { BillingQueryServiceImpl } from '../../../application/internal/queryservices/billing-query-service.impl';
+import { BillingCommandServiceImpl } from '../../../application/internal/commandservices/billing-command-service.impl';
+import { createSubscriptionPaymentIntentCommand } from '../../../domain/model/commands/create-subscription-payment-intent.command';
+import { createGetStripePublicKeyQuery } from '../../../domain/model/queries/get-stripe-public-key.query';
+import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
 
 type AccessTokenPayload = {
   sub: string; // userId
@@ -39,6 +44,8 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
   constructor(
     public dialogRef: MatDialogRef<PaymentModalComponent>,
     @Inject(TOKEN_STORAGE_GATEWAY) private tokenStorage: TokenStorageGateway,
+    private billingQueryService: BillingQueryServiceImpl,
+    private billingCommandService: BillingCommandServiceImpl,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) { }
@@ -66,11 +73,10 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
 
   private async getStripePublicKey(): Promise<string | null> {
     try {
-      const response = await fetch(`${environment.apiBaseUrl}/config/stripe-public-key`);
-      if (!response.ok) return null;
-
-      const data = await response.json() as { stripePublicKey?: string };
-      return data.stripePublicKey ?? null;
+      const stripePublicKey = await firstValueFrom(
+        this.billingQueryService.handleGetStripePublicKey(createGetStripePublicKeyQuery())
+      );
+      return stripePublicKey.value;
     } catch (error) {
       console.error('Error loading Stripe public key', error);
       return null;
@@ -142,50 +148,37 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
     this.cardError = null;
 
     try {
-      const payload = {
-        userId: this.userId,
-        amount: 2990, // $29.90 in cents (or match your currency rules)
-        currency: 'usd',
-        returnUrl: window.location.origin + '/checkout-demo'
-      };
+      const data = await firstValueFrom(
+        this.billingCommandService.handleCreateSubscriptionPaymentIntent(
+          createSubscriptionPaymentIntentCommand(
+            createUserId(this.userId),
+            2990,
+            'usd',
+            window.location.origin + '/checkout-demo'
+          )
+        )
+      );
 
-      const response = await fetch('/api/v1/subscriptions/payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to create payment intent');
-      }
-
-      if (data.clientSecret) {
-        const result = await this.stripe.confirmCardPayment(data.clientSecret, {
-          payment_method: {
-            card: this.cardNumber,
-            billing_details: {
-              name: this.fullName,
-              address: {
-                line1: this.addressLine
-              }
+      const result = await this.stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: this.cardNumber,
+          billing_details: {
+            name: this.fullName,
+            address: {
+              line1: this.addressLine
             }
           }
-        });
-
-        if (result.error) {
-          this.cardError = result.error.message || 'Payment failed';
-        } else {
-          // Payment succeeded
-          this.snackBar.open('Payment successful! Your plan has been upgraded.', 'Close', {
-            duration: 5000,
-            panelClass: ['subtle-snackbar']
-          });
-          this.dialogRef.close(true);
         }
+      });
+
+      if (result.error) {
+        this.cardError = result.error.message || 'Payment failed';
+      } else {
+        this.snackBar.open('Payment successful! Your plan has been upgraded.', 'Close', {
+          duration: 5000,
+          panelClass: ['subtle-snackbar']
+        });
+        this.dialogRef.close(true);
       }
     } catch (error: any) {
       this.cardError = error.message || 'An unexpected error occurred';
