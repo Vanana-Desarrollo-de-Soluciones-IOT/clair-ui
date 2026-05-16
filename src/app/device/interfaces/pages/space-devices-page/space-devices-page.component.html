@@ -18,6 +18,8 @@
           <app-space-detail-header
             [space]="selectedSpace"
             (registerDeviceRequested)="openRegisterDeviceDialog()"
+            (editSpaceRequested)="openEditSpaceDialog()"
+            (deleteSpaceRequested)="openDeleteSpaceDialog()"
           ></app-space-detail-header>
 
           <app-device-list

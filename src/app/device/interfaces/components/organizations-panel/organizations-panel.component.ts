@@ -187,7 +187,7 @@ export class OrganizationsPanelComponent implements OnInit {
     });
   }
 
-  private loadSpaces(orgId: OrganizationId): void {
+  loadSpaces(orgId: OrganizationId): void {
     const key = orgId.value;
     this.loadingSpacesByOrganizationId = { ...this.loadingSpacesByOrganizationId, [key]: true };
     this.errorSpacesByOrganizationId = { ...this.errorSpacesByOrganizationId, [key]: '' };

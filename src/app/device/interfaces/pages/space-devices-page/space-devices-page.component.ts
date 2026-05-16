@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -9,6 +9,7 @@ import { RegisterDeviceDialogComponent } from '../../components/register-device-
 import { DeviceListComponent, DeviceViewMode } from '../../components/device-list/device-list.component';
 import { SpaceDetailHeaderComponent } from '../../components/space-detail-header/space-detail-header.component';
 import { EditNameDialogComponent } from '../../components/edit-name-dialog/edit-name-dialog.component';
+import { DeleteSpaceDialogComponent } from '../../components/delete-space-dialog/delete-space-dialog.component';
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
@@ -17,6 +18,8 @@ import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-
 import { createRegisterDeviceCommand } from '../../../domain/model/commands/register-device.command';
 import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
 import { createUpdateDeviceSerialNumberCommand } from '../../../domain/model/commands/update-device-serial-number.command';
+import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
+import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
 import { createSerialNumber } from '../../../domain/model/valueobjects/serial-number.value-object';
 
 @Component({
@@ -41,6 +44,8 @@ export class SpaceDevicesPageComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  @ViewChild(OrganizationsPanelComponent) orgPanel!: OrganizationsPanelComponent;
 
   isSidebarOpen = true;
   selectedSpace: Space | null = null;
@@ -134,6 +139,56 @@ export class SpaceDevicesPageComponent {
           this.loadDevices(device.spaceId);
         },
         error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device serial'), 'Close', { duration: 3000 }),
+      });
+    });
+  }
+
+  openEditSpaceDialog(): void {
+    if (!this.selectedSpace) return;
+    const dialogRef = this.dialog.open(EditNameDialogComponent, {
+      width: '400px',
+      data: {
+        currentValue: this.selectedSpace.name,
+        title: 'Edit Space',
+        fieldLabel: 'Space Name',
+        placeholder: 'Enter space name',
+      },
+    });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const command = createUpdateSpaceNameCommand(this.selectedSpace!.id, name);
+      this.deviceCommandService.handleUpdateSpaceName(command).subscribe({
+        next: () => {
+          this.snackBar.open('Space updated', 'Close', { duration: 3000 });
+          if (this.selectedSpace) {
+            this.selectedSpace = { ...this.selectedSpace, name };
+          }
+          if (this.orgPanel) {
+            this.orgPanel.loadSpaces(this.selectedSpace!.organizationId);
+          }
+        },
+        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update space'), 'Close', { duration: 3000 }),
+      });
+    });
+  }
+
+  openDeleteSpaceDialog(): void {
+    if (!this.selectedSpace) return;
+    const dialogRef = this.dialog.open(DeleteSpaceDialogComponent, { width: '400px' });
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      const command = createDeleteSpaceCommand(this.selectedSpace!.id);
+      const orgId = this.selectedSpace!.organizationId;
+      this.deviceCommandService.handleDeleteSpace(command).subscribe({
+        next: () => {
+          this.snackBar.open('Space deleted', 'Close', { duration: 3000 });
+          this.selectedSpace = null;
+          this.devicesPage = null;
+          if (this.orgPanel) {
+            this.orgPanel.loadSpaces(orgId);
+          }
+        },
+        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to delete space'), 'Close', { duration: 3000 }),
       });
     });
   }
