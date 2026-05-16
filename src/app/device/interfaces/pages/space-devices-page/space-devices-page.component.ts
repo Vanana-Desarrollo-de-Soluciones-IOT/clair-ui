@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +13,7 @@ import { SidebarComponent } from '../../../../shared/interfaces/components/sideb
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { DeviceCardComponent } from '../../components/device-card/device-card.component';
 import { AddOrganizationDialogComponent } from '../../components/add-organization-dialog/add-organization-dialog.component';
-import { EditOrganizationDialogComponent } from '../../components/edit-organization-dialog/edit-organization-dialog.component';
+import { EditNameDialogComponent } from '../../components/edit-name-dialog/edit-name-dialog.component';
 import { DeleteOrganizationDialogComponent } from '../../components/delete-organization-dialog/delete-organization-dialog.component';
 import { AddSpaceDialogComponent } from '../../components/add-space-dialog/add-space-dialog.component';
 import { OrganizationsBarComponent } from '../../components/organizations-bar/organizations-bar.component';
@@ -72,7 +72,6 @@ export class SpaceDevicesPageComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly tokenStorage = inject<TokenStorageGateway>(TOKEN_STORAGE_GATEWAY);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly fb = inject(FormBuilder);
 
   isSidebarOpen = true;
 
@@ -300,10 +299,10 @@ export class SpaceDevicesPageComponent implements OnInit {
   openEditOrganizationDialog(orgId: OrganizationId): void {
     const organization = this.organizations.find((org) => org.id.value === orgId.value);
     if (!organization) return;
-    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+    const dialogRef = this.dialog.open(EditNameDialogComponent, {
       width: '400px',
       data: {
-        currentName: organization.name,
+        currentValue: organization.name,
         title: 'Edit Organization',
         fieldLabel: 'Organization Name',
         placeholder: 'Enter organization name',
@@ -371,10 +370,10 @@ export class SpaceDevicesPageComponent implements OnInit {
   openEditSpaceDialog(spaceId: SpaceId): void {
     const space = this.allSpaces.find((currentSpace) => currentSpace.id.value === spaceId.value);
     if (!space) return;
-    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+    const dialogRef = this.dialog.open(EditNameDialogComponent, {
       width: '400px',
       data: {
-        currentName: space.name,
+        currentValue: space.name,
         title: 'Edit Space',
         fieldLabel: 'Space Name',
         placeholder: 'Enter space name',
@@ -418,10 +417,10 @@ export class SpaceDevicesPageComponent implements OnInit {
   }
 
   openEditDeviceNameDialog(device: Device): void {
-    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+    const dialogRef = this.dialog.open(EditNameDialogComponent, {
       width: '400px',
       data: {
-        currentName: device.name,
+        currentValue: device.name,
         title: 'Edit Device Name',
         fieldLabel: 'Device Name',
         placeholder: 'Enter device name',
@@ -443,10 +442,10 @@ export class SpaceDevicesPageComponent implements OnInit {
   }
 
   openEditDeviceSerialNumberDialog(device: Device): void {
-    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+    const dialogRef = this.dialog.open(EditNameDialogComponent, {
       width: '400px',
       data: {
-        currentName: device.serialNumber,
+        currentValue: device.serialNumber,
         title: 'Edit Device Serial',
         fieldLabel: 'Serial Number',
         placeholder: 'Enter serial number',
