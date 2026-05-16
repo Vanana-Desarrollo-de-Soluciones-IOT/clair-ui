@@ -38,53 +38,38 @@
   --mat-sys-body-large-font: var(--app-font-body);
   --mat-sys-body-medium-font: var(--app-font-body);
   --mat-sys-body-small-font: var(--app-font-body);
-  --mat-sys-body-large: var(--mat-sys-body-large-weight) var(--mat-sys-body-large-size) / var(--mat-sys-body-large-line-height)
-    var(--app-font-body);
-  --mat-sys-body-medium: var(--mat-sys-body-medium-weight) var(--mat-sys-body-medium-size) / var(--mat-sys-body-medium-line-height)
-    var(--app-font-body);
-  --mat-sys-body-small: var(--mat-sys-body-small-weight) var(--mat-sys-body-small-size) / var(--mat-sys-body-small-line-height)
-    var(--app-font-body);
+  --mat-sys-body-large: var(--mat-sys-body-large-weight) var(--mat-sys-body-large-size) / var(--mat-sys-body-large-line-height) var(--app-font-body);
+  --mat-sys-body-medium: var(--mat-sys-body-medium-weight) var(--mat-sys-body-medium-size) / var(--mat-sys-body-medium-line-height) var(--app-font-body);
+  --mat-sys-body-small: var(--mat-sys-body-small-weight) var(--mat-sys-body-small-size) / var(--mat-sys-body-small-line-height) var(--app-font-body);
 
   --mat-sys-label-large-font: var(--app-font-headline);
   --mat-sys-label-medium-font: var(--app-font-headline);
   --mat-sys-label-small-font: var(--app-font-headline);
-  --mat-sys-label-large: var(--mat-sys-label-large-weight) var(--mat-sys-label-large-size) / var(--mat-sys-label-large-line-height)
-    var(--app-font-headline);
-  --mat-sys-label-medium: var(--mat-sys-label-medium-weight) var(--mat-sys-label-medium-size) / var(--mat-sys-label-medium-line-height)
-    var(--app-font-headline);
-  --mat-sys-label-small: var(--mat-sys-label-small-weight) var(--mat-sys-label-small-size) / var(--mat-sys-label-small-line-height)
-    var(--app-font-headline);
+  --mat-sys-label-large: var(--mat-sys-label-large-weight) var(--mat-sys-label-large-size) / var(--mat-sys-label-large-line-height) var(--app-font-headline);
+  --mat-sys-label-medium: var(--mat-sys-label-medium-weight) var(--mat-sys-label-medium-size) / var(--mat-sys-label-medium-line-height) var(--app-font-headline);
+  --mat-sys-label-small: var(--mat-sys-label-small-weight) var(--mat-sys-label-small-size) / var(--mat-sys-label-small-line-height) var(--app-font-headline);
 
   --mat-sys-headline-large-font: var(--app-font-headline);
   --mat-sys-headline-medium-font: var(--app-font-headline);
   --mat-sys-headline-small-font: var(--app-font-headline);
-  --mat-sys-headline-large: var(--mat-sys-headline-large-weight) var(--mat-sys-headline-large-size) / var(--mat-sys-headline-large-line-height)
-    var(--app-font-headline);
-  --mat-sys-headline-medium: var(--mat-sys-headline-medium-weight) var(--mat-sys-headline-medium-size) / var(--mat-sys-headline-medium-line-height)
-    var(--app-font-headline);
-  --mat-sys-headline-small: var(--mat-sys-headline-small-weight) var(--mat-sys-headline-small-size) / var(--mat-sys-headline-small-line-height)
-    var(--app-font-headline);
+  --mat-sys-headline-large: var(--mat-sys-headline-large-weight) var(--mat-sys-headline-large-size) / var(--mat-sys-headline-large-line-height) var(--app-font-headline);
+  --mat-sys-headline-medium: var(--mat-sys-headline-medium-weight) var(--mat-sys-headline-medium-size) / var(--mat-sys-headline-medium-line-height) var(--app-font-headline);
+  --mat-sys-headline-small: var(--mat-sys-headline-small-weight) var(--mat-sys-headline-small-size) / var(--mat-sys-headline-small-line-height) var(--app-font-headline);
 
   --mat-sys-display-large-font: var(--app-font-headline);
   --mat-sys-display-medium-font: var(--app-font-headline);
   --mat-sys-display-small-font: var(--app-font-headline);
-  --mat-sys-display-large: var(--mat-sys-display-large-weight) var(--mat-sys-display-large-size) / var(--mat-sys-display-large-line-height)
-    var(--app-font-headline);
-  --mat-sys-display-medium: var(--mat-sys-display-medium-weight) var(--mat-sys-display-medium-size) / var(--mat-sys-display-medium-line-height)
-    var(--app-font-headline);
-  --mat-sys-display-small: var(--mat-sys-display-small-weight) var(--mat-sys-display-small-size) / var(--mat-sys-display-small-line-height)
-    var(--app-font-headline);
+  --mat-sys-display-large: var(--mat-sys-display-large-weight) var(--mat-sys-display-large-size) / var(--mat-sys-display-large-line-height) var(--app-font-headline);
+  --mat-sys-display-medium: var(--mat-sys-display-medium-weight) var(--mat-sys-display-medium-size) / var(--mat-sys-display-medium-line-height) var(--app-font-headline);
+  --mat-sys-display-small: var(--mat-sys-display-small-weight) var(--mat-sys-display-small-size) / var(--mat-sys-display-small-line-height) var(--app-font-headline);
 
   /* Titles typically render as “headlines” in UI */
   --mat-sys-title-large-font: var(--app-font-headline);
   --mat-sys-title-medium-font: var(--app-font-headline);
   --mat-sys-title-small-font: var(--app-font-headline);
-  --mat-sys-title-large: var(--mat-sys-title-large-weight) var(--mat-sys-title-large-size) / var(--mat-sys-title-large-line-height)
-    var(--app-font-headline);
-  --mat-sys-title-medium: var(--mat-sys-title-medium-weight) var(--mat-sys-title-medium-size) / var(--mat-sys-title-medium-line-height)
-    var(--app-font-headline);
-  --mat-sys-title-small: var(--mat-sys-title-small-weight) var(--mat-sys-title-small-size) / var(--mat-sys-title-small-line-height)
-    var(--app-font-headline);
+  --mat-sys-title-large: var(--mat-sys-title-large-weight) var(--mat-sys-title-large-size) / var(--mat-sys-title-large-line-height) var(--app-font-headline);
+  --mat-sys-title-medium: var(--mat-sys-title-medium-weight) var(--mat-sys-title-medium-size) / var(--mat-sys-title-medium-line-height) var(--app-font-headline);
+  --mat-sys-title-small: var(--mat-sys-title-small-weight) var(--mat-sys-title-small-size) / var(--mat-sys-title-small-line-height) var(--app-font-headline);
 }
 
 *,
@@ -93,7 +78,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -108,7 +94,12 @@ body {
   overflow-y: auto;
 }
 
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 label {
   font-family: var(--app-font-headline);
 }
@@ -130,9 +121,11 @@ label {
   border: 1px solid #757676;
   border-radius: 8px;
 }
+
 .subtle-snackbar .mdc-snackbar__surface {
   border-radius: 8px;
 }
+
 .subtle-snackbar .mat-mdc-button {
   font-family: var(--app-font-headline);
   font-weight: 700;

@@ -67,7 +67,7 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
       console.error('Stripe public key is missing in backend config.');
       return;
     }
-    
+
     this.stripe = await loadStripe(stripeKey);
   }
 
