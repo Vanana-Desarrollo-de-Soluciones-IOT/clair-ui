@@ -13,8 +13,7 @@
   box-sizing: border-box;
   gap: 0.75rem;
   padding: 1rem;
-  border-radius: 12px;
-  background: #141414;
+  background: #000;
 }
 
 .org-row,
@@ -43,8 +42,8 @@
 
 .org-item {
   width: 100%;
-  padding: 0.75rem 0.9rem;
-  border: 1px solid #404040;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid transparent;
   border-radius: 12px;
   background: #1a1a1a;
   color: inherit;
@@ -54,7 +53,7 @@
 }
 
 .org-item:hover { background: #262626; }
-.org-item.active { border-color: #10b981; background: #064e3b; }
+.org-item.active { border-color: #9ca3af; background: #1a1a1a; }
 
 .org-item--organization {
   display: flex;
@@ -93,38 +92,38 @@
 .chevron.expanded { transform: rotate(180deg); }
 
 .add-space-button {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
   justify-content: center;
   padding: 0;
   border: none;
   border-radius: 999px;
-  background: #262626;
+  background: #6b7280;
   color: #e5e7eb;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.add-space-button mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.add-space-button mat-icon { font-size: 12px; width: 12px; height: 12px; }
 
 .add-org-button {
   width: 100%;
-  height: 48px;
+  height: 42px;
   justify-content: center;
   margin-top: auto;
-  border: 1px solid #525252;
-  border-radius: 8px;
+  border: 1px solid #6b7280;
+  border-radius: 6px;
   background: transparent;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s;
 }
 
-.add-org-button:hover { background: #1f1f1f; border-color: #6b7280; }
-.add-org-button mat-icon { margin-right: 8px; font-size: 22px; width: 22px; height: 22px; }
+.add-org-button:hover { background: #1a1a1a; border-color: #9ca3af; }
+.add-org-button mat-icon { margin-right: 10px; font-size: 18px; width: 18px; height: 18px; }
 
 .loading-state,
 .error-state,
