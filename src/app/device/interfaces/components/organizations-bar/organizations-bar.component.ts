@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +12,6 @@ import { OrganizationId } from '../../../domain/model/valueobjects/organization-
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -32,16 +30,7 @@ export class OrganizationsBarComponent implements OnInit {
   @Output() organizationSelected = new EventEmitter<OrganizationId>();
   @Output() addOrganizationRequested = new EventEmitter<void>();
 
-  private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
-
-  searchControl = this.fb.control('');
-
-  get filteredOrganizations(): Organization[] {
-    const term = this.searchControl.value?.toLowerCase() ?? '';
-    if (!term) return this.organizations;
-    return this.organizations.filter((o) => o.name.toLowerCase().includes(term));
-  }
 
   ngOnInit(): void {}
 

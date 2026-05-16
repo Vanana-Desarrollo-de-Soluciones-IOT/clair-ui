@@ -1,22 +1,17 @@
 <aside class="org-panel">
   <h2 class="panel-title">Organizations</h2>
 
-  <div class="search-wrapper">
-    <mat-icon class="search-icon">search</mat-icon>
-    <input type="text" placeholder="Search" class="search-input" [formControl]="searchControl" />
-  </div>
-
   <div class="org-list">
     <div *ngIf="loadingOrgs" class="loading-state">
       <mat-spinner diameter="24"></mat-spinner>
       <span>Loading organizations...</span>
     </div>
     <div *ngIf="errorOrgs && !loadingOrgs" class="error-state">{{ errorOrgs }}</div>
-    <div *ngIf="!loadingOrgs && !errorOrgs && filteredOrganizations.length === 0" class="empty-state">
+    <div *ngIf="!loadingOrgs && !errorOrgs && organizations.length === 0" class="empty-state">
       No organizations found.
     </div>
 
-    <div *ngFor="let org of filteredOrganizations" class="org-item" [class.active]="org.id.value === selectedOrganizationId?.value" (click)="selectOrganization(org.id)">
+    <div *ngFor="let org of organizations" class="org-item" [class.active]="org.id.value === selectedOrganizationId?.value" (click)="selectOrganization(org.id)">
       <div class="org-row">
         <span class="org-name">{{ org.name }}</span>
         <span class="org-count">{{ spaceCount }} spaces</span>
@@ -24,8 +19,8 @@
     </div>
   </div>
 
-  <button mat-stroked-button class="add-org-button" (click)="openAddOrganizationDialog()">
-    <mat-icon>add_business</mat-icon>
+  <button class="add-org-button" (click)="openAddOrganizationDialog()">
+    <mat-icon>domain_add</mat-icon>
     Add Organization
   </button>
 </aside>
