@@ -1,3 +1,4 @@
+<!-- Grid view -->
 <mat-card *ngIf="viewMode === 'grid'" class="device-card">
   <div class="card-header">
     <span class="badge">{{ device.name }}</span>
@@ -11,11 +12,12 @@
     <mat-icon class="footer-icon">history</mat-icon>
     <span class="footer-text">Updated {{ device.updatedAt | date:'short' }}</span>
     <button mat-icon-button class="go-button" aria-label="Go to device">
-      <mat-icon>arrow_forward</mat-icon>
+      <mat-icon>chevron_right</mat-icon>
     </button>
   </div>
 </mat-card>
 
+<!-- List view -->
 <div *ngIf="viewMode === 'list'" class="device-list-item">
   <div class="list-main">
     <span class="badge">{{ device.name }}</span>
@@ -28,7 +30,7 @@
     <mat-icon class="footer-icon">history</mat-icon>
     <span class="list-date">Updated {{ device.updatedAt | date:'short' }}</span>
     <button mat-icon-button class="go-button" aria-label="Go to device">
-      <mat-icon>arrow_forward</mat-icon>
+      <mat-icon>chevron_right</mat-icon>
     </button>
   </div>
 </div>

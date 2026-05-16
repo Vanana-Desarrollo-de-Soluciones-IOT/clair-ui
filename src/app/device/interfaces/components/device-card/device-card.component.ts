@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { Device } from '../../../domain/services/device-query-service';
 
 type ViewMode = 'grid' | 'list';
@@ -11,7 +10,7 @@ type ViewMode = 'grid' | 'list';
 @Component({
   selector: 'app-device-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatMenuModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
   templateUrl: './device-card.component.html',
   styleUrl: './device-card.component.css',
 })

@@ -2,9 +2,11 @@ import { Observable } from 'rxjs';
 import { GetOrganizationsByOwnerQuery } from '../model/queries/get-organizations-by-owner.query';
 import { GetOrganizationByIdQuery } from '../model/queries/get-organization-by-id.query';
 import { GetSpacesByOrganizationQuery } from '../model/queries/get-spaces-by-organization.query';
+import { GetSpacesByOwnerQuery } from '../model/queries/get-spaces-by-owner.query';
 import { GetSpaceByIdQuery } from '../model/queries/get-space-by-id.query';
 import { GetDevicesBySpaceQuery } from '../model/queries/get-devices-by-space.query';
 import { GetDeviceByIdQuery } from '../model/queries/get-device-by-id.query';
+import { GetDeviceBySerialNumberQuery } from '../model/queries/get-device-by-serial-number.query';
 import { OrganizationId } from '../model/valueobjects/organization-id.value-object';
 import { SpaceId } from '../model/valueobjects/space-id.value-object';
 import { DeviceId } from '../model/valueobjects/device-id.value-object';
@@ -51,7 +53,9 @@ export interface DeviceQueryService {
   handleGetOrganizationsByOwner(query: GetOrganizationsByOwnerQuery): Observable<Organization[]>;
   handleGetOrganizationById(query: GetOrganizationByIdQuery): Observable<Organization | null>;
   handleGetSpacesByOrganization(query: GetSpacesByOrganizationQuery): Observable<Space[]>;
+  handleGetSpacesByOwner(query: GetSpacesByOwnerQuery): Observable<Space[]>;
   handleGetSpaceById(query: GetSpaceByIdQuery): Observable<Space | null>;
   handleGetDevicesBySpace(query: GetDevicesBySpaceQuery): Observable<DevicePage>;
   handleGetDeviceById(query: GetDeviceByIdQuery): Observable<Device | null>;
+  handleGetDeviceBySerialNumber(query: GetDeviceBySerialNumberQuery): Observable<Device | null>;
 }

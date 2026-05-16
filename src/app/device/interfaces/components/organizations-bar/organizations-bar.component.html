@@ -13,9 +13,17 @@
           <mat-icon class="chevron" [class.expanded]="expandedOrganizationIds[organization.id.value]">expand_more</mat-icon>
           <span class="org-name">{{ organization.name }}</span>
         </button>
-        <button class="add-space-button" type="button" (click)="openAddSpaceDialog(organization.id)" aria-label="Add space">
-          <mat-icon>add</mat-icon>
-        </button>
+        <div class="org-actions">
+          <button class="org-action-btn" type="button" (click)="openAddSpaceDialog(organization.id)" aria-label="Add space" title="Add space">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button class="org-action-btn" type="button" (click)="openEditOrganizationDialog(organization.id)" aria-label="Edit organization" title="Edit organization">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="org-action-btn org-action-btn--danger" type="button" (click)="openDeleteOrganizationDialog(organization.id)" aria-label="Delete organization" title="Delete organization">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
       </div>
 
       <div *ngIf="expandedOrganizationIds[organization.id.value]" class="space-list">
