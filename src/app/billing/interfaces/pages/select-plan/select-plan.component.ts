@@ -12,7 +12,7 @@ import { Location } from '@angular/common';
   styleUrl: './select-plan.component.css'
 })
 export class SelectPlanComponent {
-  constructor(private router: Router, private location: Location) {}
+  constructor(private router: Router, private location: Location) { }
 
   goBack() {
     this.location.back();
@@ -23,6 +23,6 @@ export class SelectPlanComponent {
   }
 
   onPremiumSelect() {
-    this.router.navigate(['/billing/checkout-premium']);
+    this.router.navigate(['/checkout-premium']);
   }
 }

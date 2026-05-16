@@ -5,15 +5,15 @@
     Arial, sans-serif;
 
   /* Dark surfaces + light foregrounds (your app uses a dark background) */
-  --mat-sys-background: #0d0d0d;
-  --mat-sys-surface: #0d0d0d;
+  --mat-sys-background: #000000;
+  --mat-sys-surface: #000000;
   --mat-sys-surface-bright: #161616;
-  --mat-sys-surface-dim: #0a0a0a;
-  --mat-sys-surface-container-lowest: #0b0b0b;
-  --mat-sys-surface-container-low: #101010;
-  --mat-sys-surface-container: #141414;
-  --mat-sys-surface-container-high: #1a1a1a;
-  --mat-sys-surface-container-highest: #202020;
+  --mat-sys-surface-dim: #000000;
+  --mat-sys-surface-container-lowest: #000000;
+  --mat-sys-surface-container-low: #080808;
+  --mat-sys-surface-container: #000000;
+  --mat-sys-surface-container-high: #141414;
+  --mat-sys-surface-container-highest: #1a1a1a;
 
   --mat-sys-on-background: #ffffff;
   --mat-sys-on-surface: #ffffff;
@@ -97,7 +97,7 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: #0d0d0d;
+  background-color: #000000;
   color: #ffffff;
   font-family: var(--app-font-body);
 }
@@ -136,4 +136,12 @@ label {
 .subtle-snackbar .mat-mdc-button {
   font-family: var(--app-font-headline);
   font-weight: 700;
+}
+
+/* Custom Dialog Styles */
+.custom-dialog-container .mat-mdc-dialog-surface {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 12px;
+  overflow: hidden;
 }
