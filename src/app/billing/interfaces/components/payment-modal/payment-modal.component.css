@@ -1,5 +1,5 @@
 .payment-modal-container {
-  background-color: #141414;
+  background-color: #000000;
   padding: 2rem;
   border-radius: 12px;
   color: #ffffff;
@@ -60,7 +60,8 @@
 }
 
 .stripe-element {
-  padding: 0.85rem 1rem; /* Adjust padding for Stripe Elements */
+  padding: 0.85rem 1rem;
+  /* Adjust padding for Stripe Elements */
 }
 
 #card-errors {
@@ -75,7 +76,8 @@
   margin-top: 1rem;
 }
 
-.btn-cancel, .btn-add {
+.btn-cancel,
+.btn-add {
   flex: 1;
   padding: 0.75rem 0;
   border-radius: 8px;

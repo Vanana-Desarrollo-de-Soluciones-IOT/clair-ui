@@ -28,6 +28,10 @@
 
   <!-- Settings -->
   <div class="settings-wrapper">
+    <a *ngIf="isUpgradeVisible" class="nav-item" routerLink="/select-plan" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
+      <mat-icon>workspace_premium</mat-icon>
+      <span *ngIf="isOpen">Upgrade Plan</span>
+    </a>
     <a class="nav-item" routerLink="/settings" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
       <mat-icon>settings</mat-icon>
       <span *ngIf="isOpen">Settings</span>
