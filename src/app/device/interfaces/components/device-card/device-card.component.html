@@ -1,7 +1,9 @@
 <mat-card *ngIf="viewMode === 'grid'" class="device-card">
   <div class="card-header">
     <span class="badge">{{ device.name }}</span>
-    <mat-icon class="signal-icon">signal_cellular_alt</mat-icon>
+    <button mat-icon-button [matMenuTriggerFor]="deviceMenu" class="device-menu-button" aria-label="Device actions">
+      <mat-icon>more_vert</mat-icon>
+    </button>
   </div>
   <div class="card-body">
     <h3 class="device-name">{{ device.serialNumber }}</h3>
@@ -10,8 +12,8 @@
   <div class="card-footer">
     <mat-icon class="footer-icon">history</mat-icon>
     <span class="footer-text">Updated {{ device.updatedAt | date:'short' }}</span>
-    <button mat-icon-button class="go-button" aria-label="Go to device">
-      <mat-icon>arrow_forward</mat-icon>
+    <button mat-icon-button class="go-button" [matMenuTriggerFor]="deviceMenu" aria-label="Device actions">
+      <mat-icon>more_vert</mat-icon>
     </button>
   </div>
 </mat-card>
@@ -27,8 +29,19 @@
   <div class="list-meta">
     <mat-icon class="footer-icon">history</mat-icon>
     <span class="list-date">Updated {{ device.updatedAt | date:'short' }}</span>
-    <button mat-icon-button class="go-button" aria-label="Go to device">
-      <mat-icon>arrow_forward</mat-icon>
+    <button mat-icon-button class="go-button" [matMenuTriggerFor]="deviceMenu" aria-label="Device actions">
+      <mat-icon>more_vert</mat-icon>
     </button>
   </div>
 </div>
+
+<mat-menu #deviceMenu="matMenu">
+  <button mat-menu-item type="button" (click)="editName()">
+    <mat-icon>edit</mat-icon>
+    <span>Edit name</span>
+  </button>
+  <button mat-menu-item type="button" (click)="editSerialNumber()">
+    <mat-icon>confirmation_number</mat-icon>
+    <span>Edit serial</span>
+  </button>
+</mat-menu>

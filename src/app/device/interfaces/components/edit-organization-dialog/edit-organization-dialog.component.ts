@@ -8,6 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 
 export interface EditOrganizationDialogData {
   currentName: string;
+  title?: string;
+  fieldLabel?: string;
+  placeholder?: string;
 }
 
 @Component({
@@ -25,6 +28,10 @@ export class EditOrganizationDialogComponent {
   form: FormGroup = this.fb.group({
     name: [this.data.currentName ?? '', [Validators.required, Validators.minLength(1)]],
   });
+
+  readonly title = this.data.title ?? 'Edit Organization';
+  readonly fieldLabel = this.data.fieldLabel ?? 'Organization Name';
+  readonly placeholder = this.data.placeholder ?? 'Enter organization name';
 
   submit(): void {
     if (this.form.invalid) return;

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,8 @@ type ViewMode = 'grid' | 'list';
 export class DeviceCardComponent {
   @Input() device!: Device;
   @Input() viewMode: ViewMode = 'grid';
+  @Output() editNameRequested = new EventEmitter<Device>();
+  @Output() editSerialNumberRequested = new EventEmitter<Device>();
 
   statusColor(status: string): string {
     switch (status) {
@@ -32,5 +34,13 @@ export class DeviceCardComponent {
       default:
         return '#6b7280';
     }
+  }
+
+  editName(): void {
+    this.editNameRequested.emit(this.device);
+  }
+
+  editSerialNumber(): void {
+    this.editSerialNumberRequested.emit(this.device);
   }
 }

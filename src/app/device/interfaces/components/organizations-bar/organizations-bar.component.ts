@@ -29,6 +29,7 @@ export class OrganizationsBarComponent implements OnInit {
   @Output() organizationToggled = new EventEmitter<OrganizationId>();
   @Output() spaceSelected = new EventEmitter<SpaceId>();
   @Output() addSpaceRequested = new EventEmitter<OrganizationId>();
+  @Output() editSpaceRequested = new EventEmitter<SpaceId>();
   @Output() editOrganizationRequested = new EventEmitter<OrganizationId>();
   @Output() deleteOrganizationRequested = new EventEmitter<OrganizationId>();
   @Output() addOrganizationRequested = new EventEmitter<void>();
@@ -45,6 +46,10 @@ export class OrganizationsBarComponent implements OnInit {
 
   openAddSpaceDialog(orgId: OrganizationId): void {
     this.addSpaceRequested.emit(orgId);
+  }
+
+  openEditSpaceDialog(spaceId: SpaceId): void {
+    this.editSpaceRequested.emit(spaceId);
   }
 
   openEditOrganizationDialog(orgId: OrganizationId): void {

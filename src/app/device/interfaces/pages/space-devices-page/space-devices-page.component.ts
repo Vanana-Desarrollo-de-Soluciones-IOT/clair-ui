@@ -20,7 +20,7 @@ import { OrganizationsBarComponent } from '../../components/organizations-bar/or
 import { RegisterDeviceDialogComponent } from '../../components/register-device-dialog/register-device-dialog.component';
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
-import { Organization, Space, DevicePage } from '../../../domain/services/device-query-service';
+import { Organization, Space, Device, DevicePage } from '../../../domain/services/device-query-service';
 import { OrganizationId, createOrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
 import { SpaceId, createSpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { createGetOrganizationsByOwnerQuery } from '../../../domain/model/queries/get-organizations-by-owner.query';
@@ -30,7 +30,10 @@ import { createCreateOrganizationCommand } from '../../../domain/model/commands/
 import { createUpdateOrganizationNameCommand } from '../../../domain/model/commands/update-organization-name.command';
 import { createDeleteOrganizationCommand } from '../../../domain/model/commands/delete-organization.command';
 import { createCreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
+import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
 import { createRegisterDeviceCommand } from '../../../domain/model/commands/register-device.command';
+import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
+import { createUpdateDeviceSerialNumberCommand } from '../../../domain/model/commands/update-device-serial-number.command';
 import { createSerialNumber } from '../../../domain/model/valueobjects/serial-number.value-object';
 import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
 import { jwtDecode } from 'jwt-decode';
@@ -100,9 +103,12 @@ export class SpaceDevicesPageComponent implements OnInit {
 
   get selectedSpace(): Space | null {
     if (!this.selectedSpaceId) return null;
-    return Object.values(this.spacesByOrganizationId)
-      .flat()
+    return this.allSpaces
       .find((s) => s.id.value === this.selectedSpaceId?.value) ?? null;
+  }
+
+  get allSpaces(): Space[] {
+    return Object.values(this.spacesByOrganizationId).flat();
   }
 
   ngOnInit(): void {
@@ -126,6 +132,17 @@ export class SpaceDevicesPageComponent implements OnInit {
     } catch {
       return null;
     }
+  }
+
+  private getErrorMessage(error: unknown, fallback: string): string {
+    if (error && typeof error === 'object' && 'error' in error) {
+      const responseBody = (error as { error?: unknown }).error;
+      if (responseBody && typeof responseBody === 'object' && 'message' in responseBody) {
+        const message = (responseBody as { message?: unknown }).message;
+        if (typeof message === 'string' && message.trim().length > 0) return message;
+      }
+    }
+    return fallback;
   }
 
   loadOrganizations(): void {
@@ -285,7 +302,12 @@ export class SpaceDevicesPageComponent implements OnInit {
     if (!organization) return;
     const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
       width: '400px',
-      data: { currentName: organization.name },
+      data: {
+        currentName: organization.name,
+        title: 'Edit Organization',
+        fieldLabel: 'Organization Name',
+        placeholder: 'Enter organization name',
+      },
     });
     dialogRef.afterClosed().subscribe((name: string | undefined) => {
       if (!name) return;
@@ -295,8 +317,8 @@ export class SpaceDevicesPageComponent implements OnInit {
           this.snackBar.open('Organization updated', 'Close', { duration: 3000 });
           this.loadOrganizations();
         },
-        error: () => {
-          this.snackBar.open('Failed to update organization', 'Close', { duration: 3000 });
+        error: (error) => {
+          this.snackBar.open(this.getErrorMessage(error, 'Failed to update organization'), 'Close', { duration: 3000 });
         },
       });
     });
@@ -346,6 +368,33 @@ export class SpaceDevicesPageComponent implements OnInit {
     });
   }
 
+  openEditSpaceDialog(spaceId: SpaceId): void {
+    const space = this.allSpaces.find((currentSpace) => currentSpace.id.value === spaceId.value);
+    if (!space) return;
+    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+      width: '400px',
+      data: {
+        currentName: space.name,
+        title: 'Edit Space',
+        fieldLabel: 'Space Name',
+        placeholder: 'Enter space name',
+      },
+    });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const command = createUpdateSpaceNameCommand(spaceId, name);
+      this.deviceCommandService.handleUpdateSpaceName(command).subscribe({
+        next: () => {
+          this.snackBar.open('Space updated', 'Close', { duration: 3000 });
+          this.loadSpaces(space.organizationId);
+        },
+        error: (error) => {
+          this.snackBar.open(this.getErrorMessage(error, 'Failed to update space'), 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
   openRegisterDeviceDialog(): void {
     if (!this.selectedSpaceId) return;
     const dialogRef = this.dialog.open(RegisterDeviceDialogComponent, { width: '400px' });
@@ -363,6 +412,56 @@ export class SpaceDevicesPageComponent implements OnInit {
         },
         error: () => {
           this.snackBar.open('Failed to register device', 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
+  openEditDeviceNameDialog(device: Device): void {
+    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+      width: '400px',
+      data: {
+        currentName: device.name,
+        title: 'Edit Device Name',
+        fieldLabel: 'Device Name',
+        placeholder: 'Enter device name',
+      },
+    });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const command = createUpdateDeviceNameCommand(device.id, name);
+      this.deviceCommandService.handleUpdateDeviceName(command).subscribe({
+        next: () => {
+          this.snackBar.open('Device name updated', 'Close', { duration: 3000 });
+          this.loadDevices(device.spaceId);
+        },
+        error: (error) => {
+          this.snackBar.open(this.getErrorMessage(error, 'Failed to update device name'), 'Close', { duration: 3000 });
+        },
+      });
+    });
+  }
+
+  openEditDeviceSerialNumberDialog(device: Device): void {
+    const dialogRef = this.dialog.open(EditOrganizationDialogComponent, {
+      width: '400px',
+      data: {
+        currentName: device.serialNumber,
+        title: 'Edit Device Serial',
+        fieldLabel: 'Serial Number',
+        placeholder: 'Enter serial number',
+      },
+    });
+    dialogRef.afterClosed().subscribe((serialNumber: string | undefined) => {
+      if (!serialNumber) return;
+      const command = createUpdateDeviceSerialNumberCommand(device.id, createSerialNumber(serialNumber));
+      this.deviceCommandService.handleUpdateDeviceSerialNumber(command).subscribe({
+        next: () => {
+          this.snackBar.open('Device serial updated', 'Close', { duration: 3000 });
+          this.loadDevices(device.spaceId);
+        },
+        error: (error) => {
+          this.snackBar.open(this.getErrorMessage(error, 'Failed to update device serial'), 'Close', { duration: 3000 });
         },
       });
     });

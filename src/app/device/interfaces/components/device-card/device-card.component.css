@@ -45,7 +45,7 @@
 }
 
 .device-name { margin: 0; font-size: 1.55rem; font-weight: 700; }
-.signal-icon { color: #fff; font-size: 20px; width: 20px; height: 20px; }
+.device-menu-button { color: #fff; }
 .status-icon {
   width: 16px;
   height: 16px;

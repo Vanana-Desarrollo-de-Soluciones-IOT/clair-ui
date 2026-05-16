@@ -1,9 +1,9 @@
-<h2 mat-dialog-title>Edit Organization</h2>
+<h2 mat-dialog-title>{{ title }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="submit()">
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Organization Name</mat-label>
-      <input matInput formControlName="name" placeholder="Enter organization name" />
+      <mat-label>{{ fieldLabel }}</mat-label>
+      <input matInput formControlName="name" [placeholder]="placeholder" />
       <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
     </mat-form-field>
   </form>
