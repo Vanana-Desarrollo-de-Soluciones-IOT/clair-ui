@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
+import { GoogleIconComponent } from '../../../../shared/interfaces/components/icons/google/google-icon.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
@@ -31,6 +32,7 @@ import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastruct
     MatDividerModule,
     RouterLink,
     ClairLogoComponent,
+    GoogleIconComponent,
   ],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.css',
@@ -49,6 +51,11 @@ export class LoginPageComponent {
   loading = false;
   errorMessage: string | null = null;
   hidePassword = true;
+
+  onGoogleSignIn(): void {
+    const authorizeUrl = this.authCommandService.getGoogleAuthorizeUrl();
+    window.location.href = authorizeUrl;
+  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {

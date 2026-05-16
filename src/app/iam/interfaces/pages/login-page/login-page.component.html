@@ -33,6 +33,17 @@
       </button>
     </form>
 
+    <div class="divider-container">
+      <mat-divider class="divider-line"></mat-divider>
+      <span class="divider-text">OR LOGIN WITH</span>
+      <mat-divider class="divider-line"></mat-divider>
+    </div>
+
+    <button type="button" class="google-button" (click)="onGoogleSignIn()">
+      <app-google-icon class="google-icon-svg"></app-google-icon>
+      <span>Google</span>
+    </button>
+
     <p class="footer-text">
       Do not have an account? <a routerLink="/register">Register</a>
     </p>

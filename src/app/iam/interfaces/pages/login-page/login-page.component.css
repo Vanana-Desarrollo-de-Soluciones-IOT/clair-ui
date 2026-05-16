@@ -65,6 +65,63 @@
   color: #666666;
 }
 
+.google-button {
+  width: 100%;
+  padding: 0.875rem 0;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #ffffff;
+  border: 1px solid #3a3a3a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.google-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: #4a4a4a;
+}
+
+.google-button span {
+  color: #ffffff;
+  line-height: 1;
+}
+
+.google-icon-svg {
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.divider-line {
+  flex: 1;
+  border-top-color: #2a2a2a;
+}
+
+.divider-text {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
 .footer-text {
   text-align: center;
   margin-top: 1.5rem;
