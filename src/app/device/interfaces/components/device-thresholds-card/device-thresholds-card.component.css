@@ -1,0 +1,123 @@
+:host {
+  display: block;
+}
+
+.thresholds-card {
+  background-color: #0a0a0a;
+  border-radius: 16px;
+  padding: 24px 0;
+}
+
+/* Header */
+.thresholds-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.thresholds-title-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.thresholds-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6b7280;
+}
+
+.thresholds-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.edit-button {
+  color: #9ca3af;
+  background-color: #1a1a1a;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Thresholds Container */
+.thresholds-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .thresholds-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .thresholds-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.threshold-card {
+  background-color: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.threshold-card ::ng-deep .mat-mdc-card {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.threshold-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.threshold-value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.threshold-number {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.threshold-unit {
+  font-size: 12px;
+  color: #6b7280;
+}
