@@ -1,19 +1,17 @@
 export type PairDeviceCommand = Readonly<{
   hardwareId: string;
-  deviceType: string;
 }>;
 
-export const createPairDeviceCommand = (
-  hardwareId: string,
-  deviceType: string
-): PairDeviceCommand => {
+export const createPairDeviceCommand = (hardwareId: string): PairDeviceCommand => {
   const normalizedHardwareId = hardwareId.trim();
-  const normalizedDeviceType = deviceType.trim();
   if (normalizedHardwareId.length === 0) {
     throw new Error('Hardware ID must not be empty');
   }
-  if (normalizedDeviceType.length === 0) {
-    throw new Error('Device type must not be empty');
+
+  // Expected user-facing format: CLAIR-0001
+  if (!/^(CLAIR|HW)-\d{4}$/.test(normalizedHardwareId)) {
+    throw new Error('Hardware ID must match CLAIR-0001');
   }
-  return Object.freeze({ hardwareId: normalizedHardwareId, deviceType: normalizedDeviceType });
+
+  return Object.freeze({ hardwareId: normalizedHardwareId });
 };

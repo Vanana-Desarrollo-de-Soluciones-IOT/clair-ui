@@ -18,11 +18,8 @@ import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-objec
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { createClaimDeviceCommand } from '../../../domain/model/commands/claim-device.command';
 import { createPairDeviceCommand } from '../../../domain/model/commands/pair-device.command';
-import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
-import { createUpdateDeviceSerialNumberCommand } from '../../../domain/model/commands/update-device-serial-number.command';
 import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
 import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
-import { createSerialNumber } from '../../../domain/model/valueobjects/serial-number.value-object';
 
 @Component({
   selector: 'app-space-devices-page',
@@ -99,7 +96,7 @@ export class SpaceDevicesPageComponent {
     const dialogRef = this.dialog.open(PairDeviceDialogComponent, { width: '420px' });
     dialogRef.afterClosed().subscribe((result: PairDeviceDialogResult | undefined) => {
       if (!result) return;
-      const command = createPairDeviceCommand(result.hardwareId, result.deviceType);
+      const command = createPairDeviceCommand(result.hardwareId);
       this.deviceCommandService.handlePairDevice(command).subscribe({
         next: (device) => {
           const claimTokenText = device.claimToken ? ` Claim token: ${device.claimToken}` : '';
@@ -107,52 +104,6 @@ export class SpaceDevicesPageComponent {
           if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
         },
         error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to pair sensor'), 'Close', { duration: 3000 }),
-      });
-    });
-  }
-
-  openEditDeviceNameDialog(device: Device): void {
-    const dialogRef = this.dialog.open(EditNameDialogComponent, {
-      width: '400px',
-      data: {
-        currentValue: device.name,
-        title: 'Edit Device Name',
-        fieldLabel: 'Device Name',
-        placeholder: 'Enter device name',
-      },
-    });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
-      if (!name) return;
-      const command = createUpdateDeviceNameCommand(device.id, name);
-      this.deviceCommandService.handleUpdateDeviceName(command).subscribe({
-        next: () => {
-          this.snackBar.open('Device name updated', 'Close', { duration: 3000 });
-          if (device.spaceId) this.loadDevices(device.spaceId);
-        },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device name'), 'Close', { duration: 3000 }),
-      });
-    });
-  }
-
-  openEditDeviceSerialNumberDialog(device: Device): void {
-    const dialogRef = this.dialog.open(EditNameDialogComponent, {
-      width: '400px',
-      data: {
-        currentValue: device.serialNumber,
-        title: 'Edit Device Serial',
-        fieldLabel: 'Serial Number',
-        placeholder: 'Enter serial number',
-      },
-    });
-    dialogRef.afterClosed().subscribe((serialNumber: string | undefined) => {
-      if (!serialNumber) return;
-      const command = createUpdateDeviceSerialNumberCommand(device.id, createSerialNumber(serialNumber));
-      this.deviceCommandService.handleUpdateDeviceSerialNumber(command).subscribe({
-        next: () => {
-          this.snackBar.open('Device serial updated', 'Close', { duration: 3000 });
-          if (device.spaceId) this.loadDevices(device.spaceId);
-        },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device serial'), 'Close', { duration: 3000 }),
       });
     });
   }

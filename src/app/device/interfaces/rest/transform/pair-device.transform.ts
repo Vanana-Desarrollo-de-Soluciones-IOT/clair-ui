@@ -6,6 +6,7 @@ export const pairDeviceCommandToResource = (
 ): PairDeviceResource => {
   return {
     hardwareId: command.hardwareId,
-    deviceType: command.deviceType,
+    // Backend currently requires the field, but device type is resolved from factory inventory.
+    deviceType: 'air-quality-v1',
   };
 };

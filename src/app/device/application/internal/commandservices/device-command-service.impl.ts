@@ -8,11 +8,7 @@ import { ClaimDeviceCommand } from '../../../domain/model/commands/claim-device.
 import { PairDeviceCommand } from '../../../domain/model/commands/pair-device.command';
 import { DeleteOrganizationCommand } from '../../../domain/model/commands/delete-organization.command';
 import { DeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
-import { DeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
-import { UpdateDeviceStatusCommand } from '../../../domain/model/commands/update-device-status.command';
-import { UpdateDeviceConfigurationCommand } from '../../../domain/model/commands/update-device-configuration.command';
-import { UpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
-import { UpdateDeviceSerialNumberCommand } from '../../../domain/model/commands/update-device-serial-number.command';
+import { ResetDeviceAssignmentCommand } from '../../../domain/model/commands/reset-device-assignment.command';
 import { UpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
 import { UpdateOrganizationNameCommand } from '../../../domain/model/commands/update-organization-name.command';
 import { DeviceHttpGateway } from '../../../infrastructure/api/gateways/device-http.gateway';
@@ -20,10 +16,6 @@ import { createOrganizationCommandToResource } from '../../../interfaces/rest/tr
 import { createSpaceCommandToResource } from '../../../interfaces/rest/transform/create-space.transform';
 import { claimDeviceCommandToResource } from '../../../interfaces/rest/transform/claim-device.transform';
 import { pairDeviceCommandToResource } from '../../../interfaces/rest/transform/pair-device.transform';
-import { updateDeviceStatusCommandToResource } from '../../../interfaces/rest/transform/update-device-status.transform';
-import { updateDeviceConfigurationCommandToResource } from '../../../interfaces/rest/transform/update-device-configuration.transform';
-import { updateDeviceNameCommandToResource } from '../../../interfaces/rest/transform/update-device-name.transform';
-import { updateDeviceSerialNumberCommandToResource } from '../../../interfaces/rest/transform/update-device-serial-number.transform';
 import { updateSpaceNameCommandToResource } from '../../../interfaces/rest/transform/update-space-name.transform';
 import { updateOrganizationNameCommandToResource } from '../../../interfaces/rest/transform/update-organization-name.transform';
 import { organizationResourceToDomain } from '../../../interfaces/rest/transform/organization.transform';
@@ -66,36 +58,8 @@ export class DeviceCommandServiceImpl implements DeviceCommandService {
     return this.deviceGateway.deleteSpace(command.spaceId.value);
   }
 
-  handleDeleteDevice(command: DeleteDeviceCommand): Observable<void> {
+  handleResetDeviceAssignment(command: ResetDeviceAssignmentCommand): Observable<void> {
     return this.deviceGateway.deleteDevice(command.deviceId.value);
-  }
-
-  handleUpdateDeviceStatus(command: UpdateDeviceStatusCommand): Observable<void> {
-    return this.deviceGateway.updateDeviceStatus(
-      command.deviceId.value,
-      updateDeviceStatusCommandToResource(command)
-    );
-  }
-
-  handleUpdateDeviceConfiguration(command: UpdateDeviceConfigurationCommand): Observable<void> {
-    return this.deviceGateway.updateDeviceConfiguration(
-      command.deviceId.value,
-      updateDeviceConfigurationCommandToResource(command)
-    );
-  }
-
-  handleUpdateDeviceName(command: UpdateDeviceNameCommand): Observable<void> {
-    return this.deviceGateway.updateDeviceName(
-      command.deviceId.value,
-      updateDeviceNameCommandToResource(command)
-    );
-  }
-
-  handleUpdateDeviceSerialNumber(command: UpdateDeviceSerialNumberCommand): Observable<void> {
-    return this.deviceGateway.updateDeviceSerialNumber(
-      command.deviceId.value,
-      updateDeviceSerialNumberCommandToResource(command)
-    );
   }
 
   handleUpdateSpaceName(command: UpdateSpaceNameCommand): Observable<void> {

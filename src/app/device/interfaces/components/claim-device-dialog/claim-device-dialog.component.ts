@@ -22,7 +22,13 @@ export class ClaimDeviceDialogComponent {
   private readonly fb = inject(FormBuilder);
 
   form: FormGroup = this.fb.group({
-    claimToken: ['', [Validators.required, Validators.minLength(1)]],
+    claimToken: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/(^[A-Z0-9]{4}-[A-Z0-9]{4}$)|(^[A-Za-z0-9_-]{20,}$)/),
+      ],
+    ],
   });
 
   submit(): void {
