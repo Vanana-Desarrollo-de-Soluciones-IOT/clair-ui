@@ -9,12 +9,10 @@ import { CreateOrganizationResource } from '../../../interfaces/rest/resources/c
 import { CreateSpaceResource } from '../../../interfaces/rest/resources/create-space.resource';
 import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-device.resource';
 import { PairDeviceResource } from '../../../interfaces/rest/resources/pair-device.resource';
-import { UpdateDeviceStatusResource } from '../../../interfaces/rest/resources/update-device-status.resource';
-import { UpdateDeviceConfigurationResource } from '../../../interfaces/rest/resources/update-device-configuration.resource';
-import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
-import { UpdateDeviceSerialNumberResource } from '../../../interfaces/rest/resources/update-device-serial-number.resource';
+import { DevicePairingResource } from '../../../interfaces/rest/resources/device-pairing.resource';
 import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
 import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
+import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
 import { API_CONFIG } from '../../../../api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -73,8 +71,8 @@ export class DeviceHttpGateway implements DeviceGateway {
     return this.http.post<DeviceResource>(`${this.deviceUrl}/claim`, resource);
   }
 
-  pairDevice(resource: PairDeviceResource): Observable<DeviceResource> {
-    return this.http.post<DeviceResource>(`${this.deviceUrl}/pair`, resource);
+  pairDevice(resource: PairDeviceResource): Observable<DevicePairingResource> {
+    return this.http.post<DevicePairingResource>(`${this.deviceUrl}/pair`, resource);
   }
 
   getDevicesBySpace(spaceId: string, page: number, size: number): Observable<DevicePageResource> {
@@ -89,27 +87,11 @@ export class DeviceHttpGateway implements DeviceGateway {
     return this.http.get<DeviceResource>(`${this.deviceUrl}/${deviceId}`);
   }
 
-  getDeviceBySerialNumber(serialNumber: string): Observable<DeviceResource> {
-    return this.http.get<DeviceResource>(`${this.deviceUrl}/serial-number/${serialNumber}`);
-  }
-
-  updateDeviceStatus(deviceId: string, resource: UpdateDeviceStatusResource): Observable<void> {
-    return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/status`, resource);
-  }
-
-  updateDeviceConfiguration(deviceId: string, resource: UpdateDeviceConfigurationResource): Observable<void> {
-    return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/configuration`, resource);
+  deleteDevice(deviceId: string): Observable<void> {
+    return this.http.delete<void>(`${this.deviceUrl}/${deviceId}`);
   }
 
   updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void> {
     return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/name`, resource);
-  }
-
-  updateDeviceSerialNumber(deviceId: string, resource: UpdateDeviceSerialNumberResource): Observable<void> {
-    return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/serial-number`, resource);
-  }
-
-  deleteDevice(deviceId: string): Observable<void> {
-    return this.http.delete<void>(`${this.deviceUrl}/${deviceId}`);
   }
 }

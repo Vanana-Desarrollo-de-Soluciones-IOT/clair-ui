@@ -9,7 +9,6 @@ import { GetSpacesByOwnerQuery } from '../../../domain/model/queries/get-spaces-
 import { GetSpaceByIdQuery } from '../../../domain/model/queries/get-space-by-id.query';
 import { GetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { GetDeviceByIdQuery } from '../../../domain/model/queries/get-device-by-id.query';
-import { GetDeviceBySerialNumberQuery } from '../../../domain/model/queries/get-device-by-serial-number.query';
 import { DeviceHttpGateway } from '../../../infrastructure/api/gateways/device-http.gateway';
 import { organizationResourceToDomain } from '../../../interfaces/rest/transform/organization.transform';
 import { spaceResourceToDomain } from '../../../interfaces/rest/transform/space.transform';
@@ -59,13 +58,6 @@ export class DeviceQueryServiceImpl implements DeviceQueryService {
 
   handleGetDeviceById(query: GetDeviceByIdQuery): Observable<Device | null> {
     return this.deviceGateway.getDeviceById(query.deviceId.value).pipe(
-      map((resource) => deviceResourceToDomain(resource)),
-      catchError(() => of(null))
-    );
-  }
-
-  handleGetDeviceBySerialNumber(query: GetDeviceBySerialNumberQuery): Observable<Device | null> {
-    return this.deviceGateway.getDeviceBySerialNumber(query.serialNumber.value).pipe(
       map((resource) => deviceResourceToDomain(resource)),
       catchError(() => of(null))
     );

@@ -5,7 +5,6 @@ export const pairDeviceCommandToResource = (
   command: PairDeviceCommand
 ): PairDeviceResource => {
   return {
-    hardwareId: command.hardwareId,
-    deviceType: command.deviceType,
+    hardwareId: command.hardwareId.value,
   };
 };

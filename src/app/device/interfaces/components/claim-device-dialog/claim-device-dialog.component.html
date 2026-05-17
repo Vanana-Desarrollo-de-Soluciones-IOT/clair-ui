@@ -2,11 +2,12 @@
 <mat-dialog-content>
   <p class="description">Enter the claim token from the sensor label or QR code.</p>
   <form [formGroup]="form" (ngSubmit)="submit()">
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Claim Token</mat-label>
-      <input matInput formControlName="claimToken" placeholder="Enter claim token" autocomplete="off" />
-      <mat-error *ngIf="form.get('claimToken')?.hasError('required')">Claim token is required</mat-error>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Claim Token</mat-label>
+        <input matInput formControlName="claimToken" placeholder="AB45-F3B1" autocomplete="off" />
+        <mat-error *ngIf="form.get('claimToken')?.hasError('required')">Claim token is required</mat-error>
+        <mat-error *ngIf="form.get('claimToken')?.hasError('pattern')">Invalid claim token format</mat-error>
+      </mat-form-field>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

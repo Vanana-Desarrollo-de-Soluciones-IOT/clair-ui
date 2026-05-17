@@ -1,0 +1,48 @@
+<div class="thresholds-card">
+  <div class="thresholds-header">
+    <div class="thresholds-title-section">
+      <div class="title-row">
+        <h2 class="thresholds-title">Thresholds</h2>
+        <span class="status-dot"></span>
+      </div>
+      <p class="thresholds-subtitle">May affect device health</p>
+    </div>
+    <button mat-icon-button class="edit-button" (click)="editThresholds()" aria-label="Edit thresholds">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+
+  <div class="thresholds-container">
+    <mat-card class="threshold-card">
+      <div class="threshold-label">PM2.5</div>
+      <div class="threshold-value">
+        <span class="threshold-number">{{ thresholds.pm25.value }}</span>
+        <span class="threshold-unit">{{ thresholds.pm25.unit }}</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="threshold-card">
+      <div class="threshold-label">CO₂</div>
+      <div class="threshold-value">
+        <span class="threshold-number">{{ thresholds.co2.value }}</span>
+        <span class="threshold-unit">{{ thresholds.co2.unit }}</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="threshold-card">
+      <div class="threshold-label">TEMP</div>
+      <div class="threshold-value">
+        <span class="threshold-number">{{ thresholds.temp.value }}</span>
+        <span class="threshold-unit">{{ thresholds.temp.unit }}</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="threshold-card">
+      <div class="threshold-label">HUMIDITY</div>
+      <div class="threshold-value">
+        <span class="threshold-number">{{ thresholds.humidity.value }}</span>
+        <span class="threshold-unit">{{ thresholds.humidity.unit }}</span>
+      </div>
+    </mat-card>
+  </div>
+</div>

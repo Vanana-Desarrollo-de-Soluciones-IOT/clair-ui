@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 
 export type PairDeviceDialogResult = Readonly<{
   hardwareId: string;
-  deviceType: string;
 }>;
 
 @Component({
@@ -23,15 +22,13 @@ export class PairDeviceDialogComponent {
   private readonly fb = inject(FormBuilder);
 
   form: FormGroup = this.fb.group({
-    hardwareId: ['', [Validators.required, Validators.minLength(1)]],
-    deviceType: ['air-quality-v1', [Validators.required, Validators.minLength(1)]],
+    hardwareId: ['', [Validators.required, Validators.pattern(/^(CLAIR|HW)-\d{4}$/)]],
   });
 
   submit(): void {
     if (this.form.invalid) return;
     this.dialogRef.close({
       hardwareId: this.form.value.hardwareId as string,
-      deviceType: this.form.value.deviceType as string,
     });
   }
 

@@ -3,14 +3,11 @@ import { InjectionToken } from '@angular/core';
 import { OrganizationResource } from '../../../interfaces/rest/resources/organization.resource';
 import { SpaceResource } from '../../../interfaces/rest/resources/space.resource';
 import { DeviceResource, DevicePageResource } from '../../../interfaces/rest/resources/device.resource';
+import { DevicePairingResource } from '../../../interfaces/rest/resources/device-pairing.resource';
 import { CreateOrganizationResource } from '../../../interfaces/rest/resources/create-organization.resource';
 import { CreateSpaceResource } from '../../../interfaces/rest/resources/create-space.resource';
 import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-device.resource';
 import { PairDeviceResource } from '../../../interfaces/rest/resources/pair-device.resource';
-import { UpdateDeviceStatusResource } from '../../../interfaces/rest/resources/update-device-status.resource';
-import { UpdateDeviceConfigurationResource } from '../../../interfaces/rest/resources/update-device-configuration.resource';
-import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
-import { UpdateDeviceSerialNumberResource } from '../../../interfaces/rest/resources/update-device-serial-number.resource';
 import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
 import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
 
@@ -29,14 +26,9 @@ export interface DeviceGateway {
   updateSpaceName(spaceId: string, resource: UpdateSpaceNameResource): Observable<void>;
 
   claimDevice(resource: ClaimDeviceResource): Observable<DeviceResource>;
-  pairDevice(resource: PairDeviceResource): Observable<DeviceResource>;
+  pairDevice(resource: PairDeviceResource): Observable<DevicePairingResource>;
   getDevicesBySpace(spaceId: string, page: number, size: number): Observable<DevicePageResource>;
   getDeviceById(deviceId: string): Observable<DeviceResource>;
-  getDeviceBySerialNumber(serialNumber: string): Observable<DeviceResource>;
-  updateDeviceStatus(deviceId: string, resource: UpdateDeviceStatusResource): Observable<void>;
-  updateDeviceConfiguration(deviceId: string, resource: UpdateDeviceConfigurationResource): Observable<void>;
-  updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void>;
-  updateDeviceSerialNumber(deviceId: string, resource: UpdateDeviceSerialNumberResource): Observable<void>;
   deleteDevice(deviceId: string): Observable<void>;
 }
 

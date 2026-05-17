@@ -29,5 +29,6 @@
     *ngFor="let device of devicesPage.content"
     [device]="device"
     [viewMode]="viewMode"
+    (deviceSelected)="onDeviceSelected($event)"
   ></app-device-card>
 </div>
