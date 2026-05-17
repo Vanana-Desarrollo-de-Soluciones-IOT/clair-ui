@@ -13,12 +13,18 @@ import { DeleteDeviceCommand } from '../model/commands/delete-device.command';
 import { Organization } from './device-query-service';
 import { Space } from './device-query-service';
 import { Device } from './device-query-service';
+import { DeviceId } from '../model/valueobjects/device-id.value-object';
+
+export type DevicePairing = Readonly<{
+  deviceId: DeviceId;
+  claimToken: string | null;
+}>;
 
 export interface DeviceCommandService {
   handleCreateOrganization(command: CreateOrganizationCommand): Observable<Organization>;
   handleCreateSpace(command: CreateSpaceCommand): Observable<Space>;
   handleClaimDevice(command: ClaimDeviceCommand): Observable<Device>;
-  handlePairDevice(command: PairDeviceCommand): Observable<Device>;
+  handlePairDevice(command: PairDeviceCommand): Observable<DevicePairing>;
   handleDeleteOrganization(command: DeleteOrganizationCommand): Observable<void>;
   handleDeleteSpace(command: DeleteSpaceCommand): Observable<void>;
   handleResetDeviceAssignment(command: ResetDeviceAssignmentCommand): Observable<void>;

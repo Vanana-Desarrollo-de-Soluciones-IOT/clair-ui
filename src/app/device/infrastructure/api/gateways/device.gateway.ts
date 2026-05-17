@@ -3,6 +3,7 @@ import { InjectionToken } from '@angular/core';
 import { OrganizationResource } from '../../../interfaces/rest/resources/organization.resource';
 import { SpaceResource } from '../../../interfaces/rest/resources/space.resource';
 import { DeviceResource, DevicePageResource } from '../../../interfaces/rest/resources/device.resource';
+import { DevicePairingResource } from '../../../interfaces/rest/resources/device-pairing.resource';
 import { CreateOrganizationResource } from '../../../interfaces/rest/resources/create-organization.resource';
 import { CreateSpaceResource } from '../../../interfaces/rest/resources/create-space.resource';
 import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-device.resource';
@@ -25,7 +26,7 @@ export interface DeviceGateway {
   updateSpaceName(spaceId: string, resource: UpdateSpaceNameResource): Observable<void>;
 
   claimDevice(resource: ClaimDeviceResource): Observable<DeviceResource>;
-  pairDevice(resource: PairDeviceResource): Observable<DeviceResource>;
+  pairDevice(resource: PairDeviceResource): Observable<DevicePairingResource>;
   getDevicesBySpace(spaceId: string, page: number, size: number): Observable<DevicePageResource>;
   getDeviceById(deviceId: string): Observable<DeviceResource>;
   deleteDevice(deviceId: string): Observable<void>;

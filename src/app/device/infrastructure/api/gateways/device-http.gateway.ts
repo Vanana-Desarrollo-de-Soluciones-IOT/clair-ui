@@ -9,6 +9,7 @@ import { CreateOrganizationResource } from '../../../interfaces/rest/resources/c
 import { CreateSpaceResource } from '../../../interfaces/rest/resources/create-space.resource';
 import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-device.resource';
 import { PairDeviceResource } from '../../../interfaces/rest/resources/pair-device.resource';
+import { DevicePairingResource } from '../../../interfaces/rest/resources/device-pairing.resource';
 import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
 import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
 import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
@@ -70,8 +71,8 @@ export class DeviceHttpGateway implements DeviceGateway {
     return this.http.post<DeviceResource>(`${this.deviceUrl}/claim`, resource);
   }
 
-  pairDevice(resource: PairDeviceResource): Observable<DeviceResource> {
-    return this.http.post<DeviceResource>(`${this.deviceUrl}/pair`, resource);
+  pairDevice(resource: PairDeviceResource): Observable<DevicePairingResource> {
+    return this.http.post<DevicePairingResource>(`${this.deviceUrl}/pair`, resource);
   }
 
   getDevicesBySpace(spaceId: string, page: number, size: number): Observable<DevicePageResource> {

@@ -38,9 +38,7 @@ export type Device = Readonly<{
   ownerUserId: UserId | null;
   configuration: Record<string, string>;
   hardwareId: string;
-  apiKey: string;
   deviceType: string;
-  claimToken: string | null;
   activatedAt: string | null;
   lastSeenAt: string | null;
   createdAt: string | null;

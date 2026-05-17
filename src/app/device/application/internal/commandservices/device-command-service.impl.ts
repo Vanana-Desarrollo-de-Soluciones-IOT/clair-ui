@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { DeviceCommandService } from '../../../domain/services/device-command-service';
+import { DeviceCommandService, DevicePairing } from '../../../domain/services/device-command-service';
 import { DeviceQueryService, Organization, Space, Device } from '../../../domain/services/device-query-service';
 import { CreateOrganizationCommand } from '../../../domain/model/commands/create-organization.command';
 import { CreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
@@ -24,6 +24,7 @@ import { updateDeviceNameCommandToResource } from '../../../interfaces/rest/tran
 import { organizationResourceToDomain } from '../../../interfaces/rest/transform/organization.transform';
 import { spaceResourceToDomain } from '../../../interfaces/rest/transform/space.transform';
 import { deviceResourceToDomain } from '../../../interfaces/rest/transform/device.transform';
+import { devicePairingResourceToDomain } from '../../../interfaces/rest/transform/device-pairing.transform';
 
 @Injectable({ providedIn: 'root' })
 export class DeviceCommandServiceImpl implements DeviceCommandService {
@@ -47,10 +48,10 @@ export class DeviceCommandServiceImpl implements DeviceCommandService {
       .pipe(map((resource) => deviceResourceToDomain(resource)));
   }
 
-  handlePairDevice(command: PairDeviceCommand): Observable<Device> {
+  handlePairDevice(command: PairDeviceCommand): Observable<DevicePairing> {
     return this.deviceGateway
       .pairDevice(pairDeviceCommandToResource(command))
-      .pipe(map((resource) => deviceResourceToDomain(resource)));
+      .pipe(map((resource) => devicePairingResourceToDomain(resource)));
   }
 
   handleDeleteOrganization(command: DeleteOrganizationCommand): Observable<void> {

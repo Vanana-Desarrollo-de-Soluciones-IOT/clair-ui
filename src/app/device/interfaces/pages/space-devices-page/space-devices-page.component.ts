@@ -113,8 +113,8 @@ export class SpaceDevicesPageComponent {
       if (!result) return;
       const command = createPairDeviceCommand(createHardwareId(result.hardwareId));
       this.deviceCommandService.handlePairDevice(command).subscribe({
-        next: (device) => {
-          const claimTokenText = device.claimToken ? ` Claim token: ${device.claimToken}` : '';
+        next: (pairing) => {
+          const claimTokenText = pairing.claimToken ? ` Claim token: ${pairing.claimToken}` : '';
           this.snackBar.open(`Sensor paired.${claimTokenText}`, 'Close', { duration: 6000 });
           if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
         },
