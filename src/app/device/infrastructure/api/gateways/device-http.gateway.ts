@@ -11,6 +11,7 @@ import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-de
 import { PairDeviceResource } from '../../../interfaces/rest/resources/pair-device.resource';
 import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
 import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
+import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
 import { API_CONFIG } from '../../../../api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -87,5 +88,9 @@ export class DeviceHttpGateway implements DeviceGateway {
 
   deleteDevice(deviceId: string): Observable<void> {
     return this.http.delete<void>(`${this.deviceUrl}/${deviceId}`);
+  }
+
+  updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void> {
+    return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/name`, resource);
   }
 }

@@ -11,6 +11,8 @@ import { DeleteSpaceCommand } from '../../../domain/model/commands/delete-space.
 import { ResetDeviceAssignmentCommand } from '../../../domain/model/commands/reset-device-assignment.command';
 import { UpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
 import { UpdateOrganizationNameCommand } from '../../../domain/model/commands/update-organization-name.command';
+import { UpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
+import { DeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
 import { DeviceHttpGateway } from '../../../infrastructure/api/gateways/device-http.gateway';
 import { createOrganizationCommandToResource } from '../../../interfaces/rest/transform/create-organization.transform';
 import { createSpaceCommandToResource } from '../../../interfaces/rest/transform/create-space.transform';
@@ -18,6 +20,7 @@ import { claimDeviceCommandToResource } from '../../../interfaces/rest/transform
 import { pairDeviceCommandToResource } from '../../../interfaces/rest/transform/pair-device.transform';
 import { updateSpaceNameCommandToResource } from '../../../interfaces/rest/transform/update-space-name.transform';
 import { updateOrganizationNameCommandToResource } from '../../../interfaces/rest/transform/update-organization-name.transform';
+import { updateDeviceNameCommandToResource } from '../../../interfaces/rest/transform/update-device-name.transform';
 import { organizationResourceToDomain } from '../../../interfaces/rest/transform/organization.transform';
 import { spaceResourceToDomain } from '../../../interfaces/rest/transform/space.transform';
 import { deviceResourceToDomain } from '../../../interfaces/rest/transform/device.transform';
@@ -74,5 +77,16 @@ export class DeviceCommandServiceImpl implements DeviceCommandService {
       command.organizationId.value,
       updateOrganizationNameCommandToResource(command)
     );
+  }
+
+  handleUpdateDeviceName(command: UpdateDeviceNameCommand): Observable<void> {
+    return this.deviceGateway.updateDeviceName(
+      command.deviceId.value,
+      updateDeviceNameCommandToResource(command)
+    );
+  }
+
+  handleDeleteDevice(command: DeleteDeviceCommand): Observable<void> {
+    return this.deviceGateway.deleteDevice(command.deviceId.value);
   }
 }

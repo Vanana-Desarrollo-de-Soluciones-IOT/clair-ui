@@ -12,6 +12,9 @@ import { DeviceListComponent, DeviceViewMode } from '../../components/device-lis
 import { SpaceDetailHeaderComponent } from '../../components/space-detail-header/space-detail-header.component';
 import { EditNameDialogComponent } from '../../components/edit-name-dialog/edit-name-dialog.component';
 import { DeleteSpaceDialogComponent } from '../../components/delete-space-dialog/delete-space-dialog.component';
+import { DeleteDeviceDialogComponent, DeleteDeviceDialogData } from '../../components/delete-device-dialog/delete-device-dialog.component';
+import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
+import { createDeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
@@ -19,6 +22,7 @@ import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-objec
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { createClaimDeviceCommand } from '../../../domain/model/commands/claim-device.command';
 import { createPairDeviceCommand } from '../../../domain/model/commands/pair-device.command';
+import { createHardwareId } from '../../../domain/model/valueobjects/hardware-id.value-object';
 import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
 import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
 
@@ -107,7 +111,7 @@ export class SpaceDevicesPageComponent {
     const dialogRef = this.dialog.open(PairDeviceDialogComponent, { width: '420px' });
     dialogRef.afterClosed().subscribe((result: PairDeviceDialogResult | undefined) => {
       if (!result) return;
-      const command = createPairDeviceCommand(result.hardwareId);
+      const command = createPairDeviceCommand(createHardwareId(result.hardwareId));
       this.deviceCommandService.handlePairDevice(command).subscribe({
         next: (device) => {
           const claimTokenText = device.claimToken ? ` Claim token: ${device.claimToken}` : '';
@@ -190,18 +194,63 @@ export class SpaceDevicesPageComponent {
   }
 
   openEditDeviceDialog(): void {
-    // TODO: Implement edit device dialog
-    console.log('Edit device:', this.selectedDevice?.name);
+    if (!this.selectedDevice) return;
+    const dialogRef = this.dialog.open(EditNameDialogComponent, {
+      width: '400px',
+      data: {
+        currentValue: this.selectedDevice.name,
+        title: 'Edit Device',
+        fieldLabel: 'Device Name',
+        placeholder: 'Enter device name',
+      },
+    });
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name || !this.selectedDevice) return;
+      const command = createUpdateDeviceNameCommand(this.selectedDevice.id, name);
+      this.deviceCommandService.handleUpdateDeviceName(command).subscribe({
+        next: () => {
+          this.snackBar.open('Device updated', 'Close', { duration: 3000 });
+          if (this.selectedDevice) {
+            this.selectedDevice = { ...this.selectedDevice, name };
+          }
+          // Refresh the device list to show the updated name
+          if (this.selectedSpace) {
+            this.loadDevices(this.selectedSpace.id);
+          }
+        },
+        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device'), 'Close', { duration: 3000 }),
+      });
+    });
   }
 
   openDeleteDeviceDialog(): void {
-    // TODO: Implement delete device dialog
-    console.log('Delete device:', this.selectedDevice?.name);
+    if (!this.selectedDevice) return;
+    const dialogRef = this.dialog.open(DeleteDeviceDialogComponent, {
+      width: '400px',
+      data: {
+        deviceName: this.selectedDevice.name,
+      } as DeleteDeviceDialogData,
+    });
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed || !this.selectedDevice) return;
+      const command = createDeleteDeviceCommand(this.selectedDevice.id);
+      this.deviceCommandService.handleDeleteDevice(command).subscribe({
+        next: () => {
+          this.snackBar.open('Device deleted', 'Close', { duration: 3000 });
+          this.selectedDevice = null;
+          // Refresh the device list
+          if (this.selectedSpace) {
+            this.loadDevices(this.selectedSpace.id);
+          }
+        },
+        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to delete device'), 'Close', { duration: 3000 }),
+      });
+    });
   }
 
   toggleDevicePower(): void {
-    // TODO: Implement toggle device power
-    console.log('Toggle power for device:', this.selectedDevice?.name);
+    // TODO: Implement toggle device power - requires backend endpoint
+    this.snackBar.open('Toggle power feature coming soon', 'Close', { duration: 3000 });
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {

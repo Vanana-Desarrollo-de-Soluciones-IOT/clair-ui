@@ -8,6 +8,8 @@ import { DeleteSpaceCommand } from '../model/commands/delete-space.command';
 import { ResetDeviceAssignmentCommand } from '../model/commands/reset-device-assignment.command';
 import { UpdateSpaceNameCommand } from '../model/commands/update-space-name.command';
 import { UpdateOrganizationNameCommand } from '../model/commands/update-organization-name.command';
+import { UpdateDeviceNameCommand } from '../model/commands/update-device-name.command';
+import { DeleteDeviceCommand } from '../model/commands/delete-device.command';
 import { Organization } from './device-query-service';
 import { Space } from './device-query-service';
 import { Device } from './device-query-service';
@@ -22,4 +24,6 @@ export interface DeviceCommandService {
   handleResetDeviceAssignment(command: ResetDeviceAssignmentCommand): Observable<void>;
   handleUpdateSpaceName(command: UpdateSpaceNameCommand): Observable<void>;
   handleUpdateOrganizationName(command: UpdateOrganizationNameCommand): Observable<void>;
+  handleUpdateDeviceName(command: UpdateDeviceNameCommand): Observable<void>;
+  handleDeleteDevice(command: DeleteDeviceCommand): Observable<void>;
 }
