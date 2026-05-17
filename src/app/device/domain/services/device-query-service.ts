@@ -35,10 +35,17 @@ export type Device = Readonly<{
   serialNumber: string;
   name: string;
   status: DeviceStatus;
-  spaceId: SpaceId;
+  spaceId: SpaceId | null;
+  ownerUserId: UserId | null;
   configuration: Record<string, string>;
-  createdAt: string;
-  updatedAt: string;
+  hardwareId: string;
+  apiKey: string;
+  deviceType: string;
+  claimToken: string | null;
+  activatedAt: string | null;
+  lastSeenAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
 }>;
 
 export type DevicePage = Readonly<{

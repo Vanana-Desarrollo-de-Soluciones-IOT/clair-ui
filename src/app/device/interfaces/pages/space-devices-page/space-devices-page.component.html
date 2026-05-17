@@ -17,7 +17,8 @@
         <section class="detail-panel">
           <app-space-detail-header
             [space]="selectedSpace"
-            (registerDeviceRequested)="openRegisterDeviceDialog()"
+            (claimDeviceRequested)="openClaimDeviceDialog()"
+            (pairDeviceRequested)="openPairDeviceDialog()"
             (editSpaceRequested)="openEditSpaceDialog()"
             (deleteSpaceRequested)="openDeleteSpaceDialog()"
           ></app-space-detail-header>

@@ -4,7 +4,8 @@ import { DeviceCommandService } from '../../../domain/services/device-command-se
 import { DeviceQueryService, Organization, Space, Device } from '../../../domain/services/device-query-service';
 import { CreateOrganizationCommand } from '../../../domain/model/commands/create-organization.command';
 import { CreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
-import { RegisterDeviceCommand } from '../../../domain/model/commands/register-device.command';
+import { ClaimDeviceCommand } from '../../../domain/model/commands/claim-device.command';
+import { PairDeviceCommand } from '../../../domain/model/commands/pair-device.command';
 import { DeleteOrganizationCommand } from '../../../domain/model/commands/delete-organization.command';
 import { DeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
 import { DeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
@@ -17,7 +18,8 @@ import { UpdateOrganizationNameCommand } from '../../../domain/model/commands/up
 import { DeviceHttpGateway } from '../../../infrastructure/api/gateways/device-http.gateway';
 import { createOrganizationCommandToResource } from '../../../interfaces/rest/transform/create-organization.transform';
 import { createSpaceCommandToResource } from '../../../interfaces/rest/transform/create-space.transform';
-import { registerDeviceCommandToResource } from '../../../interfaces/rest/transform/register-device.transform';
+import { claimDeviceCommandToResource } from '../../../interfaces/rest/transform/claim-device.transform';
+import { pairDeviceCommandToResource } from '../../../interfaces/rest/transform/pair-device.transform';
 import { updateDeviceStatusCommandToResource } from '../../../interfaces/rest/transform/update-device-status.transform';
 import { updateDeviceConfigurationCommandToResource } from '../../../interfaces/rest/transform/update-device-configuration.transform';
 import { updateDeviceNameCommandToResource } from '../../../interfaces/rest/transform/update-device-name.transform';
@@ -44,9 +46,15 @@ export class DeviceCommandServiceImpl implements DeviceCommandService {
       .pipe(map((resource) => spaceResourceToDomain(resource)));
   }
 
-  handleRegisterDevice(command: RegisterDeviceCommand): Observable<Device> {
+  handleClaimDevice(command: ClaimDeviceCommand): Observable<Device> {
     return this.deviceGateway
-      .registerDevice(registerDeviceCommandToResource(command))
+      .claimDevice(claimDeviceCommandToResource(command))
+      .pipe(map((resource) => deviceResourceToDomain(resource)));
+  }
+
+  handlePairDevice(command: PairDeviceCommand): Observable<Device> {
+    return this.deviceGateway
+      .pairDevice(pairDeviceCommandToResource(command))
       .pipe(map((resource) => deviceResourceToDomain(resource)));
   }
 

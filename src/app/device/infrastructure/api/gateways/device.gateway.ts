@@ -5,7 +5,8 @@ import { SpaceResource } from '../../../interfaces/rest/resources/space.resource
 import { DeviceResource, DevicePageResource } from '../../../interfaces/rest/resources/device.resource';
 import { CreateOrganizationResource } from '../../../interfaces/rest/resources/create-organization.resource';
 import { CreateSpaceResource } from '../../../interfaces/rest/resources/create-space.resource';
-import { RegisterDeviceResource } from '../../../interfaces/rest/resources/register-device.resource';
+import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-device.resource';
+import { PairDeviceResource } from '../../../interfaces/rest/resources/pair-device.resource';
 import { UpdateDeviceStatusResource } from '../../../interfaces/rest/resources/update-device-status.resource';
 import { UpdateDeviceConfigurationResource } from '../../../interfaces/rest/resources/update-device-configuration.resource';
 import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
@@ -27,7 +28,8 @@ export interface DeviceGateway {
   deleteSpace(spaceId: string): Observable<void>;
   updateSpaceName(spaceId: string, resource: UpdateSpaceNameResource): Observable<void>;
 
-  registerDevice(resource: RegisterDeviceResource): Observable<DeviceResource>;
+  claimDevice(resource: ClaimDeviceResource): Observable<DeviceResource>;
+  pairDevice(resource: PairDeviceResource): Observable<DeviceResource>;
   getDevicesBySpace(spaceId: string, page: number, size: number): Observable<DevicePageResource>;
   getDeviceById(deviceId: string): Observable<DeviceResource>;
   getDeviceBySerialNumber(serialNumber: string): Observable<DeviceResource>;

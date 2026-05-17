@@ -6,31 +6,36 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
+export type PairDeviceDialogResult = Readonly<{
+  hardwareId: string;
+  deviceType: string;
+}>;
+
 @Component({
-  selector: 'app-register-device-dialog',
+  selector: 'app-pair-device-dialog',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-  templateUrl: './register-device-dialog.component.html',
-  styleUrl: './register-device-dialog.component.css',
+  templateUrl: './pair-device-dialog.component.html',
+  styleUrl: './pair-device-dialog.component.css',
 })
-export class RegisterDeviceDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<RegisterDeviceDialogComponent>);
+export class PairDeviceDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef<PairDeviceDialogComponent, PairDeviceDialogResult | undefined>);
   private readonly fb = inject(FormBuilder);
 
   form: FormGroup = this.fb.group({
-    serialNumber: ['', [Validators.required, Validators.minLength(1)]],
-    name: ['', [Validators.required, Validators.minLength(1)]],
+    hardwareId: ['', [Validators.required, Validators.minLength(1)]],
+    deviceType: ['air-quality-v1', [Validators.required, Validators.minLength(1)]],
   });
 
   submit(): void {
     if (this.form.invalid) return;
     this.dialogRef.close({
-      serialNumber: this.form.value.serialNumber as string,
-      name: this.form.value.name as string,
+      hardwareId: this.form.value.hardwareId as string,
+      deviceType: this.form.value.deviceType as string,
     });
   }
 
   cancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(undefined);
   }
 }
