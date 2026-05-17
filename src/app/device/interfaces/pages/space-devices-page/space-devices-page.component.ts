@@ -5,7 +5,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
-import { RegisterDeviceDialogComponent } from '../../components/register-device-dialog/register-device-dialog.component';
+import { ClaimDeviceDialogComponent, ClaimDeviceDialogResult } from '../../components/claim-device-dialog/claim-device-dialog.component';
+import { PairDeviceDialogComponent, PairDeviceDialogResult } from '../../components/pair-device-dialog/pair-device-dialog.component';
 import { DeviceListComponent, DeviceViewMode } from '../../components/device-list/device-list.component';
 import { SpaceDetailHeaderComponent } from '../../components/space-detail-header/space-detail-header.component';
 import { EditNameDialogComponent } from '../../components/edit-name-dialog/edit-name-dialog.component';
@@ -15,7 +16,8 @@ import { DeviceQueryServiceImpl } from '../../../application/internal/queryservi
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
-import { createRegisterDeviceCommand } from '../../../domain/model/commands/register-device.command';
+import { createClaimDeviceCommand } from '../../../domain/model/commands/claim-device.command';
+import { createPairDeviceCommand } from '../../../domain/model/commands/pair-device.command';
 import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
 import { createUpdateDeviceSerialNumberCommand } from '../../../domain/model/commands/update-device-serial-number.command';
 import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
@@ -77,22 +79,34 @@ export class SpaceDevicesPageComponent {
     this.viewMode = mode;
   }
 
-  openRegisterDeviceDialog(): void {
+  openClaimDeviceDialog(): void {
     if (!this.selectedSpace) return;
-    const dialogRef = this.dialog.open(RegisterDeviceDialogComponent, { width: '400px' });
-    dialogRef.afterClosed().subscribe((result: { serialNumber: string; name: string } | undefined) => {
+    const dialogRef = this.dialog.open(ClaimDeviceDialogComponent, { width: '420px' });
+    dialogRef.afterClosed().subscribe((result: ClaimDeviceDialogResult | undefined) => {
       if (!result || !this.selectedSpace) return;
-      const command = createRegisterDeviceCommand(
-        createSerialNumber(result.serialNumber),
-        result.name,
-        this.selectedSpace.id
-      );
-      this.deviceCommandService.handleRegisterDevice(command).subscribe({
+      const command = createClaimDeviceCommand(result.claimToken, this.selectedSpace.id);
+      this.deviceCommandService.handleClaimDevice(command).subscribe({
         next: () => {
-          this.snackBar.open('Device registered', 'Close', { duration: 3000 });
+          this.snackBar.open('Sensor claimed', 'Close', { duration: 3000 });
           this.loadDevices(this.selectedSpace!.id);
         },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to register device'), 'Close', { duration: 3000 }),
+        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to claim sensor'), 'Close', { duration: 3000 }),
+      });
+    });
+  }
+
+  openPairDeviceDialog(): void {
+    const dialogRef = this.dialog.open(PairDeviceDialogComponent, { width: '420px' });
+    dialogRef.afterClosed().subscribe((result: PairDeviceDialogResult | undefined) => {
+      if (!result) return;
+      const command = createPairDeviceCommand(result.hardwareId, result.deviceType);
+      this.deviceCommandService.handlePairDevice(command).subscribe({
+        next: (device) => {
+          const claimTokenText = device.claimToken ? ` Claim token: ${device.claimToken}` : '';
+          this.snackBar.open(`Sensor paired.${claimTokenText}`, 'Close', { duration: 6000 });
+          if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
+        },
+        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to pair sensor'), 'Close', { duration: 3000 }),
       });
     });
   }
@@ -113,7 +127,7 @@ export class SpaceDevicesPageComponent {
       this.deviceCommandService.handleUpdateDeviceName(command).subscribe({
         next: () => {
           this.snackBar.open('Device name updated', 'Close', { duration: 3000 });
-          this.loadDevices(device.spaceId);
+          if (device.spaceId) this.loadDevices(device.spaceId);
         },
         error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device name'), 'Close', { duration: 3000 }),
       });
@@ -136,7 +150,7 @@ export class SpaceDevicesPageComponent {
       this.deviceCommandService.handleUpdateDeviceSerialNumber(command).subscribe({
         next: () => {
           this.snackBar.open('Device serial updated', 'Close', { duration: 3000 });
-          this.loadDevices(device.spaceId);
+          if (device.spaceId) this.loadDevices(device.spaceId);
         },
         error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device serial'), 'Close', { duration: 3000 }),
       });

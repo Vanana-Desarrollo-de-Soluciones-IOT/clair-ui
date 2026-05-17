@@ -3,6 +3,7 @@ import { Device, DevicePage } from '../../../domain/services/device-query-servic
 import { createDeviceId } from '../../../domain/model/valueobjects/device-id.value-object';
 import { createSpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { createDeviceStatus } from '../../../domain/model/valueobjects/device-status.value-object';
+import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
 
 export const deviceResourceToDomain = (resource: DeviceResource): Device => {
   return Object.freeze({
@@ -10,8 +11,15 @@ export const deviceResourceToDomain = (resource: DeviceResource): Device => {
     serialNumber: resource.serialNumber,
     name: resource.name,
     status: createDeviceStatus(resource.status),
-    spaceId: createSpaceId(resource.spaceId),
+    spaceId: resource.spaceId ? createSpaceId(resource.spaceId) : null,
+    ownerUserId: resource.ownerUserId ? createUserId(resource.ownerUserId) : null,
     configuration: Object.freeze({ ...resource.configuration }),
+    hardwareId: resource.hardwareId,
+    apiKey: resource.apiKey,
+    deviceType: resource.deviceType,
+    claimToken: resource.claimToken,
+    activatedAt: resource.activatedAt,
+    lastSeenAt: resource.lastSeenAt,
     createdAt: resource.createdAt,
     updatedAt: resource.updatedAt,
   });

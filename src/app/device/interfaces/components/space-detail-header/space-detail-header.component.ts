@@ -14,12 +14,17 @@ import { Space } from '../../../domain/services/device-query-service';
 })
 export class SpaceDetailHeaderComponent {
   @Input() space: Space | null = null;
-  @Output() registerDeviceRequested = new EventEmitter<void>();
+  @Output() claimDeviceRequested = new EventEmitter<void>();
+  @Output() pairDeviceRequested = new EventEmitter<void>();
   @Output() editSpaceRequested = new EventEmitter<void>();
   @Output() deleteSpaceRequested = new EventEmitter<void>();
 
-  requestRegisterDevice(): void {
-    this.registerDeviceRequested.emit();
+  requestClaimDevice(): void {
+    this.claimDeviceRequested.emit();
+  }
+
+  requestPairDevice(): void {
+    this.pairDeviceRequested.emit();
   }
 
   requestEditSpace(): void {
