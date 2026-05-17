@@ -24,8 +24,13 @@ export class DeviceListComponent {
   @Input() viewMode: DeviceViewMode = 'grid';
 
   @Output() viewModeChanged = new EventEmitter<DeviceViewMode>();
+  @Output() deviceSelected = new EventEmitter<Device>();
 
   setViewMode(mode: DeviceViewMode): void {
     this.viewModeChanged.emit(mode);
+  }
+
+  onDeviceSelected(device: Device): void {
+    this.deviceSelected.emit(device);
   }
 }

@@ -13,24 +13,38 @@
           (selectedSpaceCleared)="clearSelectedSpace()"
         ></app-organizations-panel>
 
-        <!-- Right panel: Spaces & Devices -->
+        <!-- Right panel: Spaces & Devices or Device Detail -->
         <section class="detail-panel">
-          <app-space-detail-header
-            [space]="selectedSpace"
-            (claimDeviceRequested)="openClaimDeviceDialog()"
-            (pairDeviceRequested)="openPairDeviceDialog()"
-            (editSpaceRequested)="openEditSpaceDialog()"
-            (deleteSpaceRequested)="openDeleteSpaceDialog()"
-          ></app-space-detail-header>
+          <!-- Show Device Detail when a device is selected -->
+          <app-device-detail-panel
+            *ngIf="selectedDevice; else deviceList"
+            [device]="selectedDevice"
+            (backRequested)="clearSelectedDevice()"
+            (editRequested)="openEditDeviceDialog()"
+            (deleteRequested)="openDeleteDeviceDialog()"
+            (powerToggleRequested)="toggleDevicePower()"
+          ></app-device-detail-panel>
 
-          <app-device-list
-            [selectedSpace]="selectedSpace"
-            [devicesPage]="devicesPage"
-            [loadingDevices]="loadingDevices"
-            [errorDevices]="errorDevices"
-            [viewMode]="viewMode"
-            (viewModeChanged)="setViewMode($event)"
-          ></app-device-list>
+          <!-- Show Device List when no device is selected -->
+          <ng-template #deviceList>
+            <app-space-detail-header
+              [space]="selectedSpace"
+              (claimDeviceRequested)="openClaimDeviceDialog()"
+              (pairDeviceRequested)="openPairDeviceDialog()"
+              (editSpaceRequested)="openEditSpaceDialog()"
+              (deleteSpaceRequested)="openDeleteSpaceDialog()"
+            ></app-space-detail-header>
+
+            <app-device-list
+              [selectedSpace]="selectedSpace"
+              [devicesPage]="devicesPage"
+              [loadingDevices]="loadingDevices"
+              [errorDevices]="errorDevices"
+              [viewMode]="viewMode"
+              (viewModeChanged)="setViewMode($event)"
+              (deviceSelected)="selectDevice($event)"
+            ></app-device-list>
+          </ng-template>
         </section>
       </div>
     </main>

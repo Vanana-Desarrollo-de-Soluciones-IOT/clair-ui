@@ -5,6 +5,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
+import { DeviceDetailPanelComponent } from '../../components/device-detail-panel/device-detail-panel.component';
 import { ClaimDeviceDialogComponent, ClaimDeviceDialogResult } from '../../components/claim-device-dialog/claim-device-dialog.component';
 import { PairDeviceDialogComponent, PairDeviceDialogResult } from '../../components/pair-device-dialog/pair-device-dialog.component';
 import { DeviceListComponent, DeviceViewMode } from '../../components/device-list/device-list.component';
@@ -31,6 +32,7 @@ import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-
     SidebarComponent,
     HeaderComponent,
     OrganizationsPanelComponent,
+    DeviceDetailPanelComponent,
     SpaceDetailHeaderComponent,
     DeviceListComponent,
   ],
@@ -48,6 +50,7 @@ export class SpaceDevicesPageComponent {
 
   isSidebarOpen = true;
   selectedSpace: Space | null = null;
+  selectedDevice: Device | null = null;
   devicesPage: DevicePage | null = null;
   viewMode: DeviceViewMode = 'grid';
   loadingDevices = false;
@@ -74,6 +77,14 @@ export class SpaceDevicesPageComponent {
 
   setViewMode(mode: DeviceViewMode): void {
     this.viewMode = mode;
+  }
+
+  selectDevice(device: Device): void {
+    this.selectedDevice = device;
+  }
+
+  clearSelectedDevice(): void {
+    this.selectedDevice = null;
   }
 
   openClaimDeviceDialog(): void {
@@ -176,6 +187,21 @@ export class SpaceDevicesPageComponent {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  openEditDeviceDialog(): void {
+    // TODO: Implement edit device dialog
+    console.log('Edit device:', this.selectedDevice?.name);
+  }
+
+  openDeleteDeviceDialog(): void {
+    // TODO: Implement delete device dialog
+    console.log('Delete device:', this.selectedDevice?.name);
+  }
+
+  toggleDevicePower(): void {
+    // TODO: Implement toggle device power
+    console.log('Toggle power for device:', this.selectedDevice?.name);
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {

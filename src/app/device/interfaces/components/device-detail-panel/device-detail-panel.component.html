@@ -1,0 +1,135 @@
+<div class="device-detail-container">
+  <!-- Header -->
+  <div class="detail-header">
+    <button mat-icon-button class="back-button" (click)="goBack()" aria-label="Go back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    
+    <div class="header-title">
+      <h1 class="device-name">{{ device.name }}</h1>
+      <span class="status-dot" [style.backgroundColor]="getStatusColor()"></span>
+    </div>
+    
+    <div class="header-actions">
+      <button mat-fab class="action-button action-button--primary" (click)="togglePower()" aria-label="Toggle power">
+        <mat-icon>power_settings_new</mat-icon>
+      </button>
+      <button mat-fab class="action-button action-button--secondary" [matMenuTriggerFor]="deviceMenu" aria-label="More options">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #deviceMenu="matMenu">
+        <button mat-menu-item (click)="editDevice()">
+          <mat-icon>edit</mat-icon>
+          <span>Edit Device</span>
+        </button>
+        <button mat-menu-item (click)="deleteDevice()">
+          <mat-icon>delete</mat-icon>
+          <span>Delete Device</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Device Icon -->
+  <div class="device-icon-container">
+    <app-clair-device class="device-svg"></app-clair-device>
+  </div>
+
+  <!-- Metrics Cards -->
+  <div class="metrics-container">
+    <mat-card class="metric-card">
+      <div class="metric-label">CONNECTIVITY</div>
+      <div class="metric-value">
+        <mat-icon class="metric-icon">signal_cellular_alt</mat-icon>
+        <span class="metric-number">{{ getConnectivityValue() }}</span>
+        <span class="metric-unit">dBM</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <div class="metric-label">UPTIME</div>
+      <div class="metric-value">
+        <mat-icon class="metric-icon">trending_up</mat-icon>
+        <span class="metric-number">{{ metrics.uptime }}</span>
+        <span class="metric-unit">hours</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <div class="metric-label">DEVICE HEALTH</div>
+      <div class="metric-value">
+        <mat-icon class="metric-icon">speed</mat-icon>
+        <span class="metric-number">{{ metrics.health }}</span>
+        <span class="metric-unit">%</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <div class="metric-label">LAST UPDATE</div>
+      <div class="metric-value">
+        <mat-icon class="metric-icon">update</mat-icon>
+        <span class="metric-number">{{ metrics.lastUpdate }}</span>
+        <span class="metric-unit">m</span>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Device Info -->
+  <div class="device-info">
+    <div class="info-row">
+      <span class="info-label">NETWORK:</span>
+      <span class="info-value">{{ metrics.network }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">LOCATION:</span>
+      <span class="info-value">{{ metrics.location }}</span>
+    </div>
+  </div>
+
+  <!-- Thresholds Section -->
+  <div class="thresholds-section">
+    <div class="thresholds-header">
+      <div>
+        <h2 class="thresholds-title">Thresholds</h2>
+        <p class="thresholds-subtitle">May affect device health</p>
+      </div>
+      <button mat-icon-button class="edit-thresholds-button" aria-label="Edit thresholds">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div class="thresholds-container">
+      <mat-card class="threshold-card">
+        <div class="threshold-label">PM2.5</div>
+        <div class="threshold-value">
+          <span class="threshold-number">{{ thresholds.pm25 }}</span>
+          <span class="threshold-unit">µg/m³</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="threshold-card">
+        <div class="threshold-label">CO₂</div>
+        <div class="threshold-value">
+          <span class="threshold-number">{{ thresholds.co2 }}</span>
+          <span class="threshold-unit">ppm</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="threshold-card">
+        <div class="threshold-label">TEMP</div>
+        <div class="threshold-value">
+          <span class="threshold-number">{{ thresholds.temp }}</span>
+          <span class="threshold-unit">°C</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="threshold-card">
+        <div class="threshold-label">HUMIDITY</div>
+        <div class="threshold-value">
+          <span class="threshold-number">{{ thresholds.humidity }}</span>
+          <span class="threshold-unit">%</span>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>
