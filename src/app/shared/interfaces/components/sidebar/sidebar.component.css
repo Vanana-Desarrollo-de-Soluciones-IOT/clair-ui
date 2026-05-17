@@ -56,6 +56,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
 }
 
 .nav-item {
@@ -96,6 +97,7 @@
 
 .upgrade-btn {
   margin-top: auto;
+  margin-bottom: 12px;
 }
 
 .settings-wrapper {
