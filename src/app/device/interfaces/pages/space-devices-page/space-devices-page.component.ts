@@ -272,15 +272,15 @@ export class SpaceDevicesPageComponent {
   toggleDevicePower(): void {
     if (!this.selectedDevice) return;
 
-    if (this.selectedDevice.status === 'OFFLINE' || this.selectedDevice.status === 'DECOMMISSIONED') {
-      this.snackBar.open('Device is offline', 'Close', { duration: 3000 });
+    if (this.selectedDevice.status === 'DECOMMISSIONED') {
+      this.snackBar.open('Device is decommissioned and cannot receive commands', 'Close', { duration: 3000 });
       return;
     }
 
     const nextType =
-      this.selectedDevice.status === 'STANDBY'
-        ? createDeviceCommandType('WAKE')
-        : createDeviceCommandType('STANDBY');
+      this.selectedDevice.status === 'ONLINE'
+        ? createDeviceCommandType('STANDBY')
+        : createDeviceCommandType('WAKE');
 
     const command = createCreateDeviceCommandCommand(this.selectedDevice.id, nextType);
     this.deviceCommandService.handleCreateDeviceCommand(command).subscribe({
