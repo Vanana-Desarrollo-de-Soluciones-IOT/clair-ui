@@ -10,14 +10,29 @@ import { UpdateSpaceNameCommand } from '../model/commands/update-space-name.comm
 import { UpdateOrganizationNameCommand } from '../model/commands/update-organization-name.command';
 import { UpdateDeviceNameCommand } from '../model/commands/update-device-name.command';
 import { DeleteDeviceCommand } from '../model/commands/delete-device.command';
+import { CreateDeviceCommandCommand } from '../model/commands/create-device-command.command';
 import { Organization } from './device-query-service';
 import { Space } from './device-query-service';
 import { Device } from './device-query-service';
 import { DeviceId } from '../model/valueobjects/device-id.value-object';
+import { DeviceCommandStatus } from '../model/valueobjects/device-command-status.value-object';
+import { DeviceCommandType } from '../model/valueobjects/device-command-type.value-object';
 
 export type DevicePairing = Readonly<{
   deviceId: DeviceId;
   claimToken: string | null;
+}>;
+
+export type DeviceCommand = Readonly<{
+  id: string;
+  deviceId: DeviceId;
+  type: DeviceCommandType;
+  status: DeviceCommandStatus;
+  payload: string | null;
+  sentAt: string | null;
+  executedAt: string | null;
+  failureReason: string | null;
+  createdAt: string | null;
 }>;
 
 export interface DeviceCommandService {
@@ -25,6 +40,7 @@ export interface DeviceCommandService {
   handleCreateSpace(command: CreateSpaceCommand): Observable<Space>;
   handleClaimDevice(command: ClaimDeviceCommand): Observable<Device>;
   handlePairDevice(command: PairDeviceCommand): Observable<DevicePairing>;
+  handleCreateDeviceCommand(command: CreateDeviceCommandCommand): Observable<DeviceCommand>;
   handleDeleteOrganization(command: DeleteOrganizationCommand): Observable<void>;
   handleDeleteSpace(command: DeleteSpaceCommand): Observable<void>;
   handleResetDeviceAssignment(command: ResetDeviceAssignmentCommand): Observable<void>;

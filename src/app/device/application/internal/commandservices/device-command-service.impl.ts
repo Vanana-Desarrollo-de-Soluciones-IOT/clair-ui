@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { DeviceCommandService, DevicePairing } from '../../../domain/services/device-command-service';
+import { DeviceCommandService, DevicePairing, DeviceCommand } from '../../../domain/services/device-command-service';
 import { DeviceQueryService, Organization, Space, Device } from '../../../domain/services/device-query-service';
 import { CreateOrganizationCommand } from '../../../domain/model/commands/create-organization.command';
 import { CreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
@@ -13,6 +13,7 @@ import { UpdateSpaceNameCommand } from '../../../domain/model/commands/update-sp
 import { UpdateOrganizationNameCommand } from '../../../domain/model/commands/update-organization-name.command';
 import { UpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
 import { DeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
+import { CreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
 import { DeviceHttpGateway } from '../../../infrastructure/api/gateways/device-http.gateway';
 import { createOrganizationCommandToResource } from '../../../interfaces/rest/transform/create-organization.transform';
 import { createSpaceCommandToResource } from '../../../interfaces/rest/transform/create-space.transform';
@@ -25,6 +26,8 @@ import { organizationResourceToDomain } from '../../../interfaces/rest/transform
 import { spaceResourceToDomain } from '../../../interfaces/rest/transform/space.transform';
 import { deviceResourceToDomain } from '../../../interfaces/rest/transform/device.transform';
 import { devicePairingResourceToDomain } from '../../../interfaces/rest/transform/device-pairing.transform';
+import { createDeviceCommandCommandToResource } from '../../../interfaces/rest/transform/create-device-command.transform';
+import { deviceCommandResourceToDomain } from '../../../interfaces/rest/transform/device-command.transform';
 
 @Injectable({ providedIn: 'root' })
 export class DeviceCommandServiceImpl implements DeviceCommandService {
@@ -52,6 +55,12 @@ export class DeviceCommandServiceImpl implements DeviceCommandService {
     return this.deviceGateway
       .pairDevice(pairDeviceCommandToResource(command))
       .pipe(map((resource) => devicePairingResourceToDomain(resource)));
+  }
+
+  handleCreateDeviceCommand(command: CreateDeviceCommandCommand): Observable<DeviceCommand> {
+    return this.deviceGateway
+      .createDeviceCommand(command.deviceId.value, createDeviceCommandCommandToResource(command))
+      .pipe(map((resource) => deviceCommandResourceToDomain(resource)));
   }
 
   handleDeleteOrganization(command: DeleteOrganizationCommand): Observable<void> {

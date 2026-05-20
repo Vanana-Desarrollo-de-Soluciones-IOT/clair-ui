@@ -12,7 +12,6 @@ import { DeviceQueryServiceImpl } from '../../../application/internal/queryservi
 import { Organization, Space } from '../../../domain/services/device-query-service';
 import { OrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
-import { createGetOrganizationsByOwnerQuery } from '../../../domain/model/queries/get-organizations-by-owner.query';
 import { createGetSpacesByOrganizationQuery } from '../../../domain/model/queries/get-spaces-by-organization.query';
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { createCreateOrganizationCommand } from '../../../domain/model/commands/create-organization.command';
@@ -20,11 +19,9 @@ import { createUpdateOrganizationNameCommand } from '../../../domain/model/comma
 import { createDeleteOrganizationCommand } from '../../../domain/model/commands/delete-organization.command';
 import { createCreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
 import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
-import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
-import { TOKEN_STORAGE_GATEWAY, TokenStorageGateway } from '../../../../iam/infrastructure/storage/token-storage.gateway';
-import { jwtDecode } from 'jwt-decode';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { createGetCurrentUserOrganizationsQuery } from '../../../domain/model/queries/get-current-user-organizations.query';
 
 @Component({
   selector: 'app-organizations-panel',
@@ -38,7 +35,6 @@ export class OrganizationsPanelComponent implements OnInit {
   private readonly deviceQueryService = inject(DeviceQueryServiceImpl);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly tokenStorage = inject<TokenStorageGateway>(TOKEN_STORAGE_GATEWAY);
   private readonly cdr = inject(ChangeDetectorRef);
 
   @Input() selectedSpaceId: string | null = null;
@@ -77,9 +73,7 @@ export class OrganizationsPanelComponent implements OnInit {
     const dialogRef = this.dialog.open(AddOrganizationDialogComponent, { width: '400px' });
     dialogRef.afterClosed().subscribe((name: string | undefined) => {
       if (!name) return;
-      const userId = this.getCurrentUserId();
-      if (!userId) return;
-      const command = createCreateOrganizationCommand(name, createUserId(userId));
+      const command = createCreateOrganizationCommand(name);
       this.deviceCommandService.handleCreateOrganization(command).subscribe({
         next: () => {
           this.snackBar.open('Organization created', 'Close', { duration: 3000 });
@@ -137,9 +131,7 @@ export class OrganizationsPanelComponent implements OnInit {
     const dialogRef = this.dialog.open(AddSpaceDialogComponent, { width: '400px' });
     dialogRef.afterClosed().subscribe((name: string | undefined) => {
       if (!name) return;
-      const userId = this.getCurrentUserId();
-      if (!userId) return;
-      const command = createCreateSpaceCommand(name, orgId, createUserId(userId));
+      const command = createCreateSpaceCommand(name, orgId);
       this.deviceCommandService.handleCreateSpace(command).subscribe({
         next: () => {
           this.snackBar.open('Space created', 'Close', { duration: 3000 });
@@ -176,9 +168,8 @@ export class OrganizationsPanelComponent implements OnInit {
   }
 
   private loadOrganizations(): void {
-    const userId = this.getCurrentUserId();
-    const query = createGetOrganizationsByOwnerQuery(createUserId(userId ?? 'unknown'));
-    this.deviceQueryService.handleGetOrganizationsByOwner(query).subscribe({
+    const query = createGetCurrentUserOrganizationsQuery();
+    this.deviceQueryService.handleGetCurrentUserOrganizations(query).subscribe({
       next: (orgs) => {
         this.organizations = orgs;
         this.cdr.markForCheck();
@@ -229,17 +220,6 @@ export class OrganizationsPanelComponent implements OnInit {
 
   private get allSpaces(): Space[] {
     return Object.values(this.spacesByOrganizationId).flat();
-  }
-
-  private getCurrentUserId(): string | null {
-    const token = this.tokenStorage.getAccessToken();
-    if (!token) return null;
-    try {
-      const payload = jwtDecode<{ sub: string }>(token);
-      return payload.sub ?? null;
-    } catch {
-      return null;
-    }
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {

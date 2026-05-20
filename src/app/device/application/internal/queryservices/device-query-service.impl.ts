@@ -2,10 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, map, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DeviceQueryService, Organization, Space, DevicePage, Device } from '../../../domain/services/device-query-service';
-import { GetOrganizationsByOwnerQuery } from '../../../domain/model/queries/get-organizations-by-owner.query';
+import { GetCurrentUserOrganizationsQuery } from '../../../domain/model/queries/get-current-user-organizations.query';
 import { GetOrganizationByIdQuery } from '../../../domain/model/queries/get-organization-by-id.query';
 import { GetSpacesByOrganizationQuery } from '../../../domain/model/queries/get-spaces-by-organization.query';
-import { GetSpacesByOwnerQuery } from '../../../domain/model/queries/get-spaces-by-owner.query';
 import { GetSpaceByIdQuery } from '../../../domain/model/queries/get-space-by-id.query';
 import { GetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { GetDeviceByIdQuery } from '../../../domain/model/queries/get-device-by-id.query';
@@ -18,7 +17,7 @@ import { devicePageResourceToDomain, deviceResourceToDomain } from '../../../int
 export class DeviceQueryServiceImpl implements DeviceQueryService {
   constructor(private readonly deviceGateway: DeviceHttpGateway) {}
 
-  handleGetOrganizationsByOwner(_query: GetOrganizationsByOwnerQuery): Observable<Organization[]> {
+  handleGetCurrentUserOrganizations(_query: GetCurrentUserOrganizationsQuery): Observable<Organization[]> {
     return this.deviceGateway.getOrganizations().pipe(
       map((resources) => resources.map(organizationResourceToDomain))
     );
@@ -41,12 +40,6 @@ export class DeviceQueryServiceImpl implements DeviceQueryService {
     return this.deviceGateway.getSpaceById(query.spaceId.value).pipe(
       map((resource) => spaceResourceToDomain(resource)),
       catchError(() => of(null))
-    );
-  }
-
-  handleGetSpacesByOwner(_query: GetSpacesByOwnerQuery): Observable<Space[]> {
-    return this.deviceGateway.getSpacesByOwner().pipe(
-      map((resources) => resources.map(spaceResourceToDomain))
     );
   }
 

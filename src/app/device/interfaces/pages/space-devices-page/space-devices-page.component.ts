@@ -25,6 +25,8 @@ import { createPairDeviceCommand } from '../../../domain/model/commands/pair-dev
 import { createHardwareId } from '../../../domain/model/valueobjects/hardware-id.value-object';
 import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
 import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
+import { createCreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
+import { createDeviceCommandType } from '../../../domain/model/valueobjects/device-command-type.value-object';
 
 @Component({
   selector: 'app-space-devices-page',
@@ -249,8 +251,26 @@ export class SpaceDevicesPageComponent {
   }
 
   toggleDevicePower(): void {
-    // TODO: Implement toggle device power - requires backend endpoint
-    this.snackBar.open('Toggle power feature coming soon', 'Close', { duration: 3000 });
+    if (!this.selectedDevice) return;
+
+    if (this.selectedDevice.status === 'OFFLINE' || this.selectedDevice.status === 'DECOMMISSIONED') {
+      this.snackBar.open('Device is offline', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const nextType =
+      this.selectedDevice.status === 'STANDBY'
+        ? createDeviceCommandType('WAKE')
+        : createDeviceCommandType('STANDBY');
+
+    const command = createCreateDeviceCommandCommand(this.selectedDevice.id, nextType);
+    this.deviceCommandService.handleCreateDeviceCommand(command).subscribe({
+      next: (created) => {
+        this.snackBar.open(`Command queued: ${created.type}`, 'Close', { duration: 3000 });
+      },
+      error: (error) =>
+        this.snackBar.open(this.getErrorMessage(error, 'Failed to queue command'), 'Close', { duration: 3000 }),
+    });
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {
