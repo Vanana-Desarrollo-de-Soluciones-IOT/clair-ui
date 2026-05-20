@@ -32,7 +32,7 @@
     <mat-card class="threshold-card">
       <div class="threshold-label">TEMP</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.temperature ?? '--' }}</span>
+        <span class="threshold-number">{{ telemetry?.temperature != null ? (telemetry!.temperature | number:'1.0-0') : '--' }}</span>
         <span class="threshold-unit">°C</span>
       </div>
     </mat-card>
