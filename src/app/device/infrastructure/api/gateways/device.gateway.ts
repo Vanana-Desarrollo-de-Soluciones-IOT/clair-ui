@@ -10,6 +10,9 @@ import { ClaimDeviceResource } from '../../../interfaces/rest/resources/claim-de
 import { PairDeviceResource } from '../../../interfaces/rest/resources/pair-device.resource';
 import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
 import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
+import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
+import { CreateDeviceCommandResource } from '../../../interfaces/rest/resources/create-device-command.resource';
+import { DeviceCommandResource } from '../../../interfaces/rest/resources/device-command.resource';
 
 export interface DeviceGateway {
   createOrganization(resource: CreateOrganizationResource): Observable<OrganizationResource>;
@@ -20,7 +23,6 @@ export interface DeviceGateway {
 
   createSpace(organizationId: string, resource: CreateSpaceResource): Observable<SpaceResource>;
   getSpacesByOrganization(organizationId: string): Observable<SpaceResource[]>;
-  getSpacesByOwner(): Observable<SpaceResource[]>;
   getSpaceById(spaceId: string): Observable<SpaceResource>;
   deleteSpace(spaceId: string): Observable<void>;
   updateSpaceName(spaceId: string, resource: UpdateSpaceNameResource): Observable<void>;
@@ -30,6 +32,9 @@ export interface DeviceGateway {
   getDevicesBySpace(spaceId: string, page: number, size: number): Observable<DevicePageResource>;
   getDeviceById(deviceId: string): Observable<DeviceResource>;
   deleteDevice(deviceId: string): Observable<void>;
+  updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void>;
+
+  createDeviceCommand(deviceId: string, resource: CreateDeviceCommandResource): Observable<DeviceCommandResource>;
 }
 
 export const DEVICE_GATEWAY = new InjectionToken<DeviceGateway>('DEVICE_GATEWAY');

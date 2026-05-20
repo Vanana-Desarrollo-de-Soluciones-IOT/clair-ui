@@ -7,6 +7,7 @@ export const API_CONFIG = {
     subscriptions: '/v1/subscriptions',
     organizations: '/v1/organizations',
     spaces: '/v1/spaces',
-    devices: '/v1/devices'
+    devices: '/v1/devices',
+    evaluations: '/v1/evaluations'
   }
 } as const;

@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
 import { ClairDeviceComponent } from '../../../../shared/interfaces/components/clair-device/clair-device.component';
 import { Device } from '../../../domain/services/device-query-service';
+import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 
 @Component({
   selector: 'app-device-info-card',
@@ -23,20 +24,11 @@ import { Device } from '../../../domain/services/device-query-service';
 })
 export class DeviceInfoCardComponent {
   @Input() device!: Device;
+  @Input() telemetry: DeviceTelemetrySnapshot | null = null;
   @Output() backRequested = new EventEmitter<void>();
   @Output() editRequested = new EventEmitter<void>();
   @Output() deleteRequested = new EventEmitter<void>();
   @Output() powerToggleRequested = new EventEmitter<void>();
-
-  // Hardcoded metrics for now
-  metrics = {
-    connectivity: -60,
-    uptime: 101,
-    health: 92,
-    lastUpdate: 2,
-    network: 'A101',
-    location: 'A101',
-  };
 
   goBack(): void {
     this.backRequested.emit();
@@ -69,7 +61,10 @@ export class DeviceInfoCardComponent {
     }
   }
 
-  getConnectivityValue(): number {
-    return Math.abs(this.metrics.connectivity);
+  getConnectivityValue(): number | null {
+    if (this.telemetry?.connectivitySignalStrength != null) {
+      return Math.abs(this.telemetry.connectivitySignalStrength);
+    }
+    return null;
   }
 }

@@ -13,6 +13,8 @@ import { DevicePairingResource } from '../../../interfaces/rest/resources/device
 import { UpdateSpaceNameResource } from '../../../interfaces/rest/resources/update-space-name.resource';
 import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resources/update-organization-name.resource';
 import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
+import { CreateDeviceCommandResource } from '../../../interfaces/rest/resources/create-device-command.resource';
+import { DeviceCommandResource } from '../../../interfaces/rest/resources/device-command.resource';
 import { API_CONFIG } from '../../../../api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -49,10 +51,6 @@ export class DeviceHttpGateway implements DeviceGateway {
 
   getSpacesByOrganization(organizationId: string): Observable<SpaceResource[]> {
     return this.http.get<SpaceResource[]>(`${this.spaceUrl}?organizationId=${organizationId}`);
-  }
-
-  getSpacesByOwner(): Observable<SpaceResource[]> {
-    return this.http.get<SpaceResource[]>(this.spaceUrl);
   }
 
   getSpaceById(spaceId: string): Observable<SpaceResource> {
@@ -93,5 +91,9 @@ export class DeviceHttpGateway implements DeviceGateway {
 
   updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void> {
     return this.http.patch<void>(`${this.deviceUrl}/${deviceId}/name`, resource);
+  }
+
+  createDeviceCommand(deviceId: string, resource: CreateDeviceCommandResource): Observable<DeviceCommandResource> {
+    return this.http.post<DeviceCommandResource>(`${this.deviceUrl}/${deviceId}/commands`, resource);
   }
 }

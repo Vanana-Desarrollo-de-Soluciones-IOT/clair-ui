@@ -1,9 +1,22 @@
-export type DeviceStatus = 'OFFLINE' | 'ONLINE' | 'MAINTENANCE' | 'DECOMMISSIONED';
+export type DeviceStatus =
+  | 'OFFLINE'
+  | 'ONLINE'
+  | 'STANDBY'
+  | 'ERROR'
+  | 'MAINTENANCE'
+  | 'DECOMMISSIONED';
 
 export const createDeviceStatus = (status: string): DeviceStatus => {
   const upper = status.toUpperCase();
-  if (upper === 'OFFLINE' || upper === 'ONLINE' || upper === 'MAINTENANCE' || upper === 'DECOMMISSIONED') {
-    return upper as DeviceStatus;
+  switch (upper) {
+    case 'OFFLINE':
+    case 'ONLINE':
+    case 'STANDBY':
+    case 'ERROR':
+    case 'MAINTENANCE':
+    case 'DECOMMISSIONED':
+      return upper;
+    default:
+      throw new Error(`Invalid device status: ${status}`);
   }
-  throw new Error(`Invalid device status: ${status}`);
 };

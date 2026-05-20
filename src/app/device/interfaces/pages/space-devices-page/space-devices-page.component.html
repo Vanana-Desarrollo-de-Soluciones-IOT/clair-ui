@@ -19,6 +19,7 @@
           <app-device-detail-panel
             *ngIf="selectedDevice; else deviceList"
             [device]="selectedDevice"
+            [telemetry]="latestTelemetry"
             (backRequested)="clearSelectedDevice()"
             (editRequested)="openEditDeviceDialog()"
             (deleteRequested)="openDeleteDeviceDialog()"
