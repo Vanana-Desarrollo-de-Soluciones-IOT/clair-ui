@@ -16,32 +16,32 @@
     <mat-card class="threshold-card">
       <div class="threshold-label">PM2.5</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ thresholds.pm25.value }}</span>
-        <span class="threshold-unit">{{ thresholds.pm25.unit }}</span>
+        <span class="threshold-number">{{ telemetry?.pm2_5 ?? '--' }}</span>
+        <span class="threshold-unit">µg/m³</span>
       </div>
     </mat-card>
 
     <mat-card class="threshold-card">
       <div class="threshold-label">CO₂</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ thresholds.co2.value }}</span>
-        <span class="threshold-unit">{{ thresholds.co2.unit }}</span>
+        <span class="threshold-number">{{ telemetry?.co2 ?? '--' }}</span>
+        <span class="threshold-unit">ppm</span>
       </div>
     </mat-card>
 
     <mat-card class="threshold-card">
       <div class="threshold-label">TEMP</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ thresholds.temp.value }}</span>
-        <span class="threshold-unit">{{ thresholds.temp.unit }}</span>
+        <span class="threshold-number">{{ telemetry?.temperature ?? '--' }}</span>
+        <span class="threshold-unit">°C</span>
       </div>
     </mat-card>
 
     <mat-card class="threshold-card">
       <div class="threshold-label">HUMIDITY</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ thresholds.humidity.value }}</span>
-        <span class="threshold-unit">{{ thresholds.humidity.unit }}</span>
+        <span class="threshold-number">{{ telemetry?.humidity ?? '--' }}</span>
+        <span class="threshold-unit">%</span>
       </div>
     </mat-card>
   </div>

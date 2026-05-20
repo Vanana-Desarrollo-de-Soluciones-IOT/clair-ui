@@ -27,6 +27,7 @@ import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/upd
 import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
 import { createCreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
 import { createDeviceCommandType } from '../../../domain/model/valueobjects/device-command-type.value-object';
+import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 
 @Component({
   selector: 'app-space-devices-page',
@@ -48,6 +49,7 @@ import { createDeviceCommandType } from '../../../domain/model/valueobjects/devi
 export class SpaceDevicesPageComponent {
   private readonly deviceCommandService = inject(DeviceCommandServiceImpl);
   private readonly deviceQueryService = inject(DeviceQueryServiceImpl);
+  private readonly externalTelemetryService = inject(ExternalTelemetryEvaluationService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -61,6 +63,7 @@ export class SpaceDevicesPageComponent {
   viewMode: DeviceViewMode = 'grid';
   loadingDevices = false;
   errorDevices = '';
+  latestTelemetry: DeviceTelemetrySnapshot | null = null;
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -87,10 +90,26 @@ export class SpaceDevicesPageComponent {
 
   selectDevice(device: Device): void {
     this.selectedDevice = device;
+    this.loadLatestTelemetry(device.id.value);
   }
 
   clearSelectedDevice(): void {
     this.selectedDevice = null;
+    this.latestTelemetry = null;
+  }
+
+  private loadLatestTelemetry(deviceId: string): void {
+    this.latestTelemetry = null;
+    this.externalTelemetryService.fetchLatestTelemetryByDevice(deviceId).subscribe({
+      next: (snapshot) => {
+        this.latestTelemetry = snapshot;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.latestTelemetry = null;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   openClaimDeviceDialog(): void {

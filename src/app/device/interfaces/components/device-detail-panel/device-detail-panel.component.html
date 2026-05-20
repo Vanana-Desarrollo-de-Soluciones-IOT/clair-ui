@@ -2,6 +2,7 @@
   <!-- Device Info Card -->
   <app-device-info-card
     [device]="device"
+    [telemetry]="telemetry"
     (backRequested)="onBackRequested()"
     (editRequested)="onEditRequested()"
     (deleteRequested)="onDeleteRequested()"
@@ -11,6 +12,7 @@
   <!-- Device Thresholds Card -->
   <app-device-thresholds-card
     [deviceId]="device.id.value"
+    [telemetry]="telemetry"
     (editRequested)="onEditThresholdsRequested()"
   ></app-device-thresholds-card>
 </div>

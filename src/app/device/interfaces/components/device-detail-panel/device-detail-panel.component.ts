@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DeviceInfoCardComponent } from '../device-info-card/device-info-card.component';
 import { DeviceThresholdsCardComponent } from '../device-thresholds-card/device-thresholds-card.component';
 import { Device } from '../../../domain/services/device-query-service';
+import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 
 @Component({
   selector: 'app-device-detail-panel',
@@ -17,6 +18,7 @@ import { Device } from '../../../domain/services/device-query-service';
 })
 export class DeviceDetailPanelComponent {
   @Input() device!: Device;
+  @Input() telemetry: DeviceTelemetrySnapshot | null = null;
   @Output() backRequested = new EventEmitter<void>();
   @Output() editRequested = new EventEmitter<void>();
   @Output() deleteRequested = new EventEmitter<void>();
