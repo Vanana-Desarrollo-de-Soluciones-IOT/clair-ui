@@ -4,6 +4,7 @@ import { createDeviceId } from '../../../domain/model/valueobjects/device-id.val
 import { createSpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { createDeviceStatus } from '../../../domain/model/valueobjects/device-status.value-object';
 import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
+import { createHardwareId } from '../../../domain/model/valueobjects/hardware-id.value-object';
 
 export const deviceResourceToDomain = (resource: DeviceResource): Device => {
   return Object.freeze({
@@ -14,7 +15,7 @@ export const deviceResourceToDomain = (resource: DeviceResource): Device => {
     spaceId: resource.spaceId ? createSpaceId(resource.spaceId) : null,
     ownerUserId: resource.ownerUserId ? createUserId(resource.ownerUserId) : null,
     configuration: Object.freeze({ ...resource.configuration }),
-    hardwareId: resource.hardwareId,
+    hardwareId: createHardwareId(resource.hardwareId),
     deviceType: resource.deviceType,
     activatedAt: resource.activatedAt,
     lastSeenAt: resource.lastSeenAt,

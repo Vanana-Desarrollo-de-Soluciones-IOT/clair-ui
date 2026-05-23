@@ -10,6 +10,7 @@ import { SpaceId } from '../model/valueobjects/space-id.value-object';
 import { DeviceId } from '../model/valueobjects/device-id.value-object';
 import { DeviceStatus } from '../model/valueobjects/device-status.value-object';
 import { UserId } from '../model/valueobjects/user-id.value-object';
+import { HardwareId } from '../model/valueobjects/hardware-id.value-object';
 
 export type Organization = Readonly<{
   id: OrganizationId;
@@ -36,7 +37,7 @@ export type Device = Readonly<{
   spaceId: SpaceId | null;
   ownerUserId: UserId | null;
   configuration: Record<string, string>;
-  hardwareId: string;
+  hardwareId: HardwareId;
   deviceType: string;
   activatedAt: string | null;
   lastSeenAt: string | null;
