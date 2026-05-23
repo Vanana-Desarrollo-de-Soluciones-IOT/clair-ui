@@ -10,7 +10,7 @@ import { EditNameDialogComponent } from '../edit-name-dialog/edit-name-dialog.co
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
 import { Organization, Space } from '../../../domain/services/device-query-service';
-import { OrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
+import { OrganizationId, createOrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { createGetSpacesByOrganizationQuery } from '../../../domain/model/queries/get-spaces-by-organization.query';
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
@@ -47,6 +47,9 @@ export class OrganizationsPanelComponent implements OnInit {
   loadingSpacesByOrganizationId: Record<string, boolean> = {};
   errorSpacesByOrganizationId: Record<string, string> = {};
   deviceCountsBySpaceId: Record<string, number> = {};
+  private restoredExpandedState = false;
+
+  private static readonly expandedOrganizationsStorageKey = 'clair.organizationsPanel.expandedOrganizationIds';
 
   ngOnInit(): void {
     this.loadOrganizations();
@@ -59,7 +62,25 @@ export class OrganizationsPanelComponent implements OnInit {
       [key]: !this.expandedOrganizationIds[key],
     };
 
+    this.persistExpandedOrganizations();
+
     if (this.expandedOrganizationIds[key] && !this.spacesByOrganizationId[key] && !this.loadingSpacesByOrganizationId[key]) {
+      this.loadSpaces(orgId);
+    }
+  }
+
+  ensureOrganizationExpanded(orgId: OrganizationId): void {
+    const key = orgId.value;
+    if (this.expandedOrganizationIds[key]) return;
+
+    this.expandedOrganizationIds = {
+      ...this.expandedOrganizationIds,
+      [key]: true,
+    };
+
+    this.persistExpandedOrganizations();
+
+    if (!this.spacesByOrganizationId[key] && !this.loadingSpacesByOrganizationId[key]) {
       this.loadSpaces(orgId);
     }
   }
@@ -172,6 +193,7 @@ export class OrganizationsPanelComponent implements OnInit {
     this.deviceQueryService.handleGetCurrentUserOrganizations(query).subscribe({
       next: (orgs) => {
         this.organizations = orgs;
+        this.restoreExpandedOrganizationsIfNeeded();
         this.cdr.markForCheck();
       },
       error: () => this.snackBar.open('Failed to load organizations', 'Close', { duration: 3000 }),
@@ -220,6 +242,45 @@ export class OrganizationsPanelComponent implements OnInit {
 
   private get allSpaces(): Space[] {
     return Object.values(this.spacesByOrganizationId).flat();
+  }
+
+  private restoreExpandedOrganizationsIfNeeded(): void {
+    if (this.restoredExpandedState) return;
+    this.restoredExpandedState = true;
+
+    const expandedIds = this.loadExpandedOrganizations();
+    if (expandedIds.length === 0) return;
+
+    const existingOrgIds = new Set(this.organizations.map((org) => org.id.value));
+    const validExpandedIds = expandedIds.filter((orgId) => existingOrgIds.has(orgId));
+
+    if (validExpandedIds.length === 0) return;
+
+    this.expandedOrganizationIds = validExpandedIds.reduce<Record<string, boolean>>((acc, orgId) => {
+      acc[orgId] = true;
+      return acc;
+    }, {});
+
+    validExpandedIds.forEach((orgId) => this.loadSpaces(createOrganizationId(orgId)));
+  }
+
+  private persistExpandedOrganizations(): void {
+    const expandedIds = Object.entries(this.expandedOrganizationIds)
+      .filter(([, expanded]) => expanded)
+      .map(([orgId]) => orgId);
+    localStorage.setItem(OrganizationsPanelComponent.expandedOrganizationsStorageKey, JSON.stringify(expandedIds));
+  }
+
+  private loadExpandedOrganizations(): string[] {
+    const raw = localStorage.getItem(OrganizationsPanelComponent.expandedOrganizationsStorageKey);
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+    } catch {
+      return [];
+    }
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {

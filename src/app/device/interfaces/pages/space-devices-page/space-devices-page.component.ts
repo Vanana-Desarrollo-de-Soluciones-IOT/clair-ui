@@ -1,7 +1,9 @@
-import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription, of, switchMap, map } from 'rxjs';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
@@ -28,6 +30,10 @@ import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-
 import { createCreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
 import { createDeviceCommandType } from '../../../domain/model/valueobjects/device-command-type.value-object';
 import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { createGetSpaceByIdQuery } from '../../../domain/model/queries/get-space-by-id.query';
+import { createSpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
+import { createGetDeviceByIdQuery } from '../../../domain/model/queries/get-device-by-id.query';
+import { createDeviceId } from '../../../domain/model/valueobjects/device-id.value-object';
 
 @Component({
   selector: 'app-space-devices-page',
@@ -46,15 +52,19 @@ import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../
   templateUrl: './space-devices-page.component.html',
   styleUrl: './space-devices-page.component.css',
 })
-export class SpaceDevicesPageComponent {
+export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   private readonly deviceCommandService = inject(DeviceCommandServiceImpl);
   private readonly deviceQueryService = inject(DeviceQueryServiceImpl);
   private readonly externalTelemetryService = inject(ExternalTelemetryEvaluationService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   @ViewChild(OrganizationsPanelComponent) orgPanel!: OrganizationsPanelComponent;
+
+  private readonly subscriptions = new Subscription();
 
   isSidebarOpen = true;
   selectedSpace: Space | null = null;
@@ -64,6 +74,35 @@ export class SpaceDevicesPageComponent {
   loadingDevices = false;
   errorDevices = '';
   latestTelemetry: DeviceTelemetrySnapshot | null = null;
+
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.route.queryParamMap.subscribe((params) => {
+        const deviceId = params.get('deviceId');
+        const spaceId = params.get('spaceId');
+
+        const currentDeviceId = this.selectedDevice?.id.value ?? null;
+        const currentSpaceId = this.selectedSpace?.id.value ?? null;
+        if (deviceId === currentDeviceId && spaceId === currentSpaceId) return;
+
+        if (deviceId) {
+          this.hydrateFromDeviceId(deviceId);
+          return;
+        }
+
+        if (spaceId) {
+          this.hydrateFromSpaceId(spaceId);
+          return;
+        }
+
+        this.hydrateFromLastSelection();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -75,13 +114,21 @@ export class SpaceDevicesPageComponent {
 
   selectSpace(space: Space): void {
     this.selectedSpace = space;
+    this.selectedDevice = null;
+    this.latestTelemetry = null;
     this.loadDevices(space.id);
+    this.syncQueryParams({ spaceId: space.id.value, deviceId: null });
+    this.persistLastSelection({ spaceId: space.id.value, deviceId: null });
   }
 
   clearSelectedSpace(): void {
     this.selectedSpace = null;
+    this.selectedDevice = null;
+    this.latestTelemetry = null;
     this.devicesPage = null;
     this.errorDevices = '';
+    this.syncQueryParams({ spaceId: null, deviceId: null });
+    this.clearLastSelection();
   }
 
   setViewMode(mode: DeviceViewMode): void {
@@ -91,11 +138,132 @@ export class SpaceDevicesPageComponent {
   selectDevice(device: Device): void {
     this.selectedDevice = device;
     this.loadLatestTelemetry(device.id.value);
+    this.syncQueryParams({ deviceId: device.id.value });
+    this.persistLastSelection({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
   }
 
   clearSelectedDevice(): void {
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.syncQueryParams({ deviceId: null });
+    this.persistLastSelection({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
+  }
+
+  private hydrateFromDeviceId(deviceId: string): void {
+    let parsedDeviceId;
+    try {
+      parsedDeviceId = createDeviceId(deviceId);
+    } catch {
+      return;
+    }
+
+    this.subscriptions.add(
+      this.deviceQueryService
+        .handleGetDeviceById(createGetDeviceByIdQuery(parsedDeviceId))
+        .pipe(
+          switchMap((device) => {
+            if (!device) return of(null);
+
+            this.selectedDevice = device;
+            this.latestTelemetry = null;
+
+            const spaceId = device.spaceId;
+            if (!spaceId) {
+              this.selectedSpace = null;
+              this.devicesPage = null;
+              this.errorDevices = '';
+              this.cdr.markForCheck();
+              return of({ device, space: null as Space | null });
+            }
+
+            return this.deviceQueryService.handleGetSpaceById(createGetSpaceByIdQuery(spaceId)).pipe(
+              map((space) => ({ device, space }))
+            );
+          })
+        )
+        .subscribe((result) => {
+          if (!result) return;
+          const { device, space } = result;
+
+          if (space) this.applyHydratedSpace(space);
+          if (device.spaceId) this.loadDevices(device.spaceId);
+          this.loadLatestTelemetry(device.id.value);
+
+          this.persistLastSelection({
+            spaceId: device.spaceId ? device.spaceId.value : null,
+            deviceId: device.id.value,
+          });
+        })
+    );
+  }
+
+  private hydrateFromSpaceId(spaceId: string): void {
+    let parsedSpaceId: SpaceId;
+    try {
+      parsedSpaceId = createSpaceId(spaceId);
+    } catch {
+      return;
+    }
+
+    this.subscriptions.add(
+      this.deviceQueryService.handleGetSpaceById(createGetSpaceByIdQuery(parsedSpaceId)).subscribe((space) => {
+        if (!space) return;
+        this.selectedDevice = null;
+        this.latestTelemetry = null;
+        this.applyHydratedSpace(space);
+        this.loadDevices(space.id);
+        this.persistLastSelection({ spaceId: space.id.value, deviceId: null });
+      })
+    );
+  }
+
+  private applyHydratedSpace(space: Space): void {
+    this.selectedSpace = space;
+    this.devicesPage = null;
+    this.errorDevices = '';
+    this.cdr.markForCheck();
+
+    if (this.orgPanel) {
+      this.orgPanel.ensureOrganizationExpanded(space.organizationId);
+    }
+  }
+
+  private hydrateFromLastSelection(): void {
+    const raw = localStorage.getItem('clair.spaceDevices.lastSelection');
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw) as { spaceId?: string | null; deviceId?: string | null };
+      if (parsed.deviceId) {
+        this.syncQueryParams({ spaceId: parsed.spaceId ?? null, deviceId: parsed.deviceId }, true);
+        return;
+      }
+      if (parsed.spaceId) {
+        this.syncQueryParams({ spaceId: parsed.spaceId, deviceId: null }, true);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  private persistLastSelection(selection: { spaceId: string | null; deviceId: string | null }): void {
+    localStorage.setItem('clair.spaceDevices.lastSelection', JSON.stringify(selection));
+  }
+
+  private clearLastSelection(): void {
+    localStorage.removeItem('clair.spaceDevices.lastSelection');
+  }
+
+  private syncQueryParams(
+    params: { spaceId?: string | null; deviceId?: string | null },
+    replaceUrl: boolean = false
+  ): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { spaceId: params.spaceId, deviceId: params.deviceId },
+      queryParamsHandling: 'merge',
+      replaceUrl,
+    });
   }
 
   private loadLatestTelemetry(deviceId: string): void {
