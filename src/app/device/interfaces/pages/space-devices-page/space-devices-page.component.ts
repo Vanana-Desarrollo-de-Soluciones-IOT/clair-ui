@@ -41,6 +41,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   @ViewChild(OrganizationsPanelComponent) orgPanel!: OrganizationsPanelComponent;
 
   private readonly subscriptions = new Subscription();
+  private telemetryPollingSubscription: Subscription | null = null;
 
   isSidebarOpen = true;
   selectedSpace: Space | null = null;
@@ -78,6 +79,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopTelemetryPolling();
     this.subscriptions.unsubscribe();
   }
 
@@ -93,6 +95,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedSpace = space;
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.stopTelemetryPolling();
     this.loadDevices(space.id);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: space.id.value, deviceId: null });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: space.id.value, deviceId: null });
@@ -102,6 +105,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedSpace = null;
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.stopTelemetryPolling();
     this.devicesPage = null;
     this.errorDevices = '';
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: null, deviceId: null });
@@ -114,7 +118,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   selectDevice(device: Device): void {
     this.selectedDevice = device;
-    this.loadLatestTelemetry(device.id.value);
+    this.startTelemetryPolling(device.id.value);
     this.navigationState.syncQueryParams(this.router, this.route, { deviceId: device.id.value });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
   }
@@ -122,6 +126,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   clearSelectedDevice(): void {
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.stopTelemetryPolling();
     this.navigationState.syncQueryParams(this.router, this.route, { deviceId: null });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
   }
@@ -144,7 +149,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
         }
 
         if (device.spaceId) this.loadDevices(device.spaceId);
-        this.loadLatestTelemetry(device.id.value);
+        this.startTelemetryPolling(device.id.value);
 
         this.navigationState.persistSelectionToLocalStorage({
           spaceId: device.spaceId ? device.spaceId.value : null,
@@ -292,13 +297,13 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   toggleDevicePower(): void {
     if (!this.selectedDevice) return;
-    this.subscriptions.add(this.pageActions.runToggleDevicePowerFlow(this.selectedDevice).subscribe());
+    this.subscriptions.add(this.pageActions.runToggleDevicePowerFlow(this.selectedDevice, this.latestTelemetry).subscribe());
   }
 
-  private loadLatestTelemetry(deviceId: string): void {
+  private startTelemetryPolling(deviceId: string): void {
+    this.stopTelemetryPolling();
     this.latestTelemetry = null;
-    this.subscriptions.add(
-      this.pageActions.loadLatestTelemetry(deviceId).subscribe({
+    this.telemetryPollingSubscription = this.pageActions.watchLatestTelemetry(deviceId, 10_000).subscribe({
         next: (snapshot) => {
           this.latestTelemetry = snapshot;
           this.cdr.markForCheck();
@@ -307,7 +312,12 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
           this.latestTelemetry = null;
           this.cdr.markForCheck();
         },
-      })
-    );
+      });
+  }
+
+  private stopTelemetryPolling(): void {
+    if (!this.telemetryPollingSubscription) return;
+    this.telemetryPollingSubscription.unsubscribe();
+    this.telemetryPollingSubscription = null;
   }
 }

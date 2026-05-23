@@ -50,10 +50,14 @@ export class DeviceInfoCardComponent {
     switch (this.device.status) {
       case 'ONLINE':
         return '#10b981';
+      case 'STANDBY':
+        return '#6b7280';
       case 'OFFLINE':
         return '#6b7280';
       case 'MAINTENANCE':
         return '#f59e0b';
+      case 'ERROR':
+        return '#ef4444';
       case 'DECOMMISSIONED':
         return '#ef4444';
       default:
@@ -61,10 +65,41 @@ export class DeviceInfoCardComponent {
     }
   }
 
+  getPowerButtonVariant(): 'on' | 'off' {
+    return this.isDeviceLikelyAwake() ? 'on' : 'off';
+  }
+
+  getConnectivityColor(): string {
+    if (!this.telemetry) return '#9ca3af';
+
+    const status = (this.telemetry.connectivityStatus ?? '').trim().toUpperCase();
+    const signalStrength = this.telemetry.connectivitySignalStrength;
+    if (!status) return '#9ca3af';
+
+    const isConnected = status.includes('CONNECTED') || status.includes('ONLINE') || status.includes('UP');
+    if (!isConnected) return '#6b7280';
+    if (signalStrength == null) return '#10b981';
+
+    if (signalStrength >= -70) return '#10b981';
+    if (signalStrength >= -85) return '#f59e0b';
+    return '#ef4444';
+  }
+
   getConnectivityValue(): number | null {
     if (this.telemetry?.connectivitySignalStrength != null) {
       return Math.abs(this.telemetry.connectivitySignalStrength);
     }
     return null;
+  }
+
+  private isDeviceLikelyAwake(): boolean {
+    if (this.device.status === 'ONLINE') return true;
+    if (!this.telemetry) return false;
+    const recent = this.telemetry.lastUpdateMinutes != null && this.telemetry.lastUpdateMinutes <= 2;
+
+    const status = (this.telemetry.connectivityStatus ?? '').trim().toUpperCase();
+    const isConnected = status.includes('CONNECTED') || status.includes('ONLINE') || status.includes('UP');
+
+    return recent && isConnected;
   }
 }

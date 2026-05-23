@@ -6,6 +6,7 @@ import {
 } from '../../../../../evaluation/interfaces/acl/evaluation-context-facade';
 
 export type DeviceTelemetrySnapshot = Readonly<{
+  connectivityStatus: string | null;
   connectivitySignalStrength: number | null;
   uptime: string;
   healthStatus: number;
@@ -30,6 +31,7 @@ export class ExternalTelemetryEvaluationService {
       map((summary) => {
         if (!summary) return null;
         return {
+          connectivityStatus: summary.connectivityStatus,
           connectivitySignalStrength: summary.signalStrength,
           uptime: summary.uptime,
           healthStatus: summary.healthStatus,

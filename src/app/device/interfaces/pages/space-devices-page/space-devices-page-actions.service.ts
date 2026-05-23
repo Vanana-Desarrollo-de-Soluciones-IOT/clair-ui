@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, of, switchMap, tap } from 'rxjs';
+import { Observable, of, switchMap, tap, interval, startWith, catchError } from 'rxjs';
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
 import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
@@ -40,6 +40,14 @@ export class SpaceDevicesPageActionsService {
 
   loadLatestTelemetry(deviceId: string): Observable<DeviceTelemetrySnapshot | null> {
     return this.externalTelemetryService.fetchLatestTelemetryByDevice(deviceId);
+  }
+
+  watchLatestTelemetry(deviceId: string, refreshIntervalMs: number): Observable<DeviceTelemetrySnapshot | null> {
+    return interval(refreshIntervalMs).pipe(
+      startWith(0),
+      switchMap(() => this.loadLatestTelemetry(deviceId)),
+      catchError(() => of(null))
+    );
   }
 
   runClaimDeviceFlow(selectedSpace: Space): Observable<void> {
@@ -175,14 +183,14 @@ export class SpaceDevicesPageActionsService {
     );
   }
 
-  runToggleDevicePowerFlow(selectedDevice: Device): Observable<void> {
+  runToggleDevicePowerFlow(selectedDevice: Device, telemetry: DeviceTelemetrySnapshot | null): Observable<void> {
     if (selectedDevice.status === 'DECOMMISSIONED') {
       this.snackBar.open('Device is decommissioned and cannot receive commands', 'Close', { duration: 3000 });
       return of(void 0);
     }
 
-    const nextType =
-      selectedDevice.status === 'ONLINE' ? createDeviceCommandType('STANDBY') : createDeviceCommandType('WAKE');
+    const isLikelyAwake = this.isDeviceLikelyAwake(selectedDevice, telemetry);
+    const nextType = isLikelyAwake ? createDeviceCommandType('STANDBY') : createDeviceCommandType('WAKE');
 
     const command = createCreateDeviceCommandCommand(selectedDevice.id, nextType);
     return this.deviceCommandService.handleCreateDeviceCommand(command).pipe(
@@ -194,5 +202,19 @@ export class SpaceDevicesPageActionsService {
       switchMap(() => of(void 0))
     );
   }
-}
 
+  private isDeviceLikelyAwake(selectedDevice: Device, telemetry: DeviceTelemetrySnapshot | null): boolean {
+    if (selectedDevice.status === 'ONLINE') return true;
+    if (!telemetry) return false;
+
+    const recent = telemetry.lastUpdateMinutes != null && telemetry.lastUpdateMinutes <= 2;
+    const connected = this.isConnectivityConnected(telemetry);
+    return recent && connected;
+  }
+
+  private isConnectivityConnected(telemetry: DeviceTelemetrySnapshot): boolean {
+    const status = (telemetry.connectivityStatus ?? '').trim().toUpperCase();
+    if (status.length === 0) return false;
+    return status.includes('CONNECTED') || status.includes('ONLINE') || status.includes('UP');
+  }
+}

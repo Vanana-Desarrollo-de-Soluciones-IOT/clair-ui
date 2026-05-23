@@ -11,7 +11,14 @@
     </div>
 
     <div class="header-actions">
-      <button mat-fab class="action-button action-button--primary" (click)="togglePower()" aria-label="Toggle power">
+      <button
+        mat-fab
+        class="action-button"
+        [class.action-button--on]="getPowerButtonVariant() === 'on'"
+        [class.action-button--off]="getPowerButtonVariant() === 'off'"
+        (click)="togglePower()"
+        aria-label="Toggle power"
+      >
         <mat-icon>power_settings_new</mat-icon>
       </button>
       <button mat-fab class="action-button action-button--secondary" [matMenuTriggerFor]="deviceMenu" aria-label="More options">
@@ -40,7 +47,7 @@
     <div class="metric-item">
       <div class="metric-label">CONNECTIVITY</div>
       <div class="metric-value">
-        <mat-icon class="metric-icon">signal_cellular_alt</mat-icon>
+        <mat-icon class="metric-icon" [style.color]="getConnectivityColor()">signal_cellular_alt</mat-icon>
         <span class="metric-number">{{ getConnectivityValue() ?? '--' }}</span>
         <span class="metric-unit">dBM</span>
       </div>
