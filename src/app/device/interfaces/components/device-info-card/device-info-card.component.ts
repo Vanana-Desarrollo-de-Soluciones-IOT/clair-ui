@@ -80,8 +80,11 @@ export class DeviceInfoCardComponent {
     if (!isConnected) return '#6b7280';
     if (signalStrength == null) return '#10b981';
 
-    if (signalStrength >= -70) return '#10b981';
-    if (signalStrength >= -85) return '#f59e0b';
+    const absSignalStrength = Math.abs(signalStrength);
+    // UI displays absolute value (e.g. 88) for readability.
+    // Thresholds map to typical dBm ranges: <=70 strong, <=85 ok, >85 weak.
+    if (absSignalStrength <= 70) return '#10b981';
+    if (absSignalStrength <= 85) return '#f59e0b';
     return '#ef4444';
   }
 
