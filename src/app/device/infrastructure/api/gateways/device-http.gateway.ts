@@ -15,6 +15,7 @@ import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resourc
 import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
 import { CreateDeviceCommandResource } from '../../../interfaces/rest/resources/create-device-command.resource';
 import { DeviceCommandResource } from '../../../interfaces/rest/resources/device-command.resource';
+import { DeviceStatusResource } from '../../../interfaces/rest/resources/device-status.resource';
 import { API_CONFIG } from '../../../../api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -95,5 +96,9 @@ export class DeviceHttpGateway implements DeviceGateway {
 
   createDeviceCommand(deviceId: string, resource: CreateDeviceCommandResource): Observable<DeviceCommandResource> {
     return this.http.post<DeviceCommandResource>(`${this.deviceUrl}/${deviceId}/commands`, resource);
+  }
+
+  getDeviceStatus(deviceId: string): Observable<DeviceStatusResource> {
+    return this.http.get<DeviceStatusResource>(`${this.deviceUrl}/${deviceId}/status`);
   }
 }

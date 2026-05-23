@@ -42,6 +42,8 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   private readonly subscriptions = new Subscription();
   private telemetryPollingSubscription: Subscription | null = null;
+  private statusPollingSubscription: Subscription | null = null;
+  private statusPollingResetTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   isSidebarOpen = true;
   selectedSpace: Space | null = null;
@@ -80,6 +82,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopTelemetryPolling();
+    this.stopStatusPolling();
     this.subscriptions.unsubscribe();
   }
 
@@ -96,6 +99,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedDevice = null;
     this.latestTelemetry = null;
     this.stopTelemetryPolling();
+    this.stopStatusPolling();
     this.loadDevices(space.id);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: space.id.value, deviceId: null });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: space.id.value, deviceId: null });
@@ -106,6 +110,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedDevice = null;
     this.latestTelemetry = null;
     this.stopTelemetryPolling();
+    this.stopStatusPolling();
     this.devicesPage = null;
     this.errorDevices = '';
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: null, deviceId: null });
@@ -119,7 +124,8 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   selectDevice(device: Device): void {
     this.selectedDevice = device;
     this.startTelemetryPolling(device.id.value);
-    this.navigationState.syncQueryParams(this.router, this.route, { deviceId: device.id.value });
+    this.startStatusPolling(device.id.value, 10_000);
+    this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
   }
 
@@ -127,7 +133,8 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedDevice = null;
     this.latestTelemetry = null;
     this.stopTelemetryPolling();
-    this.navigationState.syncQueryParams(this.router, this.route, { deviceId: null });
+    this.stopStatusPolling();
+    this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
   }
 
@@ -150,6 +157,12 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
         if (device.spaceId) this.loadDevices(device.spaceId);
         this.startTelemetryPolling(device.id.value);
+        this.startStatusPolling(device.id.value, 10_000);
+
+        this.navigationState.syncQueryParams(this.router, this.route, {
+          spaceId: device.spaceId ? device.spaceId.value : null,
+          deviceId: device.id.value,
+        }, true);
 
         this.navigationState.persistSelectionToLocalStorage({
           spaceId: device.spaceId ? device.spaceId.value : null,
@@ -167,6 +180,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
         this.latestTelemetry = null;
         this.applyHydratedSpace(space);
         this.loadDevices(space.id);
+        this.stopStatusPolling();
         this.navigationState.persistSelectionToLocalStorage({ spaceId: space.id.value, deviceId: null });
       })
     );
@@ -297,7 +311,20 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   toggleDevicePower(): void {
     if (!this.selectedDevice) return;
-    this.subscriptions.add(this.pageActions.runToggleDevicePowerFlow(this.selectedDevice, this.latestTelemetry).subscribe());
+    const intent: 'WAKE' | 'STANDBY' = this.selectedDevice.status === 'ONLINE' ? 'STANDBY' : 'WAKE';
+
+    this.subscriptions.add(
+      this.pageActions.runToggleDevicePowerFlow(this.selectedDevice, intent).subscribe({
+        next: () => {
+          if (!this.selectedDevice) return;
+          this.startStatusPolling(this.selectedDevice.id.value, 2_000);
+          if (this.statusPollingResetTimeoutId) clearTimeout(this.statusPollingResetTimeoutId);
+          this.statusPollingResetTimeoutId = setTimeout(() => {
+            if (this.selectedDevice) this.startStatusPolling(this.selectedDevice.id.value, 10_000);
+          }, 60_000);
+        },
+      })
+    );
   }
 
   private startTelemetryPolling(deviceId: string): void {
@@ -319,5 +346,40 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     if (!this.telemetryPollingSubscription) return;
     this.telemetryPollingSubscription.unsubscribe();
     this.telemetryPollingSubscription = null;
+  }
+
+  private startStatusPolling(deviceId: string, refreshIntervalMs: number): void {
+    this.stopStatusPolling();
+    this.statusPollingSubscription = this.pageActions.watchDeviceStatus(deviceId, refreshIntervalMs).subscribe((snapshot) => {
+      if (!snapshot || !this.selectedDevice) return;
+      if (this.selectedDevice.id.value !== snapshot.deviceId.value) return;
+
+      const statusChanged = this.selectedDevice.status !== snapshot.status;
+      const lastSeenChanged = this.selectedDevice.lastSeenAt !== snapshot.lastSeenAt;
+      if (!statusChanged && !lastSeenChanged) return;
+
+      this.selectedDevice = { ...this.selectedDevice, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt };
+
+      if (this.devicesPage) {
+        this.devicesPage = {
+          ...this.devicesPage,
+          content: this.devicesPage.content.map((d) =>
+            d.id.value === snapshot.deviceId.value ? { ...d, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt } : d
+          ),
+        };
+      }
+
+      this.cdr.markForCheck();
+    });
+  }
+
+  private stopStatusPolling(): void {
+    if (this.statusPollingResetTimeoutId) {
+      clearTimeout(this.statusPollingResetTimeoutId);
+      this.statusPollingResetTimeoutId = null;
+    }
+    if (!this.statusPollingSubscription) return;
+    this.statusPollingSubscription.unsubscribe();
+    this.statusPollingSubscription = null;
   }
 }

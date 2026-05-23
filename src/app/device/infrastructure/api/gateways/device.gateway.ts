@@ -13,6 +13,7 @@ import { UpdateOrganizationNameResource } from '../../../interfaces/rest/resourc
 import { UpdateDeviceNameResource } from '../../../interfaces/rest/resources/update-device-name.resource';
 import { CreateDeviceCommandResource } from '../../../interfaces/rest/resources/create-device-command.resource';
 import { DeviceCommandResource } from '../../../interfaces/rest/resources/device-command.resource';
+import { DeviceStatusResource } from '../../../interfaces/rest/resources/device-status.resource';
 
 export interface DeviceGateway {
   createOrganization(resource: CreateOrganizationResource): Observable<OrganizationResource>;
@@ -35,6 +36,8 @@ export interface DeviceGateway {
   updateDeviceName(deviceId: string, resource: UpdateDeviceNameResource): Observable<void>;
 
   createDeviceCommand(deviceId: string, resource: CreateDeviceCommandResource): Observable<DeviceCommandResource>;
+
+  getDeviceStatus(deviceId: string): Observable<DeviceStatusResource>;
 }
 
 export const DEVICE_GATEWAY = new InjectionToken<DeviceGateway>('DEVICE_GATEWAY');
