@@ -3,10 +3,13 @@
     <div class="thresholds-title-section">
       <div class="title-row">
         <h2 class="thresholds-title">Thresholds</h2>
-        <span class="status-dot"></span>
+        <mat-icon class="info-icon" style="font-size: 14px; width: 14px; height: 14px; color: #6b7280; margin-top: 4px;">info</mat-icon>
       </div>
       <p class="thresholds-subtitle">May affect device health</p>
     </div>
+    <button mat-fab class="action-button action-button--secondary" (click)="editThresholds()" aria-label="Edit thresholds">
+      <mat-icon>edit</mat-icon>
+    </button>
   </div>
 
   <div class="thresholds-container">
