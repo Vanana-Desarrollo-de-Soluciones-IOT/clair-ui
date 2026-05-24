@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { ExternalDeviceService } from '../../../application/internal/outboundservices/acl/external-device.service';
+import { ExternalTelemetryService } from '../../../application/internal/outboundservices/acl/external-telemetry.service';
 import { AirQualityQueryServiceImpl } from '../../../application/internal/queryservices/air-quality-query-service.impl';
 import { FacadeOrganization, FacadeSpace, FacadeDevice } from '../../../../device/interfaces/acl/device-context-facade';
 import { AirQualityLive } from '../../../domain/services/air-quality-query-service';
@@ -34,6 +35,7 @@ import { createGetAirQualityTrendsQuery } from '../../../domain/model/queries/ge
 })
 export class AirQualityPageComponent implements OnInit, OnDestroy {
   private readonly deviceAclService = inject(ExternalDeviceService);
+  private readonly deviceTelemetryAclService = inject(ExternalTelemetryService);
   private readonly airQualityQueryService = inject(AirQualityQueryServiceImpl);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -212,45 +214,160 @@ export class AirQualityPageComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    // Fetch live metrics if in LIVE mode
     if (this.selectedPeriod === 'LIVE') {
-      const liveQuery = createGetAirQualityLiveQuery(this.selectedDeviceId);
-      this.airQualityQueryService.handleGetAirQualityLive(liveQuery)
+      // 1. Fetch latest telemetry from ACL
+      this.deviceTelemetryAclService.fetchLatestTelemetryByDevice(this.selectedDeviceId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (live) => {
-            this.liveData = live;
-            this.secondsSinceUpdate = 0;
+          next: (summary) => {
+            if (summary) {
+              const aqiVal = this.calculateAqiFromPm25(summary.pm2_5 ?? 0);
+              this.liveData = {
+                aqi: {
+                  value: aqiVal,
+                  category: this.getAqiCategory(aqiVal)
+                },
+                co2: {
+                  value: summary.co2 ?? 0,
+                  deltaPercentage: this.calculateDeltaForMetric('co2')
+                },
+                pm2_5: {
+                  value: summary.pm2_5 ?? 0,
+                  deltaPercentage: this.calculateDeltaForMetric('pm2_5')
+                },
+                temperature: {
+                  value: summary.temperature ?? 0,
+                  deltaPercentage: this.calculateDeltaForMetric('temperature')
+                },
+                humidity: {
+                  value: summary.humidity ?? 0,
+                  deltaPercentage: this.calculateDeltaForMetric('humidity')
+                },
+                calculatedAt: summary.recordedAt
+              };
+              this.secondsSinceUpdate = 0;
+            }
             this.cdr.markForCheck();
           },
           error: (err) => {
-            console.error('Failed to fetch live metrics', err);
-            this.error = 'Failed to fetch live metrics.';
+            console.error('Failed to fetch latest telemetry via ACL', err);
+            this.error = 'Failed to fetch latest telemetry.';
+            this.cdr.markForCheck();
+          }
+        });
+
+      // 2. Fetch trends for Day to draw the graph
+      const trendQuery = createGetAirQualityTrendsQuery(this.selectedDeviceId, 'DAY');
+      this.airQualityQueryService.handleGetAirQualityTrends(trendQuery)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (trends) => {
+            this.trendDataPoints = trends;
+            this.loading = false;
+            // Update liveData deltas if liveData was already populated
+            if (this.liveData) {
+              this.liveData = {
+                ...this.liveData,
+                co2: { ...this.liveData.co2, deltaPercentage: this.calculateDeltaForMetric('co2') },
+                pm2_5: { ...this.liveData.pm2_5, deltaPercentage: this.calculateDeltaForMetric('pm2_5') },
+                temperature: { ...this.liveData.temperature, deltaPercentage: this.calculateDeltaForMetric('temperature') },
+                humidity: { ...this.liveData.humidity, deltaPercentage: this.calculateDeltaForMetric('humidity') }
+              };
+            }
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            console.error('Failed to fetch trends for LIVE mode', err);
+            this.trendDataPoints = [];
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        });
+
+    } else {
+      // Historical mode (Day, Week, Month)
+      const apiPeriod = this.selectedPeriod.toUpperCase();
+      const trendQuery = createGetAirQualityTrendsQuery(this.selectedDeviceId, apiPeriod);
+
+      this.airQualityQueryService.handleGetAirQualityTrends(trendQuery)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (trends) => {
+            this.trendDataPoints = trends;
+            this.loading = false;
+
+            if (trends && trends.length > 0) {
+              const lastPoint = trends[trends.length - 1];
+              this.liveData = {
+                aqi: {
+                  value: lastPoint.aqiValue,
+                  category: this.getAqiCategory(lastPoint.aqiValue)
+                },
+                co2: {
+                  value: lastPoint.co2,
+                  deltaPercentage: this.calculateDeltaForMetric('co2')
+                },
+                pm2_5: {
+                  value: lastPoint.pm2_5,
+                  deltaPercentage: this.calculateDeltaForMetric('pm2_5')
+                },
+                temperature: {
+                  value: lastPoint.temperature,
+                  deltaPercentage: this.calculateDeltaForMetric('temperature')
+                },
+                humidity: {
+                  value: lastPoint.humidity,
+                  deltaPercentage: this.calculateDeltaForMetric('humidity')
+                },
+                calculatedAt: lastPoint.timestamp
+              };
+              this.secondsSinceUpdate = 0;
+            } else {
+              this.liveData = null;
+            }
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            console.error('Failed to fetch trend data', err);
+            this.trendDataPoints = [];
+            this.liveData = null;
+            this.loading = false;
+            this.error = 'Failed to fetch trend data.';
             this.cdr.markForCheck();
           }
         });
     }
+  }
 
-    // Fetch trend data
-    // Map period buttons as requested: Day -> DAY, Week -> WEEK, Month -> MONTH, and LIVE fetches DAY trends as baseline.
-    const apiPeriod = this.selectedPeriod === 'LIVE' ? 'DAY' : this.selectedPeriod.toUpperCase();
-    const trendQuery = createGetAirQualityTrendsQuery(this.selectedDeviceId, apiPeriod);
+  getAqiCategory(val: number): string {
+    if (val <= 50) return 'GOOD';
+    if (val <= 100) return 'MODERATE';
+    if (val <= 150) return 'UNHEALTHY';
+    return 'HAZARDOUS';
+  }
 
-    this.airQualityQueryService.handleGetAirQualityTrends(trendQuery)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (trends) => {
-          this.trendDataPoints = trends;
-          this.loading = false;
-          this.cdr.markForCheck();
-        },
-        error: (err) => {
-          console.error('Failed to fetch trend data', err);
-          this.trendDataPoints = [];
-          this.loading = false;
-          this.cdr.markForCheck();
-        }
-      });
+  calculateDeltaForMetric(metric: string): number {
+    if (this.trendDataPoints.length < 2) return 0;
+    const firstPoint = this.trendDataPoints[0];
+    const lastPoint = this.trendDataPoints[this.trendDataPoints.length - 1];
+    const first = this.getMetricValue(firstPoint, metric);
+    const last = this.getMetricValue(lastPoint, metric);
+    if (first === 0) return 0;
+    return ((last - first) / first) * 100;
+  }
+
+  calculateAqiFromPm25(pm25: number): number {
+    if (pm25 <= 12) {
+      return Math.round((50 - 0) / (12 - 0) * (pm25 - 0) + 0);
+    } else if (pm25 <= 35.4) {
+      return Math.round((100 - 51) / (35.4 - 12) * (pm25 - 12) + 51);
+    } else if (pm25 <= 55.4) {
+      return Math.round((150 - 101) / (55.4 - 35.4) * (pm25 - 35.4) + 101);
+    } else if (pm25 <= 150.4) {
+      return Math.round((200 - 151) / (150.4 - 55.4) * (pm25 - 55.4) + 151);
+    } else {
+      return Math.round((300 - 201) / (250.4 - 150.5) * (pm25 - 150.5) + 201);
+    }
   }
 
   // Setup auto-refresh polling
