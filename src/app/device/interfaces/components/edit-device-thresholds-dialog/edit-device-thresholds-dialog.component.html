@@ -8,12 +8,7 @@
   </div>
 
   <div class="modal-body">
-    <div *ngIf="loading" class="loading">
-      <mat-spinner diameter="28"></mat-spinner>
-      <span>Loading thresholds...</span>
-    </div>
-
-    <div *ngIf="!loading" class="columns">
+    <div class="columns" [class.is-loading]="loading">
       <div *ngFor="let cfg of sliderConfigs" class="metric-column" [formGroup]="getMetricForm(cfg.metric)">
         <div class="metric-name">{{ metricDetails(cfg.metric).label }}</div>
         <div class="metric-divider"></div>
@@ -25,21 +20,25 @@
 
         <div class="metric-max-label">max</div>
 
-        <div class="slider-wrap" [style.--slider-percent.%]="getSliderPercent(cfg.metric)">
+        <div class="slider-wrap"
+             role="slider"
+             [attr.aria-valuemin]="cfg.min"
+             [attr.aria-valuemax]="cfg.max"
+             [attr.aria-valuenow]="getMetricValue(cfg.metric)"
+             [attr.aria-label]="metricDetails(cfg.metric).label + ' threshold slider'"
+             [style.--slider-percent.%]="getSliderPercent(cfg.metric)"
+             (mousedown)="onSliderPointerDown($event, cfg.metric)"
+             (touchstart)="onSliderPointerDown($event, cfg.metric)">
           <div class="slider-track-bg"></div>
           <div class="slider-track-fill"></div>
           <div class="slider-thumb"></div>
-          <input
-            type="range"
-            class="slider-input"
-            formControlName="value"
-            [min]="cfg.min"
-            [max]="cfg.max"
-            [step]="cfg.step"
-            aria-label="Threshold slider"
-          />
         </div>
       </div>
+    </div>
+    
+    <div class="loading-overlay" *ngIf="loading">
+      <mat-spinner diameter="28"></mat-spinner>
+      <span>Loading thresholds...</span>
     </div>
   </div>
 

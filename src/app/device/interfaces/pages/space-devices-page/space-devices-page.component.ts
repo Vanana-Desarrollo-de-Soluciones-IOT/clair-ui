@@ -232,7 +232,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.pageActions.runEditDeviceThresholdsFlow(deviceId).subscribe((changed) => {
         if (!changed) return;
-        this.loadThresholds(deviceId);
+        setTimeout(() => this.loadThresholds(deviceId));
       })
     );
   }

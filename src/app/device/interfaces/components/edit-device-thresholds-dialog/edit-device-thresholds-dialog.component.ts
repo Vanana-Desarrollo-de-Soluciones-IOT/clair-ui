@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -42,10 +43,11 @@ type SliderMetricConfig = Readonly<{
   templateUrl: './edit-device-thresholds-dialog.component.html',
   styleUrl: './edit-device-thresholds-dialog.component.css',
 })
-export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
+export class EditDeviceThresholdsDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<EditDeviceThresholdsDialogComponent>);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly queryService = inject(DeviceThresholdQueryServiceImpl);
   private readonly commandService = inject(DeviceThresholdCommandServiceImpl);
   readonly data: EditDeviceThresholdsDialogData = inject(MAT_DIALOG_DATA);
@@ -75,8 +77,11 @@ export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
     }, {})
   );
 
-  ngAfterViewInit(): void {
-    setTimeout(() => this.reload());
+  private dragMetric: MetricThreshold | null = null;
+  private dragRect: DOMRect | null = null;
+
+  ngOnInit(): void {
+    this.reload();
   }
 
   cancel(): void {
@@ -111,6 +116,57 @@ export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
     return Math.max(0, Math.min(100, percent));
   }
 
+  onSliderPointerDown(event: MouseEvent | TouchEvent, metric: MetricThreshold): void {
+    event.preventDefault();
+    const target = (event.target as HTMLElement).closest('.slider-wrap') as HTMLElement;
+    if (!target) return;
+
+    this.dragMetric = metric;
+    this.dragRect = target.getBoundingClientRect();
+    this.updateDragValue(event);
+
+    const moveHandler = (e: MouseEvent | TouchEvent) => this.updateDragValue(e);
+    const upHandler = () => {
+      window.removeEventListener('mousemove', moveHandler as EventListener);
+      window.removeEventListener('mouseup', upHandler as EventListener);
+      window.removeEventListener('touchmove', moveHandler as EventListener);
+      window.removeEventListener('touchend', upHandler as EventListener);
+      this.dragMetric = null;
+      this.dragRect = null;
+    };
+
+    window.addEventListener('mousemove', moveHandler as EventListener);
+    window.addEventListener('mouseup', upHandler as EventListener);
+    window.addEventListener('touchmove', moveHandler as EventListener);
+    window.addEventListener('touchend', upHandler as EventListener);
+  }
+
+  private updateDragValue(event: MouseEvent | TouchEvent): void {
+    if (!this.dragMetric || !this.dragRect) return;
+
+    const clientX = 'touches' in event ? event.touches[0].clientX : (event as MouseEvent).clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : (event as MouseEvent).clientY;
+
+    const cfg = this.getSliderConfig(this.dragMetric);
+    const isVertical = this.dragRect.height > this.dragRect.width;
+
+    let percent: number;
+    if (isVertical) {
+      percent = (this.dragRect.bottom - clientY) / this.dragRect.height;
+    } else {
+      percent = (clientX - this.dragRect.left) / this.dragRect.width;
+    }
+    percent = Math.max(0, Math.min(1, percent));
+
+    const rawValue = cfg.min + percent * (cfg.max - cfg.min);
+    const stepped = Math.round(rawValue / cfg.step) * cfg.step;
+    const decimals = cfg.step < 1 ? 2 : 0;
+    const value = Number(Math.max(cfg.min, Math.min(cfg.max, stepped)).toFixed(decimals));
+
+    this.getMetricForm(this.dragMetric).patchValue({ value }, { emitEvent: false });
+    this.cdr.markForCheck();
+  }
+
   private reload(): void {
     this.loading = true;
     let deviceId;
@@ -123,9 +179,9 @@ export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
     }
     this.queryService
       .handleGetDeviceThresholdsByDevice(createGetDeviceThresholdsByDeviceQuery(deviceId))
-      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (thresholds) => {
+          this.loading = false;
           this.thresholdsByMetric = thresholds.reduce<Partial<Record<MetricThreshold, DeviceThreshold>>>((acc, t) => {
             acc[t.metric] = t;
             return acc;
@@ -138,8 +194,12 @@ export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
             const nextValue = existing ? existing.value : cfg.defaultValue;
             group.patchValue({ value: nextValue }, { emitEvent: false });
           });
+
+          this.cdr.detectChanges();
         },
         error: (error) => {
+          this.loading = false;
+          this.cdr.detectChanges();
           this.snackBar.open(extractApiErrorMessage(error, 'Failed to load thresholds'), 'Close', { duration: 3500 });
         },
       });
@@ -147,12 +207,10 @@ export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
 
   reset(): void {
     this.sliderConfigs.forEach((cfg) => {
-      const existing = this.initialThresholdsByMetric[cfg.metric] ?? null;
-      const nextValue = existing ? existing.value : cfg.defaultValue;
-      this.getMetricForm(cfg.metric).patchValue({ value: nextValue }, { emitEvent: false });
-      this.getMetricForm(cfg.metric).markAsPristine();
-      this.getMetricForm(cfg.metric).markAsUntouched();
+      this.getMetricForm(cfg.metric).patchValue({ value: cfg.defaultValue });
     });
+    this.form.markAsDirty();
+    this.cdr.detectChanges();
   }
 
   save(): void {
@@ -188,21 +246,24 @@ export class EditDeviceThresholdsDialogComponent implements AfterViewInit {
     forkJoin(writes$)
       .pipe(
         map(() => true),
-        switchMap(() => this.queryService.handleGetDeviceThresholdsByDevice(createGetDeviceThresholdsByDeviceQuery(deviceId))),
-        finalize(() => (this.saving = false))
+        switchMap(() => this.queryService.handleGetDeviceThresholdsByDevice(createGetDeviceThresholdsByDeviceQuery(deviceId)))
       )
       .subscribe({
         next: (thresholds) => {
+          this.saving = false;
           this.thresholdsByMetric = thresholds.reduce<Partial<Record<MetricThreshold, DeviceThreshold>>>((acc, t) => {
             acc[t.metric] = t;
             return acc;
           }, {});
           this.initialThresholdsByMetric = { ...this.thresholdsByMetric };
           this.form.markAsPristine();
+          this.cdr.detectChanges();
           this.snackBar.open('Thresholds saved', 'Close', { duration: 2500 });
-          this.done();
+          setTimeout(() => this.done(), 0);
         },
         error: (error) => {
+          this.saving = false;
+          this.cdr.detectChanges();
           this.snackBar.open(extractApiErrorMessage(error, 'Failed to save thresholds'), 'Close', { duration: 3500 });
         },
       });
