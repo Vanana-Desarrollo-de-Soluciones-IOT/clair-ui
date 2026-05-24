@@ -7,11 +7,10 @@ import { loadStripe, Stripe, StripeElements, StripeCardNumberElement, StripeCard
 import { jwtDecode } from 'jwt-decode';
 import { firstValueFrom } from 'rxjs';
 import { TOKEN_STORAGE_GATEWAY, TokenStorageGateway } from '../../../../iam/infrastructure/storage/token-storage.gateway';
-import { BillingQueryServiceImpl } from '../../../application/internal/queryservices/billing-query-service.impl';
 import { BillingCommandServiceImpl } from '../../../application/internal/commandservices/billing-command-service.impl';
 import { createSubscriptionPaymentIntentCommand } from '../../../domain/model/commands/create-subscription-payment-intent.command';
-import { createGetStripePublicKeyQuery } from '../../../domain/model/queries/get-stripe-public-key.query';
 import { createUserId } from '../../../domain/model/valueobjects/user-id.value-object';
+import { environment } from '../../../../../environments/environment';
 
 type AccessTokenPayload = {
   sub: string; // userId
@@ -44,7 +43,6 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
   constructor(
     public dialogRef: MatDialogRef<PaymentModalComponent>,
     @Inject(TOKEN_STORAGE_GATEWAY) private tokenStorage: TokenStorageGateway,
-    private billingQueryService: BillingQueryServiceImpl,
     private billingCommandService: BillingCommandServiceImpl,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
@@ -62,25 +60,12 @@ export class PaymentModalComponent implements OnInit, AfterViewInit {
       }
     }
 
-    const stripeKey = await this.getStripePublicKey();
-    if (!stripeKey) {
-      console.error('Stripe public key is missing in backend config.');
+    if (!environment.stripePublicKey) {
+      console.error('Stripe public key is missing in frontend config.');
       return;
     }
 
-    this.stripe = await loadStripe(stripeKey);
-  }
-
-  private async getStripePublicKey(): Promise<string | null> {
-    try {
-      const stripePublicKey = await firstValueFrom(
-        this.billingQueryService.handleGetStripePublicKey(createGetStripePublicKeyQuery())
-      );
-      return stripePublicKey.value;
-    } catch (error) {
-      console.error('Error loading Stripe public key', error);
-      return null;
-    }
+    this.stripe = await loadStripe(environment.stripePublicKey);
   }
 
   ngAfterViewInit() {
