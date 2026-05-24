@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, ViewChild } fr
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
@@ -20,6 +22,8 @@ import { SpaceDevicesPageActionsService } from './space-devices-page-actions.ser
   standalone: true,
   imports: [
     CommonModule,
+    MatButtonModule,
+    MatIconModule,
     SidebarComponent,
     HeaderComponent,
     OrganizationsPanelComponent,
@@ -48,6 +52,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   private trackedStatusDeviceId: string | null = null;
 
   isSidebarOpen = true;
+  isOrganizationsDrawerOpen = false;
   selectedSpace: Space | null = null;
   selectedDevice: Device | null = null;
   devicesPage: DevicePage | null = null;
@@ -98,7 +103,16 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.isSidebarOpen = false;
   }
 
+  openOrganizationsDrawer(): void {
+    this.isOrganizationsDrawerOpen = true;
+  }
+
+  closeOrganizationsDrawer(): void {
+    this.isOrganizationsDrawerOpen = false;
+  }
+
   selectSpace(space: Space): void {
+    this.closeOrganizationsDrawer();
     this.selectedSpace = space;
     this.selectedDevice = null;
     this.latestTelemetry = null;

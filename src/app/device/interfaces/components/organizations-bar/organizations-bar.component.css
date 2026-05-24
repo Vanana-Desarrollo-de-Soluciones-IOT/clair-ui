@@ -172,3 +172,55 @@
 }
 
 .error-state { color: #f87171; }
+
+@media (max-width: 900px) {
+  .org-panel {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    max-height: calc(78vh - 86px);
+    padding: 0 1rem 1rem;
+    border-right: 0;
+    background: transparent;
+  }
+
+  .org-list {
+    flex: initial;
+    max-height: calc(78vh - 160px);
+    padding-right: 0.25rem;
+  }
+
+  .org-item--space {
+    margin-left: 1rem;
+    width: calc(100% - 1rem);
+  }
+
+  .add-org-button {
+    margin-top: 0.75rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .org-panel {
+    padding-inline: 0.75rem;
+  }
+
+  .org-item--organization {
+    align-items: flex-start;
+  }
+
+  .org-actions {
+    gap: 0.25rem;
+  }
+
+  .org-action-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+  }
+
+  .org-item--space {
+    margin-left: 0;
+    width: 100%;
+  }
+}
