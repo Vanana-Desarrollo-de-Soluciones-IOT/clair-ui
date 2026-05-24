@@ -20,10 +20,6 @@ export class EvaluationContextFacadeImpl implements EvaluationContextFacade {
           uptime: evaluation.uptime,
           healthStatus: evaluation.healthStatus,
           recordedAt: evaluation.recordedAt,
-          pm2_5: evaluation.particulateMatter.pm2_5,
-          co2: evaluation.airQuality.co2,
-          temperature: evaluation.airQuality.temperature,
-          humidity: evaluation.airQuality.humidity,
           network: evaluation.connectivity.network,
           locationCountry: evaluation.location.country,
         };

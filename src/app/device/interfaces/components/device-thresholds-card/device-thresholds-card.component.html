@@ -13,7 +13,7 @@
     <mat-card class="threshold-card">
       <div class="threshold-label">PM2.5</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.pm2_5 ?? '--' }}</span>
+        <span class="threshold-number">{{ pm2_5 }}</span>
         <span class="threshold-unit">µg/m³</span>
       </div>
     </mat-card>
@@ -21,7 +21,7 @@
     <mat-card class="threshold-card">
       <div class="threshold-label">CO₂</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.co2 ?? '--' }}</span>
+        <span class="threshold-number">{{ co2 }}</span>
         <span class="threshold-unit">ppm</span>
       </div>
     </mat-card>
@@ -29,7 +29,7 @@
     <mat-card class="threshold-card">
       <div class="threshold-label">TEMP</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.temperature != null ? (telemetry!.temperature | number:'1.0-0') : '--' }}</span>
+        <span class="threshold-number">{{ temperature | number:'1.0-0' }}</span>
         <span class="threshold-unit">°C</span>
       </div>
     </mat-card>
@@ -37,7 +37,7 @@
     <mat-card class="threshold-card">
       <div class="threshold-label">HUMIDITY</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.humidity ?? '--' }}</span>
+        <span class="threshold-number">{{ humidity }}</span>
         <span class="threshold-unit">%</span>
       </div>
     </mat-card>

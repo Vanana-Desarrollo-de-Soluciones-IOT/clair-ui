@@ -18,6 +18,12 @@ export class DeviceThresholdsCardComponent {
   @Input() telemetry: DeviceTelemetrySnapshot | null = null;
   @Output() editRequested = new EventEmitter<void>();
 
+  // Hardcoded values
+  pm2_5 = 15;
+  co2 = 450;
+  temperature = 22;
+  humidity = 40;
+
   editThresholds(): void {
     this.editRequested.emit();
   }
