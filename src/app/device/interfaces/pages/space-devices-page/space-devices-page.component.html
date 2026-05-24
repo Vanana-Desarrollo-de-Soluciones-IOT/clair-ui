@@ -29,10 +29,12 @@
             *ngIf="selectedDevice; else deviceList"
             [device]="selectedDevice"
             [telemetry]="latestTelemetry"
+            [thresholds]="selectedDeviceThresholds"
             (backRequested)="clearSelectedDevice()"
             (editRequested)="openEditDeviceDialog()"
             (deleteRequested)="openDeleteDeviceDialog()"
             (powerToggleRequested)="toggleDevicePower()"
+            (thresholdsEditRequested)="onEditThresholdsRequested()"
           ></app-device-detail-panel>
 
           <!-- Show Device List when no device is selected -->

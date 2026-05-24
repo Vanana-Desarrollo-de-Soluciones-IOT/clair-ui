@@ -3,42 +3,27 @@
     <div class="thresholds-title-section">
       <div class="title-row">
         <h2 class="thresholds-title">Thresholds</h2>
-        <span class="status-dot"></span>
+        <mat-icon class="info-icon" style="font-size: 14px; width: 14px; height: 14px; color: #6b7280; margin-top: 4px;">info</mat-icon>
       </div>
       <p class="thresholds-subtitle">May affect device health</p>
     </div>
+    <button mat-fab class="action-button action-button--secondary" (click)="editThresholds()" aria-label="Edit thresholds">
+      <mat-icon>edit</mat-icon>
+    </button>
   </div>
 
   <div class="thresholds-container">
-    <mat-card class="threshold-card">
-      <div class="threshold-label">PM2.5</div>
+    <mat-card *ngFor="let metric of metrics" class="threshold-card">
+      <div class="threshold-label">{{ metricDetails(metric).label }}</div>
       <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.pm2_5 ?? '--' }}</span>
-        <span class="threshold-unit">µg/m³</span>
-      </div>
-    </mat-card>
-
-    <mat-card class="threshold-card">
-      <div class="threshold-label">CO₂</div>
-      <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.co2 ?? '--' }}</span>
-        <span class="threshold-unit">ppm</span>
-      </div>
-    </mat-card>
-
-    <mat-card class="threshold-card">
-      <div class="threshold-label">TEMP</div>
-      <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.temperature != null ? (telemetry!.temperature | number:'1.0-0') : '--' }}</span>
-        <span class="threshold-unit">°C</span>
-      </div>
-    </mat-card>
-
-    <mat-card class="threshold-card">
-      <div class="threshold-label">HUMIDITY</div>
-      <div class="threshold-value">
-        <span class="threshold-number">{{ telemetry?.humidity ?? '--' }}</span>
-        <span class="threshold-unit">%</span>
+        <ng-container *ngIf="thresholdFor(metric) as t; else emptyValue">
+          <span class="threshold-number">{{ t.value | number:'1.0-2' }}</span>
+          <span class="threshold-unit">{{ metricDetails(metric).unit }}</span>
+        </ng-container>
+        <ng-template #emptyValue>
+          <span class="threshold-number threshold-number--empty">--</span>
+          <span class="threshold-unit">{{ metricDetails(metric).unit }}</span>
+        </ng-template>
       </div>
     </mat-card>
   </div>

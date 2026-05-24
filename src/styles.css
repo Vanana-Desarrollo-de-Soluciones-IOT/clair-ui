@@ -149,3 +149,17 @@ label {
   border-radius: 12px;
   overflow: hidden;
 }
+
+/* Thresholds dialog (no internal scrollbars) */
+.thresholds-dialog-panel .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: transparent;
+}
+
+.thresholds-dialog-panel .mat-mdc-dialog-surface,
+.thresholds-dialog-panel .mdc-dialog__surface {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  max-height: 96vh !important;
+}

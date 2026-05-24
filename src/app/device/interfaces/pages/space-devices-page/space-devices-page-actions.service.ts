@@ -8,6 +8,7 @@ import { DeviceStatusQueryServiceImpl } from '../../../application/internal/quer
 import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { DeviceStatusSnapshot } from '../../../domain/services/device-status-query-service';
+import { DeviceThreshold } from '../../../domain/services/device-threshold-query-service';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
 import { createClaimDeviceCommand } from '../../../domain/model/commands/claim-device.command';
@@ -27,6 +28,9 @@ import { DeleteDeviceDialogComponent, DeleteDeviceDialogData } from '../../compo
 import { extractApiErrorMessage } from '../../rest/transform/extract-api-error-message.transform';
 import { createGetDeviceStatusByIdQuery } from '../../../domain/model/queries/get-device-status-by-id.query';
 import { createDeviceId } from '../../../domain/model/valueobjects/device-id.value-object';
+import { DeviceThresholdQueryServiceImpl } from '../../../application/internal/queryservices/device-threshold-query-service.impl';
+import { EditDeviceThresholdsDialogComponent } from '../../components/edit-device-thresholds-dialog/edit-device-thresholds-dialog.component';
+import { createGetDeviceThresholdsByDeviceQuery } from '../../../domain/model/queries/get-device-thresholds-by-device.query';
 
 @Injectable({ providedIn: 'root' })
 export class SpaceDevicesPageActionsService {
@@ -34,6 +38,7 @@ export class SpaceDevicesPageActionsService {
     private readonly deviceCommandService: DeviceCommandServiceImpl,
     private readonly deviceQueryService: DeviceQueryServiceImpl,
     private readonly deviceStatusQueryService: DeviceStatusQueryServiceImpl,
+    private readonly deviceThresholdQueryService: DeviceThresholdQueryServiceImpl,
     private readonly externalTelemetryService: ExternalTelemetryEvaluationService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar
@@ -45,6 +50,24 @@ export class SpaceDevicesPageActionsService {
 
   loadLatestTelemetry(deviceId: string): Observable<DeviceTelemetrySnapshot | null> {
     return this.externalTelemetryService.fetchLatestTelemetryByDevice(deviceId);
+  }
+
+  loadDeviceThresholds(deviceId: string): Observable<DeviceThreshold[]> {
+    return this.deviceThresholdQueryService.handleGetDeviceThresholdsByDevice(
+      createGetDeviceThresholdsByDeviceQuery(createDeviceId(deviceId))
+    );
+  }
+
+  runEditDeviceThresholdsFlow(deviceId: string): Observable<boolean> {
+    const dialogRef = this.dialog.open(EditDeviceThresholdsDialogComponent, {
+      panelClass: 'thresholds-dialog-panel',
+      width: '980px',
+      maxWidth: '96vw',
+      maxHeight: '96vh',
+      autoFocus: false,
+      data: { deviceId },
+    });
+    return dialogRef.afterClosed().pipe(map((result) => Boolean(result)));
   }
 
   watchLatestTelemetry(deviceId: string, refreshIntervalMs: number): Observable<DeviceTelemetrySnapshot | null> {

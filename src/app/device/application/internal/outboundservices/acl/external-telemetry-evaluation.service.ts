@@ -13,10 +13,6 @@ export type DeviceTelemetrySnapshot = Readonly<{
   lastUpdateMinutes: number | null;
   network: string | null;
   location: string | null;
-  pm2_5: number | null;
-  co2: number | null;
-  temperature: number | null;
-  humidity: number | null;
 }>;
 
 @Injectable({ providedIn: 'root' })
@@ -38,10 +34,6 @@ export class ExternalTelemetryEvaluationService {
           lastUpdateMinutes: this.computeMinutesSince(summary.recordedAt),
           network: summary.network,
           location: summary.locationCountry,
-          pm2_5: summary.pm2_5,
-          co2: summary.co2,
-          temperature: summary.temperature,
-          humidity: summary.humidity,
         };
       })
     );
