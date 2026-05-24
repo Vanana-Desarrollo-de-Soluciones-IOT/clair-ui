@@ -14,6 +14,8 @@ import { TELEMETRY_EVALUATION_GATEWAY } from './evaluation/infrastructure/api/ga
 import { TelemetryEvaluationHttpGateway } from './evaluation/infrastructure/api/gateways/telemetry-evaluation-http.gateway';
 import { EVALUATION_CONTEXT_FACADE } from './evaluation/interfaces/acl/evaluation-context-facade';
 import { EvaluationContextFacadeImpl } from './evaluation/application/acl/evaluation-context-facade.impl';
+import { DEVICE_CONTEXT_FACADE } from './device/interfaces/acl/device-context-facade';
+import { DeviceContextFacadeImpl } from './device/application/acl/device-context-facade.impl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     { provide: DEVICE_GATEWAY, useClass: DeviceHttpGateway },
     { provide: TELEMETRY_EVALUATION_GATEWAY, useClass: TelemetryEvaluationHttpGateway },
     { provide: EVALUATION_CONTEXT_FACADE, useClass: EvaluationContextFacadeImpl },
+    { provide: DEVICE_CONTEXT_FACADE, useClass: DeviceContextFacadeImpl },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
 };
