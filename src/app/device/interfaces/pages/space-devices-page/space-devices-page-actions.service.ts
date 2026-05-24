@@ -60,8 +60,11 @@ export class SpaceDevicesPageActionsService {
 
   runEditDeviceThresholdsFlow(deviceId: string): Observable<boolean> {
     const dialogRef = this.dialog.open(EditDeviceThresholdsDialogComponent, {
-      width: '900px',
-      maxWidth: '95vw',
+      panelClass: 'thresholds-dialog-panel',
+      width: '980px',
+      maxWidth: '96vw',
+      maxHeight: '96vh',
+      autoFocus: false,
       data: { deviceId },
     });
     return dialogRef.afterClosed().pipe(map((result) => Boolean(result)));

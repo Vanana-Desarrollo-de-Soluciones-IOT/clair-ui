@@ -11,9 +11,9 @@ export const getMetricThresholdDetails = (metric: MetricThreshold): MetricThresh
     case 'CO2':
       return { label: 'CO₂', unit: 'ppm' };
     case 'TEMPERATURE':
-      return { label: 'Temperature', unit: '°C' };
+      return { label: 'TEMP', unit: '°C' };
     case 'HUMIDITY':
-      return { label: 'Humidity', unit: '%' };
+      return { label: 'HUMIDITY', unit: '%' };
   }
 };
 
