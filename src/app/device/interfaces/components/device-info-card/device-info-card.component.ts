@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { ClairDeviceComponent } from '../../../../shared/interfaces/components/clair-device/clair-device.component';
 import { Device } from '../../../domain/services/device-query-service';
 import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { resolveDeviceConnectivityColor } from '../../rest/transform/device-connectivity-color.transform';
 
 @Component({
   selector: 'app-device-info-card',
@@ -50,10 +51,14 @@ export class DeviceInfoCardComponent {
     switch (this.device.status) {
       case 'ONLINE':
         return '#10b981';
+      case 'STANDBY':
+        return '#6b7280';
       case 'OFFLINE':
         return '#6b7280';
       case 'MAINTENANCE':
         return '#f59e0b';
+      case 'ERROR':
+        return '#ef4444';
       case 'DECOMMISSIONED':
         return '#ef4444';
       default:
@@ -61,10 +66,22 @@ export class DeviceInfoCardComponent {
     }
   }
 
+  getPowerButtonVariant(): 'on' | 'off' {
+    return this.isDeviceLikelyAwake() ? 'on' : 'off';
+  }
+
+  getConnectivityColor(): string {
+    return resolveDeviceConnectivityColor(this.telemetry);
+  }
+
   getConnectivityValue(): number | null {
     if (this.telemetry?.connectivitySignalStrength != null) {
-      return Math.abs(this.telemetry.connectivitySignalStrength);
+      return this.telemetry.connectivitySignalStrength;
     }
     return null;
+  }
+
+  private isDeviceLikelyAwake(): boolean {
+    return this.device.status === 'ONLINE';
   }
 }

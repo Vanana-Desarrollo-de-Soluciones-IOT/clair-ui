@@ -29,6 +29,7 @@
     *ngFor="let device of devicesPage.content"
     [device]="device"
     [viewMode]="viewMode"
+    [telemetry]="telemetryByDeviceId[device.id.value] ?? null"
     (deviceSelected)="onDeviceSelected($event)"
   ></app-device-card>
 </div>

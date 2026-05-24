@@ -1,7 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 
@@ -10,8 +8,6 @@ import { DeviceTelemetrySnapshot } from '../../../application/internal/outbounds
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule,
-    MatButtonModule,
     MatCardModule,
   ],
   templateUrl: './device-thresholds-card.component.html',

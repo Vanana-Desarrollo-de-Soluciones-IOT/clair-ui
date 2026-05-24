@@ -5,7 +5,7 @@
 .thresholds-card {
   background-color: #0a0a0a;
   border-radius: 16px;
-  padding: 24px 0;
+  padding: 24px;
 }
 
 /* Header */
@@ -13,7 +13,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .thresholds-title-section {
@@ -48,23 +48,6 @@
   margin: 0;
 }
 
-.edit-button {
-  color: #9ca3af;
-  background-color: #1a1a1a;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.edit-button mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
 /* Thresholds Container */
 .thresholds-container {
   display: grid;
@@ -84,15 +67,11 @@
   }
 }
 
-.threshold-card {
+.threshold-card.mat-mdc-card {
   background-color: #0a0a0a;
   border: 1px solid #2a2a2a;
   border-radius: 12px;
   padding: 16px;
-}
-
-.threshold-card ::ng-deep .mat-mdc-card {
-  background-color: transparent;
   box-shadow: none;
 }
 
@@ -120,4 +99,10 @@
 .threshold-unit {
   font-size: 12px;
   color: #6b7280;
+}
+
+@media (max-width: 640px) {
+  .thresholds-card {
+    padding: 16px;
+  }
 }

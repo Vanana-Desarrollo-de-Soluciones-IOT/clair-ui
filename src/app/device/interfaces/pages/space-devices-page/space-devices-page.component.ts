@@ -1,41 +1,29 @@
-import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
 import { DeviceDetailPanelComponent } from '../../components/device-detail-panel/device-detail-panel.component';
-import { ClaimDeviceDialogComponent, ClaimDeviceDialogResult } from '../../components/claim-device-dialog/claim-device-dialog.component';
-import { PairDeviceDialogComponent, PairDeviceDialogResult } from '../../components/pair-device-dialog/pair-device-dialog.component';
 import { DeviceListComponent, DeviceViewMode } from '../../components/device-list/device-list.component';
 import { SpaceDetailHeaderComponent } from '../../components/space-detail-header/space-detail-header.component';
-import { EditNameDialogComponent } from '../../components/edit-name-dialog/edit-name-dialog.component';
-import { DeleteSpaceDialogComponent } from '../../components/delete-space-dialog/delete-space-dialog.component';
-import { DeleteDeviceDialogComponent, DeleteDeviceDialogData } from '../../components/delete-device-dialog/delete-device-dialog.component';
-import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
-import { createDeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
-import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
-import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
-import { createGetDevicesBySpaceQuery } from '../../../domain/model/queries/get-devices-by-space.query';
-import { createClaimDeviceCommand } from '../../../domain/model/commands/claim-device.command';
-import { createPairDeviceCommand } from '../../../domain/model/commands/pair-device.command';
-import { createHardwareId } from '../../../domain/model/valueobjects/hardware-id.value-object';
-import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
-import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
-import { createCreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
-import { createDeviceCommandType } from '../../../domain/model/valueobjects/device-command-type.value-object';
-import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { SpaceDevicesNavigationStateService } from './space-devices-navigation-state.service';
+import { SpaceDevicesSelectionHydrationService } from './space-devices-selection-hydration.service';
+import { SpaceDevicesPageActionsService } from './space-devices-page-actions.service';
 
 @Component({
   selector: 'app-space-devices-page',
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,
-    MatSnackBarModule,
+    MatButtonModule,
+    MatIconModule,
     SidebarComponent,
     HeaderComponent,
     OrganizationsPanelComponent,
@@ -46,17 +34,25 @@ import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../
   templateUrl: './space-devices-page.component.html',
   styleUrl: './space-devices-page.component.css',
 })
-export class SpaceDevicesPageComponent {
-  private readonly deviceCommandService = inject(DeviceCommandServiceImpl);
-  private readonly deviceQueryService = inject(DeviceQueryServiceImpl);
-  private readonly externalTelemetryService = inject(ExternalTelemetryEvaluationService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
+  private readonly navigationState = inject(SpaceDevicesNavigationStateService);
+  private readonly selectionHydration = inject(SpaceDevicesSelectionHydrationService);
+  private readonly pageActions = inject(SpaceDevicesPageActionsService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   @ViewChild(OrganizationsPanelComponent) orgPanel!: OrganizationsPanelComponent;
 
+  private readonly subscriptions = new Subscription();
+  private telemetryPollingSubscription: Subscription | null = null;
+  private listTelemetryPollingSubscription: Subscription | null = null;
+  private statusPollingSubscription: Subscription | null = null;
+  private statusPollingResetTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private trackedStatusDeviceId: string | null = null;
+
   isSidebarOpen = true;
+  isOrganizationsDrawerOpen = false;
   selectedSpace: Space | null = null;
   selectedDevice: Device | null = null;
   devicesPage: DevicePage | null = null;
@@ -64,6 +60,40 @@ export class SpaceDevicesPageComponent {
   loadingDevices = false;
   errorDevices = '';
   latestTelemetry: DeviceTelemetrySnapshot | null = null;
+  deviceTelemetryByDeviceId: Record<string, DeviceTelemetrySnapshot | null> = {};
+
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.route.queryParamMap.subscribe((params) => {
+        const selectionFromUrl = this.navigationState.readSelectionFromQueryParams(params);
+        const deviceId = selectionFromUrl?.deviceId ?? null;
+        const spaceId = selectionFromUrl?.spaceId ?? null;
+
+        const currentDeviceId = this.selectedDevice?.id.value ?? null;
+        const currentSpaceId = this.selectedSpace?.id.value ?? null;
+        if (deviceId === currentDeviceId && spaceId === currentSpaceId) return;
+
+        if (deviceId) {
+          this.hydrateFromDeviceId(deviceId);
+          return;
+        }
+
+        if (spaceId) {
+          this.hydrateFromSpaceId(spaceId);
+          return;
+        }
+
+        this.hydrateFromLastSelection();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.stopTelemetryPolling();
+    this.stopListTelemetryPolling();
+    this.stopStatusPolling();
+    this.subscriptions.unsubscribe();
+  }
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -73,15 +103,39 @@ export class SpaceDevicesPageComponent {
     this.isSidebarOpen = false;
   }
 
+  openOrganizationsDrawer(): void {
+    this.isOrganizationsDrawerOpen = true;
+  }
+
+  closeOrganizationsDrawer(): void {
+    this.isOrganizationsDrawerOpen = false;
+  }
+
   selectSpace(space: Space): void {
+    this.closeOrganizationsDrawer();
     this.selectedSpace = space;
+    this.selectedDevice = null;
+    this.latestTelemetry = null;
+    this.deviceTelemetryByDeviceId = {};
+    this.stopTelemetryPolling();
+    this.stopStatusPolling();
     this.loadDevices(space.id);
+    this.navigationState.syncQueryParams(this.router, this.route, { spaceId: space.id.value, deviceId: null });
+    this.navigationState.persistSelectionToLocalStorage({ spaceId: space.id.value, deviceId: null });
   }
 
   clearSelectedSpace(): void {
     this.selectedSpace = null;
+    this.selectedDevice = null;
+    this.latestTelemetry = null;
+    this.deviceTelemetryByDeviceId = {};
+    this.stopTelemetryPolling();
+    this.stopListTelemetryPolling();
+    this.stopStatusPolling();
     this.devicesPage = null;
     this.errorDevices = '';
+    this.navigationState.syncQueryParams(this.router, this.route, { spaceId: null, deviceId: null });
+    this.navigationState.clearLocalStorageSelection();
   }
 
   setViewMode(mode: DeviceViewMode): void {
@@ -90,108 +144,142 @@ export class SpaceDevicesPageComponent {
 
   selectDevice(device: Device): void {
     this.selectedDevice = device;
-    this.loadLatestTelemetry(device.id.value);
+    this.stopListTelemetryPolling();
+    this.startTelemetryPolling(device.id.value);
+    this.startStatusPolling(device.id.value, 10_000);
+    this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
+    this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
   }
 
   clearSelectedDevice(): void {
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.stopTelemetryPolling();
+    if (this.devicesPage) this.startListTelemetryPolling(this.devicesPage.content);
+    this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
+    this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
   }
 
-  private loadLatestTelemetry(deviceId: string): void {
-    this.latestTelemetry = null;
-    this.externalTelemetryService.fetchLatestTelemetryByDevice(deviceId).subscribe({
-      next: (snapshot) => {
-        this.latestTelemetry = snapshot;
-        this.cdr.markForCheck();
-      },
-      error: () => {
+  private hydrateFromDeviceId(deviceId: string): void {
+    this.subscriptions.add(
+      this.selectionHydration.hydrateFromDeviceId(deviceId).subscribe((result) => {
+        if (!result) return;
+        const { device, space } = result;
+
+        this.selectedDevice = device;
         this.latestTelemetry = null;
-        this.cdr.markForCheck();
-      },
-    });
+
+        if (space) this.applyHydratedSpace(space);
+        else {
+          this.selectedSpace = null;
+          this.devicesPage = null;
+          this.errorDevices = '';
+          this.cdr.markForCheck();
+        }
+
+        if (device.spaceId) this.loadDevices(device.spaceId);
+        this.startTelemetryPolling(device.id.value);
+        this.startStatusPolling(device.id.value, 10_000);
+
+        this.navigationState.syncQueryParams(this.router, this.route, {
+          spaceId: device.spaceId ? device.spaceId.value : null,
+          deviceId: device.id.value,
+        }, true);
+
+        this.navigationState.persistSelectionToLocalStorage({
+          spaceId: device.spaceId ? device.spaceId.value : null,
+          deviceId: device.id.value,
+        });
+      })
+    );
+  }
+
+  private hydrateFromSpaceId(spaceId: string): void {
+    this.subscriptions.add(
+      this.selectionHydration.hydrateFromSpaceId(spaceId).subscribe((space) => {
+        if (!space) return;
+        this.selectedDevice = null;
+        this.latestTelemetry = null;
+        this.applyHydratedSpace(space);
+        this.loadDevices(space.id);
+        this.stopStatusPolling();
+        this.navigationState.persistSelectionToLocalStorage({ spaceId: space.id.value, deviceId: null });
+      })
+    );
+  }
+
+  private applyHydratedSpace(space: Space): void {
+    this.selectedSpace = space;
+    this.devicesPage = null;
+    this.errorDevices = '';
+    this.cdr.markForCheck();
+
+    if (this.orgPanel) {
+      this.orgPanel.ensureOrganizationExpanded(space.organizationId);
+    }
+  }
+
+  private hydrateFromLastSelection(): void {
+    const selection = this.navigationState.readSelectionFromLocalStorage();
+    if (!selection) return;
+
+    this.navigationState.syncQueryParams(
+      this.router,
+      this.route,
+      { spaceId: selection.spaceId, deviceId: selection.deviceId },
+      true
+    );
   }
 
   openClaimDeviceDialog(): void {
     if (!this.selectedSpace) return;
-    const dialogRef = this.dialog.open(ClaimDeviceDialogComponent, { width: '420px' });
-    dialogRef.afterClosed().subscribe((result: ClaimDeviceDialogResult | undefined) => {
-      if (!result || !this.selectedSpace) return;
-      const command = createClaimDeviceCommand(result.claimToken, this.selectedSpace.id);
-      this.deviceCommandService.handleClaimDevice(command).subscribe({
+    this.subscriptions.add(
+      this.pageActions.runClaimDeviceFlow(this.selectedSpace).subscribe({
         next: () => {
-          this.snackBar.open('Sensor claimed', 'Close', { duration: 3000 });
-          this.loadDevices(this.selectedSpace!.id);
+          if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
         },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to claim sensor'), 'Close', { duration: 3000 }),
-      });
-    });
+      })
+    );
   }
 
   openPairDeviceDialog(): void {
-    const dialogRef = this.dialog.open(PairDeviceDialogComponent, { width: '420px' });
-    dialogRef.afterClosed().subscribe((result: PairDeviceDialogResult | undefined) => {
-      if (!result) return;
-      const command = createPairDeviceCommand(createHardwareId(result.hardwareId));
-      this.deviceCommandService.handlePairDevice(command).subscribe({
-        next: (pairing) => {
-          const claimTokenText = pairing.claimToken ? ` Claim token: ${pairing.claimToken}` : '';
-          this.snackBar.open(`Sensor paired.${claimTokenText}`, 'Close', { duration: 6000 });
+    this.subscriptions.add(
+      this.pageActions.runPairDeviceFlow().subscribe({
+        next: () => {
           if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
         },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to pair sensor'), 'Close', { duration: 3000 }),
-      });
-    });
+      })
+    );
   }
 
   openEditSpaceDialog(): void {
     if (!this.selectedSpace) return;
-    const dialogRef = this.dialog.open(EditNameDialogComponent, {
-      width: '400px',
-      data: {
-        currentValue: this.selectedSpace.name,
-        title: 'Edit Space',
-        fieldLabel: 'Space Name',
-        placeholder: 'Enter space name',
-      },
-    });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
-      if (!name) return;
-      const command = createUpdateSpaceNameCommand(this.selectedSpace!.id, name);
-      this.deviceCommandService.handleUpdateSpaceName(command).subscribe({
-        next: () => {
-          this.snackBar.open('Space updated', 'Close', { duration: 3000 });
-          if (this.selectedSpace) {
-            this.selectedSpace = { ...this.selectedSpace, name };
-          }
-          if (this.orgPanel) {
-            this.orgPanel.loadSpaces(this.selectedSpace!.organizationId);
-          }
-        },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update space'), 'Close', { duration: 3000 }),
-      });
-    });
+    const currentSpace = this.selectedSpace;
+    this.subscriptions.add(
+      this.pageActions.runEditSpaceNameFlow(currentSpace).subscribe((name) => {
+        if (!name) return;
+        if (this.selectedSpace && this.selectedSpace.id.value === currentSpace.id.value) {
+          this.selectedSpace = { ...this.selectedSpace, name };
+        }
+        if (this.orgPanel) this.orgPanel.loadSpaces(currentSpace.organizationId);
+      })
+    );
   }
 
   openDeleteSpaceDialog(): void {
     if (!this.selectedSpace) return;
-    const dialogRef = this.dialog.open(DeleteSpaceDialogComponent, { width: '400px' });
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-      const command = createDeleteSpaceCommand(this.selectedSpace!.id);
-      const orgId = this.selectedSpace!.organizationId;
-      this.deviceCommandService.handleDeleteSpace(command).subscribe({
-        next: () => {
-          this.snackBar.open('Space deleted', 'Close', { duration: 3000 });
-          this.selectedSpace = null;
-          this.devicesPage = null;
-          if (this.orgPanel) {
-            this.orgPanel.loadSpaces(orgId);
-          }
-        },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to delete space'), 'Close', { duration: 3000 }),
-      });
-    });
+    const orgId = this.selectedSpace.organizationId;
+    const spaceId = this.selectedSpace.id;
+    this.subscriptions.add(
+      this.pageActions.runDeleteSpaceFlow(spaceId).subscribe((deleted) => {
+        if (!deleted) return;
+        this.selectedSpace = null;
+        this.selectedDevice = null;
+        this.latestTelemetry = null;
+        this.devicesPage = null;
+        if (this.orgPanel) this.orgPanel.loadSpaces(orgId);
+      })
+    );
   }
 
   private loadDevices(spaceId: SpaceId): void {
@@ -200,106 +288,156 @@ export class SpaceDevicesPageComponent {
     this.devicesPage = null;
     this.cdr.markForCheck();
 
-    this.deviceQueryService.handleGetDevicesBySpace(createGetDevicesBySpaceQuery(spaceId, 0, 50)).subscribe({
-      next: (page) => {
-        this.devicesPage = page;
-        this.loadingDevices = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.errorDevices = 'Failed to load devices';
-        this.loadingDevices = false;
-        this.cdr.markForCheck();
-      },
-    });
+    this.subscriptions.add(
+      this.pageActions.loadDevices(spaceId, 0, 50).subscribe({
+        next: (page) => {
+          this.devicesPage = page;
+          this.loadingDevices = false;
+          if (!this.selectedDevice) this.startListTelemetryPolling(page.content);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.errorDevices = 'Failed to load devices';
+          this.loadingDevices = false;
+          this.stopListTelemetryPolling();
+          this.cdr.markForCheck();
+        },
+      })
+    );
   }
 
   openEditDeviceDialog(): void {
     if (!this.selectedDevice) return;
-    const dialogRef = this.dialog.open(EditNameDialogComponent, {
-      width: '400px',
-      data: {
-        currentValue: this.selectedDevice.name,
-        title: 'Edit Device',
-        fieldLabel: 'Device Name',
-        placeholder: 'Enter device name',
-      },
-    });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
-      if (!name || !this.selectedDevice) return;
-      const command = createUpdateDeviceNameCommand(this.selectedDevice.id, name);
-      this.deviceCommandService.handleUpdateDeviceName(command).subscribe({
-        next: () => {
-          this.snackBar.open('Device updated', 'Close', { duration: 3000 });
-          if (this.selectedDevice) {
-            this.selectedDevice = { ...this.selectedDevice, name };
-          }
-          // Refresh the device list to show the updated name
-          if (this.selectedSpace) {
-            this.loadDevices(this.selectedSpace.id);
-          }
-        },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update device'), 'Close', { duration: 3000 }),
-      });
-    });
+    const currentDevice = this.selectedDevice;
+    this.subscriptions.add(
+      this.pageActions.runEditDeviceNameFlow(currentDevice).subscribe((name) => {
+        if (!name) return;
+        if (this.selectedDevice && this.selectedDevice.id.value === currentDevice.id.value) {
+          this.selectedDevice = { ...this.selectedDevice, name };
+        }
+        if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
+      })
+    );
   }
 
   openDeleteDeviceDialog(): void {
     if (!this.selectedDevice) return;
-    const dialogRef = this.dialog.open(DeleteDeviceDialogComponent, {
-      width: '400px',
-      data: {
-        deviceName: this.selectedDevice.name,
-      } as DeleteDeviceDialogData,
-    });
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed || !this.selectedDevice) return;
-      const command = createDeleteDeviceCommand(this.selectedDevice.id);
-      this.deviceCommandService.handleDeleteDevice(command).subscribe({
-        next: () => {
-          this.snackBar.open('Device deleted', 'Close', { duration: 3000 });
-          this.selectedDevice = null;
-          // Refresh the device list
-          if (this.selectedSpace) {
-            this.loadDevices(this.selectedSpace.id);
-          }
-        },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to delete device'), 'Close', { duration: 3000 }),
-      });
-    });
+    const currentDevice = this.selectedDevice;
+    this.subscriptions.add(
+      this.pageActions.runDeleteDeviceFlow(currentDevice).subscribe((deleted) => {
+        if (!deleted) return;
+        this.selectedDevice = null;
+        this.latestTelemetry = null;
+        if (this.selectedSpace) this.loadDevices(this.selectedSpace.id);
+      })
+    );
   }
 
   toggleDevicePower(): void {
     if (!this.selectedDevice) return;
+    const deviceId = this.selectedDevice.id.value;
+    const intent: 'WAKE' | 'STANDBY' = this.selectedDevice.status === 'ONLINE' ? 'STANDBY' : 'WAKE';
 
-    if (this.selectedDevice.status === 'DECOMMISSIONED') {
-      this.snackBar.open('Device is decommissioned and cannot receive commands', 'Close', { duration: 3000 });
+    this.subscriptions.add(
+      this.pageActions.runToggleDevicePowerFlow(this.selectedDevice, intent).subscribe({
+        next: () => {
+          this.startStatusPolling(deviceId, 2_000);
+          if (this.statusPollingResetTimeoutId) clearTimeout(this.statusPollingResetTimeoutId);
+          this.statusPollingResetTimeoutId = setTimeout(() => {
+            if (this.trackedStatusDeviceId === deviceId) this.startStatusPolling(deviceId, 10_000);
+          }, 60_000);
+        },
+      })
+    );
+  }
+
+  private startTelemetryPolling(deviceId: string): void {
+    this.stopTelemetryPolling();
+    this.latestTelemetry = null;
+    this.telemetryPollingSubscription = this.pageActions.watchLatestTelemetry(deviceId, 10_000).subscribe({
+        next: (snapshot) => {
+          this.latestTelemetry = snapshot;
+          this.deviceTelemetryByDeviceId = { ...this.deviceTelemetryByDeviceId, [deviceId]: snapshot };
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.latestTelemetry = null;
+          this.deviceTelemetryByDeviceId = { ...this.deviceTelemetryByDeviceId, [deviceId]: null };
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private stopTelemetryPolling(): void {
+    if (!this.telemetryPollingSubscription) return;
+    this.telemetryPollingSubscription.unsubscribe();
+    this.telemetryPollingSubscription = null;
+  }
+
+  private startListTelemetryPolling(devices: readonly Device[]): void {
+    this.stopListTelemetryPolling();
+    if (devices.length === 0) {
+      this.deviceTelemetryByDeviceId = {};
       return;
     }
 
-    const nextType =
-      this.selectedDevice.status === 'ONLINE'
-        ? createDeviceCommandType('STANDBY')
-        : createDeviceCommandType('WAKE');
-
-    const command = createCreateDeviceCommandCommand(this.selectedDevice.id, nextType);
-    this.deviceCommandService.handleCreateDeviceCommand(command).subscribe({
-      next: (created) => {
-        this.snackBar.open(`Command queued: ${created.type}`, 'Close', { duration: 3000 });
-      },
-      error: (error) =>
-        this.snackBar.open(this.getErrorMessage(error, 'Failed to queue command'), 'Close', { duration: 3000 }),
+    this.listTelemetryPollingSubscription = this.pageActions.watchLatestTelemetryByDevices(devices, 60_000).subscribe((telemetryByDeviceId) => {
+      this.deviceTelemetryByDeviceId = { ...this.deviceTelemetryByDeviceId, ...telemetryByDeviceId };
+      this.cdr.markForCheck();
     });
   }
 
-  private getErrorMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const responseBody = (error as { error?: unknown }).error;
-      if (responseBody && typeof responseBody === 'object' && 'message' in responseBody) {
-        const message = (responseBody as { message?: unknown }).message;
-        if (typeof message === 'string' && message.trim().length > 0) return message;
+  private stopListTelemetryPolling(): void {
+    if (!this.listTelemetryPollingSubscription) return;
+    this.listTelemetryPollingSubscription.unsubscribe();
+    this.listTelemetryPollingSubscription = null;
+  }
+
+  private startStatusPolling(deviceId: string, refreshIntervalMs: number): void {
+    this.stopStatusPolling();
+    this.trackedStatusDeviceId = deviceId;
+    this.statusPollingSubscription = this.pageActions.watchDeviceStatus(deviceId, refreshIntervalMs).subscribe((snapshot) => {
+      if (!snapshot || this.trackedStatusDeviceId !== snapshot.deviceId.value) return;
+
+      let selectedDeviceChanged = false;
+      if (this.selectedDevice?.id.value === snapshot.deviceId.value) {
+        const statusChanged = this.selectedDevice.status !== snapshot.status;
+        const lastSeenChanged = this.selectedDevice.lastSeenAt !== snapshot.lastSeenAt;
+        selectedDeviceChanged = statusChanged || lastSeenChanged;
+
+        if (selectedDeviceChanged) {
+          this.selectedDevice = { ...this.selectedDevice, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt };
+        }
       }
+
+      let devicesPageChanged = false;
+      if (this.devicesPage) {
+        this.devicesPage = {
+          ...this.devicesPage,
+          content: this.devicesPage.content.map((device) => {
+            if (device.id.value !== snapshot.deviceId.value) return device;
+            const statusChanged = device.status !== snapshot.status;
+            const lastSeenChanged = device.lastSeenAt !== snapshot.lastSeenAt;
+            if (!statusChanged && !lastSeenChanged) return device;
+            devicesPageChanged = true;
+            return { ...device, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt };
+          }),
+        };
+      }
+
+      if (!selectedDeviceChanged && !devicesPageChanged) return;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private stopStatusPolling(): void {
+    if (this.statusPollingResetTimeoutId) {
+      clearTimeout(this.statusPollingResetTimeoutId);
+      this.statusPollingResetTimeoutId = null;
     }
-    return fallback;
+    if (!this.statusPollingSubscription) return;
+    this.statusPollingSubscription.unsubscribe();
+    this.statusPollingSubscription = null;
+    this.trackedStatusDeviceId = null;
   }
 }
