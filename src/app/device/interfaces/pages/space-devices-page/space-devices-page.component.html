@@ -42,6 +42,7 @@
               [loadingDevices]="loadingDevices"
               [errorDevices]="errorDevices"
               [viewMode]="viewMode"
+              [telemetryByDeviceId]="deviceTelemetryByDeviceId"
               (viewModeChanged)="setViewMode($event)"
               (deviceSelected)="selectDevice($event)"
             ></app-device-list>

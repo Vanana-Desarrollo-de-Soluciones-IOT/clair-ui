@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, of, switchMap, tap, interval, startWith, catchError } from 'rxjs';
+import { Observable, of, switchMap, tap, interval, startWith, catchError, forkJoin, map } from 'rxjs';
 import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
 import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
 import { DeviceStatusQueryServiceImpl } from '../../../application/internal/queryservices/device-status-query-service.impl';
@@ -52,6 +52,34 @@ export class SpaceDevicesPageActionsService {
       startWith(0),
       switchMap(() => this.loadLatestTelemetry(deviceId)),
       catchError(() => of(null))
+    );
+  }
+
+  loadLatestTelemetryByDevices(devices: readonly Device[]): Observable<Record<string, DeviceTelemetrySnapshot | null>> {
+    if (devices.length === 0) return of({});
+
+    const requests = devices.map((device) =>
+      this.loadLatestTelemetry(device.id.value).pipe(
+        map((snapshot) => [device.id.value, snapshot] as const),
+        catchError(() => of([device.id.value, null] as const))
+      )
+    );
+
+    return forkJoin(requests).pipe(
+      map((entries) =>
+        entries.reduce<Record<string, DeviceTelemetrySnapshot | null>>((acc, [deviceId, snapshot]) => {
+          acc[deviceId] = snapshot;
+          return acc;
+        }, {})
+      )
+    );
+  }
+
+  watchLatestTelemetryByDevices(devices: readonly Device[], refreshIntervalMs: number): Observable<Record<string, DeviceTelemetrySnapshot | null>> {
+    return interval(refreshIntervalMs).pipe(
+      startWith(0),
+      switchMap(() => this.loadLatestTelemetryByDevices(devices)),
+      catchError(() => of({}))
     );
   }
 

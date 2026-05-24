@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { ClairDeviceComponent } from '../../../../shared/interfaces/components/clair-device/clair-device.component';
 import { Device } from '../../../domain/services/device-query-service';
 import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { resolveDeviceConnectivityColor } from '../../rest/transform/device-connectivity-color.transform';
 
 @Component({
   selector: 'app-device-info-card',
@@ -70,39 +71,17 @@ export class DeviceInfoCardComponent {
   }
 
   getConnectivityColor(): string {
-    if (!this.telemetry) return '#9ca3af';
-
-    const status = (this.telemetry.connectivityStatus ?? '').trim().toUpperCase();
-    const signalStrength = this.telemetry.connectivitySignalStrength;
-    if (!status) return '#9ca3af';
-
-    const isConnected = status.includes('CONNECTED') || status.includes('ONLINE') || status.includes('UP');
-    if (!isConnected) return '#6b7280';
-    if (signalStrength == null) return '#10b981';
-
-    const absSignalStrength = Math.abs(signalStrength);
-    // UI displays absolute value (e.g. 88) for readability.
-    // Thresholds map to typical dBm ranges: <=70 strong, <=85 ok, >85 weak.
-    if (absSignalStrength <= 70) return '#10b981';
-    if (absSignalStrength <= 85) return '#f59e0b';
-    return '#ef4444';
+    return resolveDeviceConnectivityColor(this.telemetry);
   }
 
   getConnectivityValue(): number | null {
     if (this.telemetry?.connectivitySignalStrength != null) {
-      return Math.abs(this.telemetry.connectivitySignalStrength);
+      return this.telemetry.connectivitySignalStrength;
     }
     return null;
   }
 
   private isDeviceLikelyAwake(): boolean {
-    if (this.device.status === 'ONLINE') return true;
-    if (!this.telemetry) return false;
-    const recent = this.telemetry.lastUpdateMinutes != null && this.telemetry.lastUpdateMinutes <= 2;
-
-    const status = (this.telemetry.connectivityStatus ?? '').trim().toUpperCase();
-    const isConnected = status.includes('CONNECTED') || status.includes('ONLINE') || status.includes('UP');
-
-    return recent && isConnected;
+    return this.device.status === 'ONLINE';
   }
 }

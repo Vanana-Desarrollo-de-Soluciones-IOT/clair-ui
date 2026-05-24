@@ -42,8 +42,10 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   private readonly subscriptions = new Subscription();
   private telemetryPollingSubscription: Subscription | null = null;
+  private listTelemetryPollingSubscription: Subscription | null = null;
   private statusPollingSubscription: Subscription | null = null;
   private statusPollingResetTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private trackedStatusDeviceId: string | null = null;
 
   isSidebarOpen = true;
   selectedSpace: Space | null = null;
@@ -53,6 +55,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   loadingDevices = false;
   errorDevices = '';
   latestTelemetry: DeviceTelemetrySnapshot | null = null;
+  deviceTelemetryByDeviceId: Record<string, DeviceTelemetrySnapshot | null> = {};
 
   ngOnInit(): void {
     this.subscriptions.add(
@@ -82,6 +85,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopTelemetryPolling();
+    this.stopListTelemetryPolling();
     this.stopStatusPolling();
     this.subscriptions.unsubscribe();
   }
@@ -98,6 +102,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedSpace = space;
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.deviceTelemetryByDeviceId = {};
     this.stopTelemetryPolling();
     this.stopStatusPolling();
     this.loadDevices(space.id);
@@ -109,7 +114,9 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedSpace = null;
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.deviceTelemetryByDeviceId = {};
     this.stopTelemetryPolling();
+    this.stopListTelemetryPolling();
     this.stopStatusPolling();
     this.devicesPage = null;
     this.errorDevices = '';
@@ -123,6 +130,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   selectDevice(device: Device): void {
     this.selectedDevice = device;
+    this.stopListTelemetryPolling();
     this.startTelemetryPolling(device.id.value);
     this.startStatusPolling(device.id.value, 10_000);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
@@ -133,7 +141,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.selectedDevice = null;
     this.latestTelemetry = null;
     this.stopTelemetryPolling();
-    this.stopStatusPolling();
+    if (this.devicesPage) this.startListTelemetryPolling(this.devicesPage.content);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
   }
@@ -271,11 +279,13 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
         next: (page) => {
           this.devicesPage = page;
           this.loadingDevices = false;
+          if (!this.selectedDevice) this.startListTelemetryPolling(page.content);
           this.cdr.markForCheck();
         },
         error: () => {
           this.errorDevices = 'Failed to load devices';
           this.loadingDevices = false;
+          this.stopListTelemetryPolling();
           this.cdr.markForCheck();
         },
       })
@@ -311,16 +321,16 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   toggleDevicePower(): void {
     if (!this.selectedDevice) return;
+    const deviceId = this.selectedDevice.id.value;
     const intent: 'WAKE' | 'STANDBY' = this.selectedDevice.status === 'ONLINE' ? 'STANDBY' : 'WAKE';
 
     this.subscriptions.add(
       this.pageActions.runToggleDevicePowerFlow(this.selectedDevice, intent).subscribe({
         next: () => {
-          if (!this.selectedDevice) return;
-          this.startStatusPolling(this.selectedDevice.id.value, 2_000);
+          this.startStatusPolling(deviceId, 2_000);
           if (this.statusPollingResetTimeoutId) clearTimeout(this.statusPollingResetTimeoutId);
           this.statusPollingResetTimeoutId = setTimeout(() => {
-            if (this.selectedDevice) this.startStatusPolling(this.selectedDevice.id.value, 10_000);
+            if (this.trackedStatusDeviceId === deviceId) this.startStatusPolling(deviceId, 10_000);
           }, 60_000);
         },
       })
@@ -333,10 +343,12 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.telemetryPollingSubscription = this.pageActions.watchLatestTelemetry(deviceId, 10_000).subscribe({
         next: (snapshot) => {
           this.latestTelemetry = snapshot;
+          this.deviceTelemetryByDeviceId = { ...this.deviceTelemetryByDeviceId, [deviceId]: snapshot };
           this.cdr.markForCheck();
         },
         error: () => {
           this.latestTelemetry = null;
+          this.deviceTelemetryByDeviceId = { ...this.deviceTelemetryByDeviceId, [deviceId]: null };
           this.cdr.markForCheck();
         },
       });
@@ -348,27 +360,58 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.telemetryPollingSubscription = null;
   }
 
+  private startListTelemetryPolling(devices: readonly Device[]): void {
+    this.stopListTelemetryPolling();
+    if (devices.length === 0) {
+      this.deviceTelemetryByDeviceId = {};
+      return;
+    }
+
+    this.listTelemetryPollingSubscription = this.pageActions.watchLatestTelemetryByDevices(devices, 60_000).subscribe((telemetryByDeviceId) => {
+      this.deviceTelemetryByDeviceId = { ...this.deviceTelemetryByDeviceId, ...telemetryByDeviceId };
+      this.cdr.markForCheck();
+    });
+  }
+
+  private stopListTelemetryPolling(): void {
+    if (!this.listTelemetryPollingSubscription) return;
+    this.listTelemetryPollingSubscription.unsubscribe();
+    this.listTelemetryPollingSubscription = null;
+  }
+
   private startStatusPolling(deviceId: string, refreshIntervalMs: number): void {
     this.stopStatusPolling();
+    this.trackedStatusDeviceId = deviceId;
     this.statusPollingSubscription = this.pageActions.watchDeviceStatus(deviceId, refreshIntervalMs).subscribe((snapshot) => {
-      if (!snapshot || !this.selectedDevice) return;
-      if (this.selectedDevice.id.value !== snapshot.deviceId.value) return;
+      if (!snapshot || this.trackedStatusDeviceId !== snapshot.deviceId.value) return;
 
-      const statusChanged = this.selectedDevice.status !== snapshot.status;
-      const lastSeenChanged = this.selectedDevice.lastSeenAt !== snapshot.lastSeenAt;
-      if (!statusChanged && !lastSeenChanged) return;
+      let selectedDeviceChanged = false;
+      if (this.selectedDevice?.id.value === snapshot.deviceId.value) {
+        const statusChanged = this.selectedDevice.status !== snapshot.status;
+        const lastSeenChanged = this.selectedDevice.lastSeenAt !== snapshot.lastSeenAt;
+        selectedDeviceChanged = statusChanged || lastSeenChanged;
 
-      this.selectedDevice = { ...this.selectedDevice, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt };
+        if (selectedDeviceChanged) {
+          this.selectedDevice = { ...this.selectedDevice, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt };
+        }
+      }
 
+      let devicesPageChanged = false;
       if (this.devicesPage) {
         this.devicesPage = {
           ...this.devicesPage,
-          content: this.devicesPage.content.map((d) =>
-            d.id.value === snapshot.deviceId.value ? { ...d, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt } : d
-          ),
+          content: this.devicesPage.content.map((device) => {
+            if (device.id.value !== snapshot.deviceId.value) return device;
+            const statusChanged = device.status !== snapshot.status;
+            const lastSeenChanged = device.lastSeenAt !== snapshot.lastSeenAt;
+            if (!statusChanged && !lastSeenChanged) return device;
+            devicesPageChanged = true;
+            return { ...device, status: snapshot.status, lastSeenAt: snapshot.lastSeenAt };
+          }),
         };
       }
 
+      if (!selectedDeviceChanged && !devicesPageChanged) return;
       this.cdr.markForCheck();
     });
   }
@@ -381,5 +424,6 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     if (!this.statusPollingSubscription) return;
     this.statusPollingSubscription.unsubscribe();
     this.statusPollingSubscription = null;
+    this.trackedStatusDeviceId = null;
   }
 }

@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DeviceCardComponent } from '../device-card/device-card.component';
 import { Device, DevicePage } from '../../../domain/services/device-query-service';
 import { Space } from '../../../domain/services/device-query-service';
+import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 
 export type DeviceViewMode = 'grid' | 'list';
 
@@ -22,6 +23,7 @@ export class DeviceListComponent {
   @Input() loadingDevices = false;
   @Input() errorDevices = '';
   @Input() viewMode: DeviceViewMode = 'grid';
+  @Input() telemetryByDeviceId: Record<string, DeviceTelemetrySnapshot | null> = {};
 
   @Output() viewModeChanged = new EventEmitter<DeviceViewMode>();
   @Output() deviceSelected = new EventEmitter<Device>();

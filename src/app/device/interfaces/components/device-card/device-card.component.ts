@@ -4,6 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Device } from '../../../domain/services/device-query-service';
+import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { resolveDeviceConnectivityColor } from '../../rest/transform/device-connectivity-color.transform';
 
 type ViewMode = 'grid' | 'list';
 
@@ -17,6 +19,7 @@ type ViewMode = 'grid' | 'list';
 export class DeviceCardComponent {
   @Input() device!: Device;
   @Input() viewMode: ViewMode = 'grid';
+  @Input() telemetry: DeviceTelemetrySnapshot | null = null;
   @Output() deviceSelected = new EventEmitter<Device>();
 
   statusColor(status: string): string {
@@ -46,7 +49,7 @@ export class DeviceCardComponent {
   }
 
   connectivityIndicatorColor(): string {
-    return this.statusColor(this.device.status);
+    return resolveDeviceConnectivityColor(this.telemetry);
   }
 
   onDeviceClick(): void {
