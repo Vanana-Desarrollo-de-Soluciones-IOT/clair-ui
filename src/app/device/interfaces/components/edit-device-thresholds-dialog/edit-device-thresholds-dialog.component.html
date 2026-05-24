@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>Configure thresholds</h2>
+
+<div mat-dialog-content class="content">
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span>Loading thresholds...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <div *ngFor="let metric of metrics; let last = last" class="metric-block" [class.metric-block--last]="last" [formGroup]="getMetricForm(metric)">
+      <div class="metric-header">
+        <div>
+          <div class="metric-title">{{ metricDetails(metric).label }}</div>
+          <div class="metric-subtitle">Unit: {{ metricDetails(metric).unit }}</div>
+        </div>
+        <mat-slide-toggle formControlName="enabled">Enabled</mat-slide-toggle>
+      </div>
+
+      <div class="metric-form-row">
+        <mat-form-field appearance="outline" class="operator-field">
+          <mat-label>Operator</mat-label>
+          <mat-select formControlName="operator">
+            <mat-option *ngFor="let op of operators" [value]="op">
+              {{ operatorSymbol(op) }} ({{ op }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="value-field">
+          <mat-label>Value</mat-label>
+          <input matInput type="number" formControlName="value" placeholder="Enter value" />
+          <mat-error *ngIf="getMetricForm(metric).get('value')?.touched && getMetricForm(metric).get('value')?.hasError('required')">
+            Value is required
+          </mat-error>
+          <mat-error *ngIf="getMetricForm(metric).get('value')?.touched && getMetricForm(metric).get('value')?.hasError('min')">
+            Value must be greater than 0
+          </mat-error>
+        </mat-form-field>
+
+        <div class="metric-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="saveMetric(metric)"
+            [disabled]="savingByMetric[metric] || deletingByMetric[metric]"
+          >
+            {{ hasThreshold(metric) ? 'Update' : 'Create' }}
+          </button>
+
+          <button
+            mat-stroked-button
+            color="warn"
+            type="button"
+            (click)="deleteMetric(metric)"
+            [disabled]="!hasThreshold(metric) || deletingByMetric[metric] || savingByMetric[metric]"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <mat-divider *ngIf="!last"></mat-divider>
+    </div>
+  </ng-container>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Close</button>
+  <button mat-flat-button color="primary" type="button" (click)="done()">Done</button>
+</div>

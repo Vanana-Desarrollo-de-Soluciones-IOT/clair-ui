@@ -13,6 +13,7 @@ import { SpaceDetailHeaderComponent } from '../../components/space-detail-header
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
 import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
+import { DeviceThreshold } from '../../../domain/services/device-threshold-query-service';
 import { SpaceDevicesNavigationStateService } from './space-devices-navigation-state.service';
 import { SpaceDevicesSelectionHydrationService } from './space-devices-selection-hydration.service';
 import { SpaceDevicesPageActionsService } from './space-devices-page-actions.service';
@@ -61,6 +62,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   errorDevices = '';
   latestTelemetry: DeviceTelemetrySnapshot | null = null;
   deviceTelemetryByDeviceId: Record<string, DeviceTelemetrySnapshot | null> = {};
+  selectedDeviceThresholds: readonly DeviceThreshold[] | null = null;
 
   ngOnInit(): void {
     this.subscriptions.add(
@@ -147,6 +149,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.stopListTelemetryPolling();
     this.startTelemetryPolling(device.id.value);
     this.startStatusPolling(device.id.value, 10_000);
+    this.loadThresholds(device.id.value);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
   }
@@ -154,6 +157,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   clearSelectedDevice(): void {
     this.selectedDevice = null;
     this.latestTelemetry = null;
+    this.selectedDeviceThresholds = null;
     this.stopTelemetryPolling();
     if (this.devicesPage) this.startListTelemetryPolling(this.devicesPage.content);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: null });
@@ -168,6 +172,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
         this.selectedDevice = device;
         this.latestTelemetry = null;
+        this.selectedDeviceThresholds = null;
 
         if (space) this.applyHydratedSpace(space);
         else {
@@ -180,6 +185,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
         if (device.spaceId) this.loadDevices(device.spaceId);
         this.startTelemetryPolling(device.id.value);
         this.startStatusPolling(device.id.value, 10_000);
+        this.loadThresholds(device.id.value);
 
         this.navigationState.syncQueryParams(this.router, this.route, {
           spaceId: device.spaceId ? device.spaceId.value : null,
@@ -200,6 +206,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
         if (!space) return;
         this.selectedDevice = null;
         this.latestTelemetry = null;
+        this.selectedDeviceThresholds = null;
         this.applyHydratedSpace(space);
         this.loadDevices(space.id);
         this.stopStatusPolling();
@@ -217,6 +224,35 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     if (this.orgPanel) {
       this.orgPanel.ensureOrganizationExpanded(space.organizationId);
     }
+  }
+
+  onEditThresholdsRequested(): void {
+    if (!this.selectedDevice) return;
+    const deviceId = this.selectedDevice.id.value;
+    this.subscriptions.add(
+      this.pageActions.runEditDeviceThresholdsFlow(deviceId).subscribe((changed) => {
+        if (!changed) return;
+        this.loadThresholds(deviceId);
+      })
+    );
+  }
+
+  private loadThresholds(deviceId: string): void {
+    this.selectedDeviceThresholds = null;
+    this.subscriptions.add(
+      this.pageActions.loadDeviceThresholds(deviceId).subscribe({
+        next: (thresholds) => {
+          if (this.selectedDevice?.id.value !== deviceId) return;
+          this.selectedDeviceThresholds = thresholds;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          if (this.selectedDevice?.id.value !== deviceId) return;
+          this.selectedDeviceThresholds = [];
+          this.cdr.markForCheck();
+        },
+      })
+    );
   }
 
   private hydrateFromLastSelection(): void {

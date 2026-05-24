@@ -125,6 +125,10 @@
   color: #ffffff;
 }
 
+.threshold-number--empty {
+  color: #6b7280;
+}
+
 .threshold-unit {
   font-size: 12px;
   color: #6b7280;
