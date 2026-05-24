@@ -22,6 +22,10 @@ export class EvaluationContextFacadeImpl implements EvaluationContextFacade {
           recordedAt: evaluation.recordedAt,
           network: evaluation.connectivity.network,
           locationCountry: evaluation.location.country,
+          co2: evaluation.airQuality.co2,
+          temperature: evaluation.airQuality.temperature,
+          humidity: evaluation.airQuality.humidity,
+          pm2_5: evaluation.particulateMatter.pm2_5,
         };
       }),
       catchError(() => of(null))
