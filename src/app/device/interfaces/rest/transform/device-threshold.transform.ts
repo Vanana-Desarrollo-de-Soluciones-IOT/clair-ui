@@ -9,12 +9,9 @@ export const deviceThresholdResourceToDomain = (resource: DeviceThresholdResourc
     metric: resource.metric,
     metricLabel: resource.metricLabel,
     metricUnit: resource.metricUnit,
-    operator: resource.operator,
-    operatorSymbol: resource.operatorSymbol,
     value: resource.value,
     enabled: resource.enabled,
     createdAt: resource.createdAt ?? null,
     updatedAt: resource.updatedAt ?? null,
   };
 };
-

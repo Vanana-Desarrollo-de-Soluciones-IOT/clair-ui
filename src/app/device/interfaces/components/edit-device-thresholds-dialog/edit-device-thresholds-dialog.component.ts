@@ -229,12 +229,11 @@ export class EditDeviceThresholdsDialogComponent implements OnInit {
 
     const writes$ = this.sliderConfigs.map((cfg) => {
       const value = this.getMetricValue(cfg.metric);
-      const operator = 'GREATER_THAN';
       const enabled = true;
 
       const request$ = this.hasThreshold(cfg.metric)
-        ? this.commandService.handleUpdateDeviceThreshold(createUpdateDeviceThresholdCommand(deviceId, cfg.metric, operator, value, enabled))
-        : this.commandService.handleCreateDeviceThreshold(createCreateDeviceThresholdCommand(deviceId, cfg.metric, operator, value, enabled));
+        ? this.commandService.handleUpdateDeviceThreshold(createUpdateDeviceThresholdCommand(deviceId, cfg.metric, value, enabled))
+        : this.commandService.handleCreateDeviceThreshold(createCreateDeviceThresholdCommand(deviceId, cfg.metric, value, enabled));
 
       return request$.pipe(
         tap((saved) => {

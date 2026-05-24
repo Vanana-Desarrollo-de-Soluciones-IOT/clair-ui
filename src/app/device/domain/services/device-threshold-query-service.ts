@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs';
 import { DeviceId } from '../model/valueobjects/device-id.value-object';
 import { MetricThreshold } from '../model/valueobjects/metric-threshold.value-object';
-import { ThresholdOperator } from '../model/valueobjects/threshold-operator.value-object';
 import { GetDeviceThresholdsByDeviceQuery } from '../model/queries/get-device-thresholds-by-device.query';
 
 export type DeviceThreshold = Readonly<{
@@ -10,8 +9,6 @@ export type DeviceThreshold = Readonly<{
   metric: MetricThreshold;
   metricLabel: string;
   metricUnit: string;
-  operator: ThresholdOperator;
-  operatorSymbol: string;
   value: number;
   enabled: boolean;
   createdAt: string | null;
@@ -21,4 +18,3 @@ export type DeviceThreshold = Readonly<{
 export interface DeviceThresholdQueryService {
   handleGetDeviceThresholdsByDevice(query: GetDeviceThresholdsByDeviceQuery): Observable<DeviceThreshold[]>;
 }
-

@@ -5,7 +5,6 @@ import { UpdateDeviceThresholdResource } from '../resources/update-device-thresh
 export const createDeviceThresholdCommandToResource = (command: CreateDeviceThresholdCommand): UpdateDeviceThresholdResource => {
   return {
     metric: command.metric,
-    operator: command.operator,
     value: command.value.value,
     enabled: command.enabled,
   };
@@ -14,9 +13,7 @@ export const createDeviceThresholdCommandToResource = (command: CreateDeviceThre
 export const updateDeviceThresholdCommandToResource = (command: UpdateDeviceThresholdCommand): UpdateDeviceThresholdResource => {
   return {
     metric: command.metric,
-    operator: command.operator,
     value: command.value.value,
     enabled: command.enabled,
   };
 };
-
