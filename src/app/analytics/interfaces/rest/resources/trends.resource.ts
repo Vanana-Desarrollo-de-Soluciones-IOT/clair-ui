@@ -7,6 +7,6 @@ export interface TrendDataPointResource {
   readonly humidity: number;
 }
 
-export interface AirQualityTrendsResource {
+export interface TrendsResource {
   readonly dataPoints: readonly TrendDataPointResource[];
 }

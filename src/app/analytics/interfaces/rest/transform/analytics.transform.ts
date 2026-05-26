@@ -1,11 +1,11 @@
-import { AirQualityLive } from '../../../domain/services/air-quality-query-service';
-import { AirQualityLiveResource } from '../resources/air-quality-live.resource';
+import { DashboardMetrics } from '../../../domain/services/analytics-query-service';
+import { DashboardMetricsResource } from '../resources/dashboard-metrics.resource';
 import { TrendPoint, createTrendPoint } from '../../../domain/model/valueobjects/trend-point.value-object';
-import { TrendDataPointResource } from '../resources/air-quality-trends.resource';
+import { TrendDataPointResource } from '../resources/trends.resource';
 import { createAqi } from '../../../domain/model/valueobjects/aqi.value-object';
 import { createMetricDelta } from '../../../domain/model/valueobjects/metric-delta.value-object';
 
-export const airQualityLiveResourceToDomain = (resource: AirQualityLiveResource): AirQualityLive => {
+export const dashboardMetricsResourceToDomain = (resource: DashboardMetricsResource): DashboardMetrics => {
   return {
     aqi: createAqi(resource.aqiValue, resource.aqiCategory),
     co2: createMetricDelta(resource.averageCo2, resource.co2DeltaPercentage),
