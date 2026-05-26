@@ -84,7 +84,7 @@ export class SidebarComponent implements OnInit {
 
   readonly navItems: NavItem[] = [
     { label: 'Overview', component: 'overview', route: '/overview' },
-    { label: 'Air Quality', component: 'air-quality', route: '/air-quality' },
+    { label: 'Analytics', component: 'air-quality', route: '/analytics' },
     { label: 'Alerts & Actions', component: 'alerts-actions' },
     { label: 'Reports', component: 'reports' },
     { label: 'Space & Devices', component: 'space-devices', route: '/space-devices' },
