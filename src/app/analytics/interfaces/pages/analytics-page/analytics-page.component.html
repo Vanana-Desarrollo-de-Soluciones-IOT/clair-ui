@@ -1,6 +1,6 @@
 <div class="page-layout">
   <!-- Header -->
-  <app-header (menuToggled)="toggleSidebar()"></app-header>
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
 
   <div class="page-body">
     <!-- Sidebar -->
@@ -47,13 +47,15 @@
 
             <!-- Datepicker Wrapper -->
             <div class="calendar-wrapper">
-              <button class="icon-action-btn" type="button" (click)="picker.open()" aria-label="Calendar" title="Select custom range">
-                <mat-icon>calendar_today</mat-icon>
-              </button>
-              <mat-date-range-input [rangePicker]="picker" style="display: none;">
-                <input matStartDate (dateChange)="onStartDateChange($event)">
-                <input matEndDate (dateChange)="onEndDateChange($event)">
-              </mat-date-range-input>
+              <div class="calendar-trigger-container" style="position: relative; display: inline-block;">
+                <button class="icon-action-btn" type="button" (click)="picker.open()" aria-label="Calendar" title="Select custom range">
+                  <mat-icon>calendar_today</mat-icon>
+                </button>
+                <mat-date-range-input [rangePicker]="picker" class="hidden-datepicker-input">
+                  <input matStartDate (dateChange)="onStartDateChange($event)">
+                  <input matEndDate (dateChange)="onEndDateChange($event)">
+                </mat-date-range-input>
+              </div>
               <mat-date-range-picker #picker></mat-date-range-picker>
             </div>
           </div>
@@ -162,7 +164,7 @@
                 <span class="indicator-dot" [style.background-color]="pm25StatusColor"></span>
               </div>
               <div class="kpi-body">
-                <span class="kpi-value">{{ liveData?.pm2_5?.value !== undefined ? liveData?.pm2_5?.value : '--' }}</span>
+                <span class="kpi-value">{{ formatValue(liveData?.pm2_5?.value) }}</span>
                 <span class="kpi-unit">µg/m³</span>
               </div>
               <div class="kpi-footer">
@@ -186,7 +188,7 @@
                 <span class="indicator-dot" [style.background-color]="co2StatusColor"></span>
               </div>
               <div class="kpi-body">
-                <span class="kpi-value">{{ liveData?.co2?.value !== undefined ? liveData?.co2?.value : '--' }}</span>
+                <span class="kpi-value">{{ formatValue(liveData?.co2?.value) }}</span>
                 <span class="kpi-unit">ppm</span>
               </div>
               <div class="kpi-footer">
@@ -210,7 +212,7 @@
                 <span class="indicator-dot" [style.background-color]="tempStatusColor"></span>
               </div>
               <div class="kpi-body">
-                <span class="kpi-value">{{ liveData?.temperature?.value !== undefined ? liveData?.temperature?.value : '--' }}</span>
+                <span class="kpi-value">{{ formatValue(liveData?.temperature?.value) }}</span>
                 <span class="kpi-unit">°C</span>
               </div>
               <div class="kpi-footer">
@@ -234,7 +236,7 @@
                 <span class="indicator-dot" [style.background-color]="humidityStatusColor"></span>
               </div>
               <div class="kpi-body">
-                <span class="kpi-value">{{ liveData?.humidity?.value !== undefined ? liveData?.humidity?.value : '--' }}</span>
+                <span class="kpi-value">{{ formatValue(liveData?.humidity?.value) }}</span>
                 <span class="kpi-unit">%</span>
               </div>
               <div class="kpi-footer">
@@ -322,7 +324,7 @@
             <div class="reading-card">
               <span class="reading-title">PM2.5</span>
               <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings?.pm2_5 !== null && lastReadings?.pm2_5 !== undefined ? lastReadings?.pm2_5 : '--' }}</span>
+                <span class="reading-value">{{ formatValue(lastReadings?.pm2_5) }}</span>
                 <span class="reading-unit">µg/m³</span>
               </div>
             </div>
@@ -330,7 +332,7 @@
             <div class="reading-card">
               <span class="reading-title">CO₂</span>
               <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings?.co2 !== null && lastReadings?.co2 !== undefined ? lastReadings?.co2 : '--' }}</span>
+                <span class="reading-value">{{ formatValue(lastReadings?.co2) }}</span>
                 <span class="reading-unit">ppm</span>
               </div>
             </div>
@@ -338,7 +340,7 @@
             <div class="reading-card">
               <span class="reading-title">TEMP</span>
               <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings?.temperature !== null && lastReadings?.temperature !== undefined ? lastReadings?.temperature : '--' }}</span>
+                <span class="reading-value">{{ formatValue(lastReadings?.temperature) }}</span>
                 <span class="reading-unit">°C</span>
               </div>
             </div>
@@ -346,7 +348,7 @@
             <div class="reading-card">
               <span class="reading-title">HUMIDITY</span>
               <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings?.humidity !== null && lastReadings?.humidity !== undefined ? lastReadings?.humidity : '--' }}</span>
+                <span class="reading-value">{{ formatValue(lastReadings?.humidity) }}</span>
                 <span class="reading-unit">%</span>
               </div>
             </div>

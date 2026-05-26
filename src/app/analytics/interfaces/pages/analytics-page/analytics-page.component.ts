@@ -496,4 +496,9 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     const absVal = Math.abs(delta).toFixed(1);
     return `${absVal}%`;
   }
+
+  formatValue(val: number | null | undefined): string {
+    if (val === null || val === undefined) return '--';
+    return Number(val).toFixed(2);
+  }
 }
