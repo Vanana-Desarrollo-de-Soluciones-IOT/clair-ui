@@ -14,9 +14,9 @@ export class AlertStatusBadgeComponent {
 
   resolveColor(status: AlertStatus): string {
     switch (status) {
-      case 'ACTIVE': return '#ef4444';
+      case 'ACTIVE': return '#10b981';
       case 'ACKNOWLEDGED': return '#f59e0b';
-      case 'RESOLVED': return '#10b981';
+      case 'RESOLVED': return '#6b7280';
       default: return '#6b7280';
     }
   }

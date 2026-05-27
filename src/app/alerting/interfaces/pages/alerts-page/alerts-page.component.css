@@ -49,67 +49,6 @@
   height: 24px;
 }
 
-/* Dropdowns */
-.dropdowns-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.dropdown-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.dropdown-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #9ca3af;
-  text-transform: uppercase;
-  font-family: var(--app-font-headline);
-}
-
-.custom-select-field {
-  width: 100%;
-}
-
-.custom-select-field ::ng-deep .mdc-text-field--outlined {
-  background-color: #101010;
-  border-radius: 12px;
-}
-
-.custom-select-field ::ng-deep .mdc-notched-outline__leading,
-.custom-select-field ::ng-deep .mdc-notched-outline__notch,
-.custom-select-field ::ng-deep .mdc-notched-outline__trailing {
-  border-color: #2a2a2a !important;
-  border-width: 1px !important;
-}
-
-.custom-select-field:hover ::ng-deep .mdc-notched-outline__leading,
-.custom-select-field:hover ::ng-deep .mdc-notched-outline__notch,
-.custom-select-field:hover ::ng-deep .mdc-notched-outline__trailing {
-  border-color: #3e3e3e !important;
-}
-
-.custom-select-field.mat-focused ::ng-deep .mdc-notched-outline__leading,
-.custom-select-field.mat-focused ::ng-deep .mdc-notched-outline__notch,
-.custom-select-field.mat-focused ::ng-deep .mdc-notched-outline__trailing {
-  border-color: #10b981 !important;
-  border-width: 1.5px !important;
-}
-
-.custom-select-field ::ng-deep .mat-mdc-select-value {
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.custom-select-field ::ng-deep .mat-mdc-select-arrow {
-  color: #9ca3af;
-}
-
 /* Update info */
 .update-info {
   display: flex;
@@ -159,7 +98,7 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #10b981;
+  background-color: #ffffff;
 }
 
 /* Pagination */
@@ -182,9 +121,6 @@
   .alerts-container {
     padding: 2rem;
   }
-  .dropdowns-row {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 @media (max-width: 768px) {
@@ -193,9 +129,5 @@
   }
   .page-title {
     font-size: 1.75rem;
-  }
-  .dropdowns-row {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
   }
 }

@@ -1,23 +1,20 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
-import { ExternalAlertingDeviceService } from '../../../application/internal/outboundservices/acl/external-alerting-device.service';
 import { AlertQueryServiceImpl } from '../../../application/internal/queryservices/alert-query-service.impl';
 import { Alert, AlertPage, DailyAlertCount } from '../../../domain/services/alert-query-service';
-import { AlertStatus, AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED, AlertStatus_RESOLVED } from '../../../domain/model/valueobjects/alert-status.value-object';
+import { AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED, AlertStatus_RESOLVED } from '../../../domain/model/valueobjects/alert-status.value-object';
 import { createGetAlertsBySpaceQuery } from '../../../domain/model/queries/get-alerts-by-space.query';
 import { createGetAlertsByDeviceQuery } from '../../../domain/model/queries/get-alerts-by-device.query';
-import { FacadeOrganization, FacadeSpace, FacadeDevice } from '../../../../device/interfaces/acl/device-context-facade';
 import { AlertDailyChartComponent } from '../../components/alert-daily-chart/alert-daily-chart.component';
 import { AlertTableComponent } from '../../components/alert-table/alert-table.component';
+import { SpaceDevicesNavigationStateService } from '../../../../device/interfaces/pages/space-devices-page/space-devices-navigation-state.service';
 
 type AlertTab = 'active' | 'history';
 
@@ -26,9 +23,6 @@ type AlertTab = 'active' | 'history';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatIconModule,
     SidebarComponent,
     HeaderComponent,
@@ -41,23 +35,19 @@ type AlertTab = 'active' | 'history';
 export class AlertsPageComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
+  private readonly route = inject(ActivatedRoute);
+  private readonly navigationState = inject(SpaceDevicesNavigationStateService);
+
   constructor(
-    private readonly deviceAclService: ExternalAlertingDeviceService,
     private readonly alertQueryService: AlertQueryServiceImpl,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
   isSidebarOpen = true;
 
-  // Dropdown data
-  organizations: FacadeOrganization[] = [];
-  spaces: FacadeSpace[] = [];
-  devices: FacadeDevice[] = [];
-
-  // Selections
-  selectedOrgId = '';
-  selectedSpaceId = '';
-  selectedDeviceId = '';
+  // Selection comes from Space & Devices page (query params / localStorage)
+  selectedSpaceId: string | null = null;
+  selectedDeviceId: string | null = null;
 
   // Daily chart
   dailySummary: DailyAlertCount[] | null = null;
@@ -79,7 +69,7 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
   private secondsCounterSubscription?: any;
 
   ngOnInit(): void {
-    this.loadOrganizations();
+    this.hydrateSelection();
     this.startSecondsCounter();
   }
 
@@ -105,87 +95,25 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
     this.loadAlertsForTab();
   }
 
-  private loadOrganizations(): void {
-    this.deviceAclService.fetchOrganizations()
+  private hydrateSelection(): void {
+    this.route.queryParamMap
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (orgs: FacadeOrganization[]) => {
-          this.organizations = orgs;
-          if (orgs.length > 0) {
-            this.selectedOrgId = orgs[0].id;
-            this.onOrgChange();
-          } else {
-            this.cdr.markForCheck();
-          }
-        },
-        error: (err: any) => {
-          console.error('Failed to load organizations', err);
-          this.cdr.markForCheck();
-        },
+      .subscribe((params) => {
+        const selectionFromUrl = this.navigationState.readSelectionFromQueryParams(params);
+        const selection = selectionFromUrl ?? this.navigationState.readSelectionFromLocalStorage();
+
+        const nextSpaceId = selection?.spaceId ?? null;
+        const nextDeviceId = selection?.deviceId ?? null;
+
+        if (nextSpaceId === this.selectedSpaceId && nextDeviceId === this.selectedDeviceId) return;
+
+        this.selectedSpaceId = nextSpaceId;
+        this.selectedDeviceId = nextDeviceId;
+        this.clearData();
+        this.loadDailySummary();
+        this.loadAlertsForTab();
+        this.cdr.markForCheck();
       });
-  }
-
-  onOrgChange(): void {
-    this.spaces = [];
-    this.devices = [];
-    this.selectedSpaceId = '';
-    this.selectedDeviceId = '';
-    this.clearData();
-
-    if (!this.selectedOrgId) {
-      this.cdr.markForCheck();
-      return;
-    }
-
-    this.deviceAclService.fetchSpacesByOrganization(this.selectedOrgId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (spaces: FacadeSpace[]) => {
-          this.spaces = spaces;
-          if (spaces.length > 0) {
-            this.selectedSpaceId = spaces[0].id;
-            this.onSpaceChange();
-          } else {
-            this.cdr.markForCheck();
-          }
-        },
-        error: (err: any) => {
-          console.error('Failed to load spaces', err);
-          this.cdr.markForCheck();
-        },
-      });
-  }
-
-  onSpaceChange(): void {
-    this.devices = [];
-    this.selectedDeviceId = '';
-    this.clearData();
-
-    if (!this.selectedSpaceId) {
-      this.cdr.markForCheck();
-      return;
-    }
-
-    this.deviceAclService.fetchDevicesBySpace(this.selectedSpaceId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (devices: FacadeDevice[]) => {
-          this.devices = devices;
-          this.cdr.markForCheck();
-          this.loadDailySummary();
-          this.loadAlertsForTab();
-        },
-        error: (err: any) => {
-          console.error('Failed to load devices', err);
-          this.cdr.markForCheck();
-        },
-      });
-  }
-
-  onDeviceChange(): void {
-    this.currentPage = 0;
-    this.loadDailySummary();
-    this.loadAlertsForTab();
   }
 
   private loadDailySummary(): void {
@@ -228,6 +156,7 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
           next: (page: AlertPage) => {
             this.setAlertsPage(page);
             this.loadingAlerts = false;
+            this.secondsSinceUpdate = 0;
             this.cdr.markForCheck();
           },
           error: (err: any) => {
@@ -240,6 +169,12 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.selectedSpaceId) {
+      this.loadingAlerts = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
     const query = createGetAlertsBySpaceQuery(this.selectedSpaceId, this.currentPage, this.pageSize);
     this.alertQueryService.handleGetAlertsBySpace(query, statusFilter)
       .pipe(takeUntil(this.destroy$))
@@ -247,6 +182,7 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
         next: (page: AlertPage) => {
           this.setAlertsPage(page);
           this.loadingAlerts = false;
+          this.secondsSinceUpdate = 0;
           this.cdr.markForCheck();
         },
         error: (err: any) => {

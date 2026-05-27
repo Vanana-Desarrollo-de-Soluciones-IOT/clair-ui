@@ -15,13 +15,36 @@ export class AlertDailyChartComponent {
   readonly daysToShow = 30;
 
   get chartBars(): { label: string; heightPct: number; color: string }[] {
-    if (!this.data || this.data.length === 0) return [];
-    const maxCount = Math.max(...this.data.map((d) => d.count), 1);
-    return this.data.map((d) => ({
-      label: d.date.slice(5), // "04-27"
-      heightPct: (d.count / maxCount) * 100,
-      color: this.barColor(d.count),
+    const days = this.buildLastNDays(this.daysToShow);
+    const countsByDate = new Map((this.data ?? []).map((d) => [d.date, d.count] as const));
+    const series = days.map((isoDate) => ({
+      date: isoDate,
+      count: countsByDate.get(isoDate) ?? 0,
     }));
+
+    const maxCount = Math.max(...series.map((d) => d.count), 1);
+    return series.map((d) => {
+      const rawHeight = (d.count / maxCount) * 100;
+      const heightPct = d.count === 0 ? 2 : Math.max(rawHeight, 6);
+      return {
+        label: d.date.slice(5),
+        heightPct,
+        color: this.barColor(d.count),
+      };
+    });
+  }
+
+  private buildLastNDays(days: number): string[] {
+    const out: string[] = [];
+    const now = new Date();
+    // Work in UTC so it matches backend's UTC grouping.
+    const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(todayUtc);
+      d.setUTCDate(d.getUTCDate() - i);
+      out.push(d.toISOString().slice(0, 10));
+    }
+    return out;
   }
 
   private barColor(count: number): string {

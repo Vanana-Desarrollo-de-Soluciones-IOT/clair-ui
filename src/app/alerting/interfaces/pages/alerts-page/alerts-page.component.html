@@ -12,37 +12,6 @@
           <mat-icon class="header-icon">calendar_today</mat-icon>
         </div>
 
-        <!-- Dropdowns -->
-        <div class="dropdowns-row">
-          <div class="dropdown-item">
-            <label class="dropdown-label">ORGANIZATION</label>
-            <mat-form-field appearance="outline" class="custom-select-field">
-              <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange()">
-                <mat-option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <div class="dropdown-item">
-            <label class="dropdown-label">SPACE</label>
-            <mat-form-field appearance="outline" class="custom-select-field">
-              <mat-select [(ngModel)]="selectedSpaceId" (selectionChange)="onSpaceChange()">
-                <mat-option *ngFor="let space of spaces" [value]="space.id">{{ space.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <div class="dropdown-item">
-            <label class="dropdown-label">DEVICE (optional)</label>
-            <mat-form-field appearance="outline" class="custom-select-field">
-              <mat-select [(ngModel)]="selectedDeviceId" (selectionChange)="onDeviceChange()">
-                <mat-option value="">All devices in space</mat-option>
-                <mat-option *ngFor="let device of devices" [value]="device.id">{{ device.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-
         <!-- Daily Chart -->
         <app-alert-daily-chart [data]="dailySummary"></app-alert-daily-chart>
 
