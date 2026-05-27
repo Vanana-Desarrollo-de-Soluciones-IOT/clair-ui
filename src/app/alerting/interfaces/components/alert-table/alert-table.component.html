@@ -1,6 +1,6 @@
 <div class="table-wrapper" *ngIf="alerts && alerts.length > 0">
   <div class="table-header">
-    <span class="col id">ID</span>
+    <span class="col id">DEVICE</span>
     <span class="col severity">SEVERITY</span>
     <span class="col space">SPACE</span>
     <span class="col variable">VARIABLE</span>
@@ -8,7 +8,7 @@
     <span class="col status">STATUS</span>
   </div>
   <div class="table-row" *ngFor="let alert of alerts">
-    <span class="col id">{{ shortId(alert.id.value) }}</span>
+    <span class="col id" [title]="alert.deviceName || ''">{{ displayDevice(alert) }}</span>
     <span class="col severity"><app-alert-severity-badge [severity]="alert.severity"></app-alert-severity-badge></span>
     <span class="col space">{{ alert.spaceName ?? '-' }}</span>
     <span class="col variable">{{ alert.metric }}</span>

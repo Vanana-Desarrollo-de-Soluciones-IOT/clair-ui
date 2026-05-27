@@ -36,15 +36,22 @@ export class AlertDailyChartComponent {
 
   private buildLastNDays(days: number): string[] {
     const out: string[] = [];
-    const now = new Date();
-    // Work in UTC so it matches backend's UTC grouping.
-    const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(todayUtc);
-      d.setUTCDate(d.getUTCDate() - i);
-      out.push(d.toISOString().slice(0, 10));
+    // Use local date boundaries so "Today" matches what users see and what the API returns.
+    const today = new Date();
+    // Newest-to-oldest so "Today" renders on the left.
+    for (let i = 0; i < days; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      out.push(this.formatLocalIsoDate(d));
     }
     return out;
+  }
+
+  private formatLocalIsoDate(d: Date): string {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   private barColor(count: number): string {

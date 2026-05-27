@@ -24,4 +24,10 @@ export class AlertTableComponent {
   shortId(uuid: string): string {
     return uuid.slice(-4);
   }
+
+  displayDevice(alert: Alert): string {
+    const name = (alert.deviceName ?? '').trim();
+    if (name.length > 0) return name;
+    return this.shortId(alert.id.value);
+  }
 }
