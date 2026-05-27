@@ -8,7 +8,7 @@
   <!-- Navigation -->
   <nav class="nav-list">
     <a *ngFor="let item of navItems" class="nav-item" [routerLink]="item.route || null" routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }" (click)="onNavItemClick()">
+      [routerLinkActiveOptions]="{ exact: item.component === 'space-devices' ? false : true }" (click)="onNavItemClick()">
       <div [ngSwitch]="item.component" class="icon-container">
         <app-overview *ngSwitchCase="'overview'" class="nav-icon"></app-overview>
         <app-air-quality *ngSwitchCase="'air-quality'" class="nav-icon"></app-air-quality>
