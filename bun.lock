@@ -16,6 +16,7 @@
         "@angular/router": "^21.2.0",
         "@stripe/stripe-js": "^9.5.0",
         "jwt-decode": "^4.0.0",
+        "onesignal-ngx": "^2.4.2",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0",
       },
@@ -922,6 +923,8 @@
     "on-finished": ["on-finished@2.4.1", "", { "dependencies": { "ee-first": "1.1.1" } }, "sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg=="],
 
     "once": ["once@1.4.0", "", { "dependencies": { "wrappy": "1" } }, "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w=="],
+
+    "onesignal-ngx": ["onesignal-ngx@2.4.2", "", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "@angular/common": ">=11.0.9", "@angular/core": ">=11.0.9" } }, "sha512-oj/8izWUJZmk55iV3WsAF8lL5DpgdMPKgsA1nj9db6VTeoe9eCU+aCpatBhEKi3oe+R4MLX7Qx2XFpvKPgoPdQ=="],
 
     "onetime": ["onetime@7.0.0", "", { "dependencies": { "mimic-function": "^5.0.0" } }, "sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ=="],
 

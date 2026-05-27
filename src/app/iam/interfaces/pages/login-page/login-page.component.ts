@@ -17,6 +17,8 @@ import { createEmail } from '../../../domain/model/valueobjects/email.value-obje
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
 import { createSignInCommand } from '../../../domain/model/commands/sign-in.command';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
+import { jwtDecode } from 'jwt-decode';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-login-page',
@@ -45,6 +47,7 @@ export class LoginPageComponent {
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -82,7 +85,19 @@ export class LoginPageComponent {
         next: (result) => {
           console.log('[Login] Success');
           this.loading = false;
-          this.tokenStorage.setTokens(result.accessToken.value, result.refreshToken.value);
+          const token = result.accessToken.value;
+          this.tokenStorage.setTokens(token, result.refreshToken.value);
+
+          try {
+            const payload = jwtDecode<{ sub: string }>(token);
+            if (payload && payload.sub) {
+              this.notificationService.loginUser(payload.sub);
+              this.notificationService.requestPermission();
+            }
+          } catch (e) {
+            console.error('[Login] Error decoding token for OneSignal:', e);
+          }
+
           this.snackBar.open('Login successful', 'Close', { duration: 2500 });
           this.router.navigate(['/']);
         },

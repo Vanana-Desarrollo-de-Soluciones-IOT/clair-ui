@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NotificationService } from './shared/services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -9,8 +10,9 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
-  constructor() { }
+  private readonly notificationService = inject(NotificationService);
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.notificationService.initOneSignal();
   }
 }

@@ -10,6 +10,7 @@ import { SidebarComponent } from '../../../../shared/interfaces/components/sideb
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
 import { TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-settings-page',
@@ -32,6 +33,7 @@ export class SettingsPageComponent {
   private readonly authCommandService = inject(AuthCommandServiceImpl);
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
 
   isLoggingOut = false;
   isSidebarOpen = true;
@@ -57,6 +59,7 @@ export class SettingsPageComponent {
   }
 
   private clearSessionAndNavigate(message: string): void {
+    this.notificationService.logoutUser();
     this.tokenStorage.clearTokens();
     this.statusMessage = message;
     this.isLoggingOut = false;
