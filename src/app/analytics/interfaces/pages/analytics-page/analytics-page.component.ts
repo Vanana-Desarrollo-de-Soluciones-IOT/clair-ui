@@ -17,7 +17,11 @@ import { HeaderComponent } from '../../../../shared/interfaces/components/header
 import { ExternalDeviceService } from '../../../application/internal/outboundservices/acl/external-device.service';
 import { ExternalTelemetryService } from '../../../application/internal/outboundservices/acl/external-telemetry.service';
 import { AnalyticsQueryServiceImpl } from '../../../application/internal/queryservices/analytics-query-service.impl';
-import { FacadeOrganization, FacadeSpace, FacadeDevice } from '../../../../device/interfaces/acl/device-context-facade';
+import {
+  FacadeOrganization,
+  FacadeSpace,
+  FacadeDevice,
+} from '../../../../device/interfaces/acl/device-context-facade';
 import { DashboardMetrics } from '../../../domain/services/analytics-query-service';
 import { TrendPoint } from '../../../domain/model/valueobjects/trend-point.value-object';
 import { LatestTelemetrySummary } from '../../../../evaluation/interfaces/acl/evaluation-context-facade';
@@ -39,10 +43,10 @@ import { createGetTrendsQuery } from '../../../domain/model/queries/get-trends.q
     MatInputModule,
     MatDatepickerModule,
     SidebarComponent,
-    HeaderComponent
+    HeaderComponent,
   ],
   templateUrl: './analytics-page.component.html',
-  styleUrl: './analytics-page.component.css'
+  styleUrl: './analytics-page.component.css',
 })
 export class AnalyticsPageComponent implements OnInit, OnDestroy {
   private readonly deviceAclService = inject(ExternalDeviceService);
@@ -54,6 +58,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   isSidebarOpen = true;
   loading = false;
   error: string | null = null;
+  liveUnavailable = false;
 
   // Dropdown data
   organizations: FacadeOrganization[] = [];
@@ -108,24 +113,27 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   // Load organizations
   private loadOrganizations(): void {
     this.loading = true;
-    this.deviceAclService.fetchOrganizations().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (orgs) => {
-        this.organizations = orgs;
-        if (orgs.length > 0) {
-          this.selectedOrgId = orgs[0].id;
-          this.onOrgChange();
-        } else {
+    this.deviceAclService
+      .fetchOrganizations()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (orgs) => {
+          this.organizations = orgs;
+          if (orgs.length > 0) {
+            this.selectedOrgId = orgs[0].id;
+            this.onOrgChange();
+          } else {
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to load organizations', err);
+          this.error = 'Failed to load organizations. Please try again.';
           this.loading = false;
           this.cdr.markForCheck();
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load organizations', err);
-        this.error = 'Failed to load organizations. Please try again.';
-        this.loading = false;
-        this.cdr.markForCheck();
-      }
-    });
+        },
+      });
   }
 
   // Handler for Organization change
@@ -144,7 +152,8 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.deviceAclService.fetchSpacesByOrganization(this.selectedOrgId)
+    this.deviceAclService
+      .fetchSpacesByOrganization(this.selectedOrgId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (spaces) => {
@@ -162,7 +171,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.error = 'Failed to load spaces.';
           this.loading = false;
           this.cdr.markForCheck();
-        }
+        },
       });
   }
 
@@ -180,7 +189,8 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.deviceAclService.fetchDevicesBySpace(this.selectedSpaceId)
+    this.deviceAclService
+      .fetchDevicesBySpace(this.selectedSpaceId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (devices) => {
@@ -198,7 +208,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.error = 'Failed to load devices.';
           this.loading = false;
           this.cdr.markForCheck();
-        }
+        },
       });
   }
 
@@ -207,6 +217,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     this.liveData = null;
     this.trendDataPoints = [];
     this.lastReadings = null;
+    this.liveUnavailable = false;
     this.stopPolling();
 
     if (!this.selectedDeviceId) {
@@ -224,15 +235,24 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.error = null;
+    this.liveUnavailable = false;
 
     // Format custom dates if active
-    const startIso = this.selectedPeriod === 'CUSTOM' && this.startDate ? this.startDate.toISOString() : undefined;
-    const endIso = this.selectedPeriod === 'CUSTOM' && this.endDate ? this.endDate.toISOString() : undefined;
+    const startIso =
+      this.selectedPeriod === 'CUSTOM' && this.startDate ? this.startDate.toISOString() : undefined;
+    const endIso =
+      this.selectedPeriod === 'CUSTOM' && this.endDate ? this.endDate.toISOString() : undefined;
     const apiPeriod = this.selectedPeriod === 'CUSTOM' ? undefined : this.selectedPeriod;
 
     // 1. Fetch dashboard metric summary (e.g. averages and deltas)
-    const metricsQuery = createGetDashboardMetricsQuery(this.selectedDeviceId, apiPeriod, startIso, endIso);
-    this.analyticsQueryService.handleGetDashboardMetrics(metricsQuery)
+    const metricsQuery = createGetDashboardMetricsQuery(
+      this.selectedDeviceId,
+      apiPeriod,
+      startIso,
+      endIso,
+    );
+    this.analyticsQueryService
+      .handleGetDashboardMetrics(metricsQuery)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (metrics) => {
@@ -241,17 +261,30 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          // Handle 404 local empty state elegantly as per guidelines, instead of showing fullscreen error
           console.warn('Dashboard metrics returned empty or failed:', err);
           this.liveData = null;
+          if (err?.status === 404) {
+            this.liveUnavailable = true;
+          }
           this.cdr.markForCheck();
-        }
+        },
       });
 
     // 2. Fetch trend points for charts
-    const apiTrendPeriod = this.selectedPeriod === 'LIVE' ? 'DAY' : (this.selectedPeriod === 'CUSTOM' ? undefined : this.selectedPeriod.toUpperCase());
-    const trendsQuery = createGetTrendsQuery(this.selectedDeviceId, apiTrendPeriod, startIso, endIso);
-    this.analyticsQueryService.handleGetTrends(trendsQuery)
+    const apiTrendPeriod =
+      this.selectedPeriod === 'LIVE'
+        ? 'DAY'
+        : this.selectedPeriod === 'CUSTOM'
+          ? undefined
+          : this.selectedPeriod.toUpperCase();
+    const trendsQuery = createGetTrendsQuery(
+      this.selectedDeviceId,
+      apiTrendPeriod,
+      startIso,
+      endIso,
+    );
+    this.analyticsQueryService
+      .handleGetTrends(trendsQuery)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (trends) => {
@@ -264,11 +297,12 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.trendDataPoints = [];
           this.loading = false;
           this.cdr.markForCheck();
-        }
+        },
       });
 
     // 3. Fetch latest raw telemetry for "Last Readings" section via ACL
-    this.telemetryAclService.fetchLatestTelemetryByDevice(this.selectedDeviceId)
+    this.telemetryAclService
+      .fetchLatestTelemetryByDevice(this.selectedDeviceId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (telemetry) => {
@@ -279,7 +313,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           console.error('Failed to load last readings via ACL', err);
           this.lastReadings = null;
           this.cdr.markForCheck();
-        }
+        },
       });
   }
 
@@ -344,7 +378,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   }
 
   get aqiCategory(): string {
-    return this.liveData?.aqi.category ?? 'Sin mediciones';
+    return this.liveData?.aqi.category ?? 'No measurements';
   }
 
   get formattedUpdateTime(): string {
@@ -412,7 +446,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     const height = 150;
     const padding = 20;
 
-    const values = this.trendDataPoints.map(p => this.getMetricValue(p, this.selectedMetric));
+    const values = this.trendDataPoints.map((p) => this.getMetricValue(p, this.selectedMetric));
     const minVal = Math.min(...values);
     const maxVal = Math.max(...values);
     const valRange = maxVal - minVal || 1;
@@ -464,12 +498,18 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   // Get dynamic metric value from TrendPoint
   getMetricValue(point: TrendPoint, metric: string): number {
     switch (metric) {
-      case 'aqiValue': return point.aqiValue;
-      case 'co2': return point.co2;
-      case 'pm2_5': return point.pm2_5;
-      case 'temperature': return point.temperature;
-      case 'humidity': return point.humidity;
-      default: return point.aqiValue;
+      case 'aqiValue':
+        return point.aqiValue;
+      case 'co2':
+        return point.co2;
+      case 'pm2_5':
+        return point.pm2_5;
+      case 'temperature':
+        return point.temperature;
+      case 'humidity':
+        return point.humidity;
+      default:
+        return point.aqiValue;
     }
   }
 
@@ -477,12 +517,18 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   get activeMetricDelta(): number | null {
     if (!this.liveData) return null;
     switch (this.selectedMetric) {
-      case 'aqiValue': return this.liveData.pm2_5.deltaPercentage; // Standard delta approximation for AQI
-      case 'co2': return this.liveData.co2.deltaPercentage;
-      case 'pm2_5': return this.liveData.pm2_5.deltaPercentage;
-      case 'temperature': return this.liveData.temperature.deltaPercentage;
-      case 'humidity': return this.liveData.humidity.deltaPercentage;
-      default: return null;
+      case 'aqiValue':
+        return this.liveData.pm2_5.deltaPercentage; // Standard delta approximation for AQI
+      case 'co2':
+        return this.liveData.co2.deltaPercentage;
+      case 'pm2_5':
+        return this.liveData.pm2_5.deltaPercentage;
+      case 'temperature':
+        return this.liveData.temperature.deltaPercentage;
+      case 'humidity':
+        return this.liveData.humidity.deltaPercentage;
+      default:
+        return null;
     }
   }
 
