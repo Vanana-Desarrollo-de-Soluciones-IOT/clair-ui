@@ -1,0 +1,94 @@
+.alert-card {
+  border-radius: 12px;
+  padding: 16px;
+  background: #1c1c1e;
+  border: 1px solid #2c2c2e;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.alert-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e5e7eb;
+}
+
+.metric-icon {
+  color: #9ca3af;
+}
+
+.metric-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.metric-unit {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.message {
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.values-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.value-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.value-label {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.value-number {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #2c2c2e;
+}
+
+.date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.resolved-text {
+  font-size: 0.75rem;
+  color: #10b981;
+}

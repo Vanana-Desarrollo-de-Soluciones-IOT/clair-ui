@@ -1,0 +1,58 @@
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: #1c1c1e;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.view-toggle button {
+  color: #9ca3af;
+}
+
+.view-toggle button.active {
+  color: #ffffff;
+  background: #2c2c2e;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 16px;
+  color: #9ca3af;
+}
+
+.error-state {
+  color: #ef4444;
+}
+
+.empty-state mat-icon,
+.error-state mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.alerts-container {
+  display: grid;
+  gap: 16px;
+}
+
+.alerts-container.grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.alerts-container.list {
+  grid-template-columns: 1fr;
+}
