@@ -107,13 +107,13 @@ export class HeaderComponent implements OnInit {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffSecs < 60) {
-      return 'hace unos segundos';
+      return 'just now';
     } else if (diffMins < 60) {
-      return `hace ${diffMins} min`;
+      return `${diffMins}m ago`;
     } else if (diffHours < 24) {
-      return `hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+      return `${diffHours}h ago`;
     } else {
-      return `hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
+      return `${diffDays}d ago`;
     }
   }
 }

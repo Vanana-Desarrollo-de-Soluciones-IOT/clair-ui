@@ -16,7 +16,7 @@
       <!-- Panel de Notificaciones -->
       <div class="notification-panel" *ngIf="isNotificationPanelOpen" (click)="$event.stopPropagation()">
         <div class="panel-header">
-          <h3>Notificaciones</h3>
+          <h3>Notifications</h3>
           <button mat-icon-button class="close-panel-btn" (click)="isNotificationPanelOpen = false" aria-label="Close notifications">
             <mat-icon>close</mat-icon>
           </button>
@@ -29,7 +29,7 @@
 
           <div class="empty-state" *ngIf="!loading && notifications.length === 0">
             <mat-icon class="empty-icon">notifications_none</mat-icon>
-            <p class="empty-text">No hay notificaciones nuevas</p>
+            <p class="empty-text">No new notifications</p>
           </div>
 
           <div class="notification-list" *ngIf="!loading && notifications.length > 0">
@@ -42,7 +42,7 @@
                 <p class="item-message">{{ notification.message }}</p>
                 <div class="item-footer">
                   <span class="item-time">{{ getRelativeTime(notification.createdAt) }}</span>
-                  <span class="item-status" *ngIf="!notification.sent">Falló el envío</span>
+                  <span class="item-status" *ngIf="!notification.sent">Failed to send</span>
                 </div>
               </div>
             </div>
