@@ -1,0 +1,20 @@
+<div class="chart-card" *ngIf="data && data.length > 0">
+  <div class="chart-header">
+    <span class="chart-title">Last 30 days</span>
+  </div>
+  <div class="chart-body">
+    <div class="bars-container">
+      <div class="bar-wrapper" *ngFor="let bar of chartBars">
+        <div class="bar" [style.height.%]="bar.heightPct" [style.backgroundColor]="bar.color"></div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-footer">
+    <span class="footer-label">Hace 30 días</span>
+    <span class="footer-label">Today</span>
+  </div>
+</div>
+
+<div class="chart-empty" *ngIf="!data || data.length === 0">
+  <span>No alert data available</span>
+</div>

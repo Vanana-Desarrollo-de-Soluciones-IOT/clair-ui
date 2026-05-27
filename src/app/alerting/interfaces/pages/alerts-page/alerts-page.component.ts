@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -12,14 +11,15 @@ import { SidebarComponent } from '../../../../shared/interfaces/components/sideb
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { ExternalAlertingDeviceService } from '../../../application/internal/outboundservices/acl/external-alerting-device.service';
 import { AlertQueryServiceImpl } from '../../../application/internal/queryservices/alert-query-service.impl';
-import { Alert, AlertPage } from '../../../domain/services/alert-query-service';
-import { AlertStatus } from '../../../domain/model/valueobjects/alert-status.value-object';
-import { MetricType } from '../../../domain/model/valueobjects/metric-type.value-object';
+import { Alert, AlertPage, DailyAlertCount } from '../../../domain/services/alert-query-service';
+import { AlertStatus, AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED, AlertStatus_RESOLVED } from '../../../domain/model/valueobjects/alert-status.value-object';
 import { createGetAlertsBySpaceQuery } from '../../../domain/model/queries/get-alerts-by-space.query';
 import { createGetAlertsByDeviceQuery } from '../../../domain/model/queries/get-alerts-by-device.query';
 import { FacadeOrganization, FacadeSpace, FacadeDevice } from '../../../../device/interfaces/acl/device-context-facade';
-import { AlertListComponent, AlertViewMode } from '../../components/alert-list/alert-list.component';
-import { AlertFiltersComponent } from '../../components/alert-filters/alert-filters.component';
+import { AlertDailyChartComponent } from '../../components/alert-daily-chart/alert-daily-chart.component';
+import { AlertTableComponent } from '../../components/alert-table/alert-table.component';
+
+type AlertTab = 'active' | 'history';
 
 @Component({
   selector: 'app-alerts-page',
@@ -29,12 +29,11 @@ import { AlertFiltersComponent } from '../../components/alert-filters/alert-filt
     FormsModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatButtonModule,
     MatIconModule,
     SidebarComponent,
     HeaderComponent,
-    AlertListComponent,
-    AlertFiltersComponent,
+    AlertDailyChartComponent,
+    AlertTableComponent,
   ],
   templateUrl: './alerts-page.component.html',
   styleUrl: './alerts-page.component.css',
@@ -60,30 +59,36 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
   selectedSpaceId = '';
   selectedDeviceId = '';
 
-  // Alerts state
-  alertsPage: AlertPage | null = null;
-  filteredAlerts: readonly Alert[] | null = null;
-  loading = false;
-  error = '';
+  // Daily chart
+  dailySummary: DailyAlertCount[] | null = null;
+  loadingSummary = false;
 
-  // Filters
-  selectedStatus: AlertStatus | 'ALL' = 'ALL';
-  selectedMetric: MetricType | 'ALL' = 'ALL';
+  // Tabs & alerts
+  activeTab: AlertTab = 'active';
+  activeAlertsPage: AlertPage | null = null;
+  historyAlertsPage: AlertPage | null = null;
+  loadingAlerts = false;
+  errorAlerts = '';
 
   // Pagination
   currentPage = 0;
   pageSize = 20;
 
-  // View mode
-  viewMode: AlertViewMode = 'grid';
+  // Seconds counter for "Updated X seconds ago"
+  secondsSinceUpdate = 0;
+  private secondsCounterSubscription?: any;
 
   ngOnInit(): void {
     this.loadOrganizations();
+    this.startSecondsCounter();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.secondsCounterSubscription) {
+      clearInterval(this.secondsCounterSubscription);
+    }
   }
 
   toggleSidebar(): void {
@@ -94,8 +99,13 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
     this.isSidebarOpen = false;
   }
 
+  setTab(tab: AlertTab): void {
+    this.activeTab = tab;
+    this.currentPage = 0;
+    this.loadAlertsForTab();
+  }
+
   private loadOrganizations(): void {
-    this.loading = true;
     this.deviceAclService.fetchOrganizations()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -105,14 +115,11 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
             this.selectedOrgId = orgs[0].id;
             this.onOrgChange();
           } else {
-            this.loading = false;
             this.cdr.markForCheck();
           }
         },
         error: (err: any) => {
           console.error('Failed to load organizations', err);
-          this.error = 'Failed to load organizations';
-          this.loading = false;
           this.cdr.markForCheck();
         },
       });
@@ -123,7 +130,7 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
     this.devices = [];
     this.selectedSpaceId = '';
     this.selectedDeviceId = '';
-    this.clearAlerts();
+    this.clearData();
 
     if (!this.selectedOrgId) {
       this.cdr.markForCheck();
@@ -144,7 +151,6 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
         },
         error: (err: any) => {
           console.error('Failed to load spaces', err);
-          this.error = 'Failed to load spaces';
           this.cdr.markForCheck();
         },
       });
@@ -153,7 +159,7 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
   onSpaceChange(): void {
     this.devices = [];
     this.selectedDeviceId = '';
-    this.clearAlerts();
+    this.clearData();
 
     if (!this.selectedSpaceId) {
       this.cdr.markForCheck();
@@ -166,11 +172,11 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
         next: (devices: FacadeDevice[]) => {
           this.devices = devices;
           this.cdr.markForCheck();
-          this.loadAlerts();
+          this.loadDailySummary();
+          this.loadAlertsForTab();
         },
         error: (err: any) => {
           console.error('Failed to load devices', err);
-          this.error = 'Failed to load devices';
           this.cdr.markForCheck();
         },
       });
@@ -178,29 +184,56 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
 
   onDeviceChange(): void {
     this.currentPage = 0;
-    this.loadAlerts();
+    this.loadDailySummary();
+    this.loadAlertsForTab();
   }
 
-  loadAlerts(): void {
-    this.loading = true;
-    this.error = '';
+  private loadDailySummary(): void {
+    if (!this.selectedSpaceId) return;
+    this.loadingSummary = true;
     this.cdr.markForCheck();
+
+    this.alertQueryService.handleGetDailySummaryBySpace(this.selectedSpaceId, 30)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (summary: DailyAlertCount[]) => {
+          this.dailySummary = summary;
+          this.loadingSummary = false;
+          this.secondsSinceUpdate = 0;
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load daily summary', err);
+          this.loadingSummary = false;
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private loadAlertsForTab(): void {
+    if (!this.selectedSpaceId && !this.selectedDeviceId) return;
+    this.loadingAlerts = true;
+    this.errorAlerts = '';
+    this.cdr.markForCheck();
+
+    const statusFilter = this.activeTab === 'active'
+      ? [AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED]
+      : [AlertStatus_RESOLVED];
 
     if (this.selectedDeviceId) {
       const query = createGetAlertsByDeviceQuery(this.selectedDeviceId, this.currentPage, this.pageSize);
-      this.alertQueryService.handleGetAlertsByDevice(query)
+      this.alertQueryService.handleGetAlertsByDevice(query, statusFilter)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (page: AlertPage) => {
-            this.alertsPage = page;
-            this.applyFilters();
-            this.loading = false;
+            this.setAlertsPage(page);
+            this.loadingAlerts = false;
             this.cdr.markForCheck();
           },
           error: (err: any) => {
             console.error('Failed to load alerts', err);
-            this.error = 'Failed to load alerts. Please try again.';
-            this.loading = false;
+            this.errorAlerts = 'Failed to load alerts';
+            this.loadingAlerts = false;
             this.cdr.markForCheck();
           },
         });
@@ -208,96 +241,78 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
     }
 
     const query = createGetAlertsBySpaceQuery(this.selectedSpaceId, this.currentPage, this.pageSize);
-
-    this.alertQueryService.handleGetAlertsBySpace(query)
+    this.alertQueryService.handleGetAlertsBySpace(query, statusFilter)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (page: AlertPage) => {
-        this.alertsPage = page;
-        this.applyFilters();
-        this.loading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err: any) => {
-        console.error('Failed to load alerts', err);
-        this.error = 'Failed to load alerts. Please try again.';
-        this.loading = false;
-        this.cdr.markForCheck();
-      },
-    });
+        next: (page: AlertPage) => {
+          this.setAlertsPage(page);
+          this.loadingAlerts = false;
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          console.error('Failed to load alerts', err);
+          this.errorAlerts = 'Failed to load alerts';
+          this.loadingAlerts = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  onStatusFilterChanged(status: AlertStatus | 'ALL'): void {
-    this.selectedStatus = status;
-    this.applyFilters();
-  }
-
-  onMetricFilterChanged(metric: MetricType | 'ALL'): void {
-    this.selectedMetric = metric;
-    this.applyFilters();
-  }
-
-  private applyFilters(): void {
-    if (!this.alertsPage) {
-      this.filteredAlerts = null;
-      return;
+  private setAlertsPage(page: AlertPage): void {
+    if (this.activeTab === 'active') {
+      this.activeAlertsPage = page;
+    } else {
+      this.historyAlertsPage = page;
     }
-
-    let filtered = [...this.alertsPage.content];
-
-    if (this.selectedStatus !== 'ALL') {
-      filtered = filtered.filter((a) => a.status === this.selectedStatus);
-    }
-
-    if (this.selectedMetric !== 'ALL') {
-      filtered = filtered.filter((a) => a.metric === this.selectedMetric);
-    }
-
-    this.filteredAlerts = Object.freeze(filtered);
   }
 
-  private clearAlerts(): void {
-    this.alertsPage = null;
-    this.filteredAlerts = null;
-    this.error = '';
-    this.currentPage = 0;
+  get currentAlerts(): readonly Alert[] | null {
+    return this.activeTab === 'active'
+      ? this.activeAlertsPage?.content ?? null
+      : this.historyAlertsPage?.content ?? null;
+  }
+
+  get showPagination(): boolean {
+    const page = this.activeTab === 'active' ? this.activeAlertsPage : this.historyAlertsPage;
+    return !!page && page.totalPages > 1;
+  }
+
+  get totalPages(): number {
+    const page = this.activeTab === 'active' ? this.activeAlertsPage : this.historyAlertsPage;
+    return page?.totalPages ?? 1;
   }
 
   prevPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;
-      this.loadAlerts();
+      this.loadAlertsForTab();
     }
   }
 
   nextPage(): void {
-    if (this.alertsPage && this.currentPage < this.alertsPage.totalPages - 1) {
+    if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
-      this.loadAlerts();
+      this.loadAlertsForTab();
     }
   }
 
-  get totalAlerts(): number {
-    return this.alertsPage?.totalElements ?? 0;
+  get formattedUpdateTime(): string {
+    if (this.secondsSinceUpdate < 5) return 'just now';
+    return `${this.secondsSinceUpdate} seconds ago`;
   }
 
-  get activeCount(): number {
-    return this.alertsPage?.content.filter((a: Alert) => a.status === 'ACTIVE').length ?? 0;
+  private startSecondsCounter(): void {
+    this.secondsCounterSubscription = setInterval(() => {
+      this.secondsSinceUpdate++;
+      this.cdr.markForCheck();
+    }, 1000);
   }
 
-  get acknowledgedCount(): number {
-    return this.alertsPage?.content.filter((a: Alert) => a.status === 'ACKNOWLEDGED').length ?? 0;
-  }
-
-  get resolvedCount(): number {
-    return this.alertsPage?.content.filter((a: Alert) => a.status === 'RESOLVED').length ?? 0;
-  }
-
-  get showPagination(): boolean {
-    return !!this.alertsPage && this.alertsPage.totalPages > 1;
-  }
-
-  setViewMode(mode: AlertViewMode): void {
-    this.viewMode = mode;
+  private clearData(): void {
+    this.dailySummary = null;
+    this.activeAlertsPage = null;
+    this.historyAlertsPage = null;
+    this.errorAlerts = '';
+    this.currentPage = 0;
   }
 }

@@ -1,5 +1,9 @@
 export type AlertStatus = 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED';
 
+export const AlertStatus_ACTIVE: AlertStatus = 'ACTIVE';
+export const AlertStatus_ACKNOWLEDGED: AlertStatus = 'ACKNOWLEDGED';
+export const AlertStatus_RESOLVED: AlertStatus = 'RESOLVED';
+
 export const AlertStatuses: readonly AlertStatus[] = ['ACTIVE', 'ACKNOWLEDGED', 'RESOLVED'];
 
 export const isValidAlertStatus = (value: string): value is AlertStatus => {

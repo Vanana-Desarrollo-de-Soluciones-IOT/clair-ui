@@ -1,0 +1,23 @@
+<div class="table-wrapper" *ngIf="alerts && alerts.length > 0">
+  <div class="table-header">
+    <span class="col id">ID</span>
+    <span class="col severity">SEVERITY</span>
+    <span class="col space">SPACE</span>
+    <span class="col variable">VARIABLE</span>
+    <span class="col time">TIME</span>
+    <span class="col status">STATUS</span>
+  </div>
+  <div class="table-row" *ngFor="let alert of alerts">
+    <span class="col id">{{ shortId(alert.id.value) }}</span>
+    <span class="col severity"><app-alert-severity-badge [severity]="alert.severity"></app-alert-severity-badge></span>
+    <span class="col space">{{ alert.spaceName ?? '-' }}</span>
+    <span class="col variable">{{ alert.metric }}</span>
+    <span class="col time">{{ formatTime(alert.occurredAt) }}</span>
+    <span class="col status"><app-alert-status-badge [status]="alert.status"></app-alert-status-badge></span>
+  </div>
+</div>
+
+<div class="table-empty" *ngIf="!loading && (!alerts || alerts.length === 0)">
+  <mat-icon>notifications_off</mat-icon>
+  <span>No alerts found</span>
+</div>
