@@ -1,0 +1,100 @@
+<div class="page-layout">
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
+
+  <div class="page-body">
+    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
+
+    <main class="content">
+      <div class="alerts-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+          <div class="header-left">
+            <h1 class="page-title">Alerts & Actions</h1>
+          </div>
+        </div>
+
+        <!-- Dropdowns -->
+        <div class="dropdowns-row">
+          <div class="dropdown-item">
+            <label class="dropdown-label">ORGANIZATION</label>
+            <mat-form-field appearance="outline" class="custom-select-field">
+              <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange()">
+                <mat-option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="dropdown-item">
+            <label class="dropdown-label">SPACE</label>
+            <mat-form-field appearance="outline" class="custom-select-field">
+              <mat-select [(ngModel)]="selectedSpaceId" (selectionChange)="onSpaceChange()">
+                <mat-option *ngFor="let space of spaces" [value]="space.id">{{ space.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="dropdown-item">
+            <label class="dropdown-label">DEVICE (optional)</label>
+            <mat-form-field appearance="outline" class="custom-select-field">
+              <mat-select [(ngModel)]="selectedDeviceId" (selectionChange)="onDeviceChange()">
+                <mat-option value="">All devices in space</mat-option>
+                <mat-option *ngFor="let device of devices" [value]="device.id">{{ device.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="summary-grid" *ngIf="alertsPage">
+          <div class="summary-card">
+            <span class="summary-label">Total Alerts</span>
+            <span class="summary-value">{{ totalAlerts }}</span>
+          </div>
+          <div class="summary-card active">
+            <span class="summary-label">Active</span>
+            <span class="summary-value">{{ activeCount }}</span>
+          </div>
+          <div class="summary-card acknowledged">
+            <span class="summary-label">Acknowledged</span>
+            <span class="summary-value">{{ acknowledgedCount }}</span>
+          </div>
+          <div class="summary-card resolved">
+            <span class="summary-label">Resolved</span>
+            <span class="summary-value">{{ resolvedCount }}</span>
+          </div>
+        </div>
+
+        <!-- Filters + List -->
+        <div class="alerts-section">
+          <div class="alerts-toolbar">
+            <app-alert-filters
+              [selectedStatus]="selectedStatus"
+              [selectedMetric]="selectedMetric"
+              (statusChanged)="onStatusFilterChanged($event)"
+              (metricChanged)="onMetricFilterChanged($event)"
+            ></app-alert-filters>
+          </div>
+
+          <app-alert-list
+            [alerts]="filteredAlerts"
+            [loading]="loading"
+            [error]="error"
+            [viewMode]="viewMode"
+            (viewModeChanged)="setViewMode($event)"
+          ></app-alert-list>
+
+          <!-- Pagination -->
+          <div class="pagination-bar" *ngIf="showPagination">
+            <button mat-button (click)="prevPage()" [disabled]="currentPage === 0">
+              <mat-icon>chevron_left</mat-icon> Previous
+            </button>
+            <span class="page-info">Page {{ currentPage + 1 }} of {{ alertsPage?.totalPages }}</span>
+            <button mat-button (click)="nextPage()" [disabled]="currentPage >= (alertsPage?.totalPages ?? 1) - 1">
+              Next <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
