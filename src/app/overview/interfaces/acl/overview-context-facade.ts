@@ -11,6 +11,7 @@ export type OverviewMeasurements = Readonly<{
   humidity: number | null;
   pm2_5: number | null;
   recordedAt: string | null;
+
 }>;
 
 export interface OverviewContextFacade {
