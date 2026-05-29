@@ -1,9 +1,6 @@
 <div class="page-layout">
   <!-- Header -->
-  <app-header
-    [isSidebarOpen]="isSidebarOpen"
-    (sidebarToggleRequested)="toggleSidebar()"
-  ></app-header>
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
 
   <div class="page-body">
     <!-- Sidebar -->
@@ -21,49 +18,28 @@
           <div class="header-right">
             <!-- Period Selector Pill -->
             <div class="period-selector-pill">
-              <button
-                type="button"
-                [class.active]="selectedPeriod === 'LIVE'"
-                (click)="selectPeriod('LIVE')"
-              >
+              <button type="button" [class.active]="selectedPeriod === 'LIVE'" (click)="selectPeriod('LIVE')">
                 LIVE
               </button>
-              <button
-                type="button"
-                [class.active]="selectedPeriod === 'Day' || selectedPeriod === 'DAY'"
-                (click)="selectPeriod('Day')"
-              >
+              <button type="button" [class.active]="selectedPeriod === 'Day' || selectedPeriod === 'DAY'"
+                (click)="selectPeriod('Day')">
                 Day
               </button>
-              <button
-                type="button"
-                [class.active]="selectedPeriod === 'Week' || selectedPeriod === 'WEEK'"
-                (click)="selectPeriod('Week')"
-              >
+              <button type="button" [class.active]="selectedPeriod === 'Week' || selectedPeriod === 'WEEK'"
+                (click)="selectPeriod('Week')">
                 Week
               </button>
-              <button
-                type="button"
-                [class.active]="selectedPeriod === 'Month' || selectedPeriod === 'MONTH'"
-                (click)="selectPeriod('Month')"
-              >
+              <button type="button" [class.active]="selectedPeriod === 'Month' || selectedPeriod === 'MONTH'"
+                (click)="selectPeriod('Month')">
                 Month
               </button>
             </div>
 
             <!-- Datepicker Wrapper -->
             <div class="calendar-wrapper">
-              <div
-                class="calendar-trigger-container"
-                style="position: relative; display: inline-block"
-              >
-                <button
-                  class="icon-action-btn"
-                  type="button"
-                  (click)="picker.open()"
-                  aria-label="Calendar"
-                  title="Select custom range"
-                >
+              <div class="calendar-trigger-container" style="position: relative; display: inline-block">
+                <button class="icon-action-btn" type="button" (click)="picker.open()" aria-label="Calendar"
+                  title="Select custom range">
                   <mat-icon>calendar_today</mat-icon>
                 </button>
                 <mat-date-range-input [rangePicker]="picker" class="hidden-datepicker-input">
@@ -120,7 +96,7 @@
 
         <div *ngIf="!loading && liveUnavailable" class="live-unavailable-state">
           <mat-icon>cloud_off</mat-icon>
-          <p>Live data is not available right now.</p>
+          <p>{{ liveUnavailableMessage || 'Live data is not available right now.' }}</p>
         </div>
 
         <div *ngIf="error" class="error-state">
@@ -131,11 +107,8 @@
         <!-- Dashboard Grid (Cards) -->
         <div class="dashboard-grid" *ngIf="liveData || trendDataPoints.length > 0">
           <!-- AIR QUALITY INDEX CARD -->
-          <div
-            class="kpi-card aqi-card"
-            [class.selected]="selectedMetric === 'aqiValue'"
-            (click)="selectMetric('aqiValue')"
-          >
+          <div class="kpi-card aqi-card" [class.selected]="selectedMetric === 'aqiValue'"
+            (click)="selectMetric('aqiValue')">
             <div class="kpi-header">
               <span class="kpi-title">AIR QUALITY INDEX</span>
               <span class="status-badge" [style.background-color]="aqiColor" [style.color]="'#000'">
@@ -146,27 +119,11 @@
             <div class="aqi-gauge-container">
               <svg class="aqi-gauge" viewBox="0 0 100 100">
                 <!-- Background track -->
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="transparent"
-                  stroke="#222"
-                  stroke-width="8"
-                ></circle>
+                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#222" stroke-width="8"></circle>
                 <!-- Colored indicator -->
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="transparent"
-                  [attr.stroke]="aqiColor"
-                  stroke-width="8"
-                  stroke-dasharray="251.2"
-                  [attr.stroke-dashoffset]="progressOffset"
-                  stroke-linecap="round"
-                  transform="rotate(-90 50 50)"
-                ></circle>
+                <circle cx="50" cy="50" r="40" fill="transparent" [attr.stroke]="aqiColor" stroke-width="8"
+                  stroke-dasharray="251.2" [attr.stroke-dashoffset]="progressOffset" stroke-linecap="round"
+                  transform="rotate(-90 50 50)"></circle>
               </svg>
               <div class="aqi-value-center">
                 <span class="aqi-number">{{ aqiValue }}</span>
@@ -178,7 +135,7 @@
                 <ng-container *ngIf="activeMetricDelta !== null">
                   <mat-icon>{{
                     isDeltaPositive(activeMetricDelta) ? 'arrow_upward' : 'arrow_downward'
-                  }}</mat-icon>
+                    }}</mat-icon>
                   <span>{{ formatDelta(activeMetricDelta) }}</span>
                 </ng-container>
                 <span *ngIf="activeMetricDelta === null" class="delta-null">N/A</span>
@@ -189,11 +146,8 @@
           <!-- Parameter Cards -->
           <div class="kpis-subgrid">
             <!-- PM2.5 -->
-            <div
-              class="kpi-card parameter-card"
-              [class.selected]="selectedMetric === 'pm2_5'"
-              (click)="selectMetric('pm2_5')"
-            >
+            <div class="kpi-card parameter-card" [class.selected]="selectedMetric === 'pm2_5'"
+              (click)="selectMetric('pm2_5')">
               <div class="kpi-header">
                 <span class="kpi-title">PM2.5</span>
                 <span class="indicator-dot" [style.background-color]="pm25StatusColor"></span>
@@ -203,41 +157,29 @@
                 <span class="kpi-unit">µg/m³</span>
               </div>
               <div class="kpi-footer">
-                <div
-                  class="trend-delta"
-                  [class.negative]="!isDeltaPositive(liveData?.pm2_5?.deltaPercentage)"
-                >
-                  <ng-container
-                    *ngIf="
+                <div class="trend-delta" [class.negative]="!isDeltaPositive(liveData?.pm2_5?.deltaPercentage)">
+                  <ng-container *ngIf="
                       liveData?.pm2_5?.deltaPercentage !== null &&
                       liveData?.pm2_5?.deltaPercentage !== undefined
-                    "
-                  >
+                    ">
                     <mat-icon>{{
                       isDeltaPositive(liveData?.pm2_5?.deltaPercentage)
-                        ? 'arrow_upward'
-                        : 'arrow_downward'
-                    }}</mat-icon>
+                      ? 'arrow_upward'
+                      : 'arrow_downward'
+                      }}</mat-icon>
                     <span>{{ formatDelta(liveData?.pm2_5?.deltaPercentage) }}</span>
                   </ng-container>
-                  <span
-                    *ngIf="
+                  <span *ngIf="
                       liveData?.pm2_5?.deltaPercentage === null ||
                       liveData?.pm2_5?.deltaPercentage === undefined
-                    "
-                    class="delta-null"
-                    >N/A</span
-                  >
+                    " class="delta-null">N/A</span>
                 </div>
               </div>
             </div>
 
             <!-- CO2 -->
-            <div
-              class="kpi-card parameter-card"
-              [class.selected]="selectedMetric === 'co2'"
-              (click)="selectMetric('co2')"
-            >
+            <div class="kpi-card parameter-card" [class.selected]="selectedMetric === 'co2'"
+              (click)="selectMetric('co2')">
               <div class="kpi-header">
                 <span class="kpi-title">CO₂</span>
                 <span class="indicator-dot" [style.background-color]="co2StatusColor"></span>
@@ -247,41 +189,29 @@
                 <span class="kpi-unit">ppm</span>
               </div>
               <div class="kpi-footer">
-                <div
-                  class="trend-delta"
-                  [class.negative]="!isDeltaPositive(liveData?.co2?.deltaPercentage)"
-                >
-                  <ng-container
-                    *ngIf="
+                <div class="trend-delta" [class.negative]="!isDeltaPositive(liveData?.co2?.deltaPercentage)">
+                  <ng-container *ngIf="
                       liveData?.co2?.deltaPercentage !== null &&
                       liveData?.co2?.deltaPercentage !== undefined
-                    "
-                  >
+                    ">
                     <mat-icon>{{
                       isDeltaPositive(liveData?.co2?.deltaPercentage)
-                        ? 'arrow_upward'
-                        : 'arrow_downward'
-                    }}</mat-icon>
+                      ? 'arrow_upward'
+                      : 'arrow_downward'
+                      }}</mat-icon>
                     <span>{{ formatDelta(liveData?.co2?.deltaPercentage) }}</span>
                   </ng-container>
-                  <span
-                    *ngIf="
+                  <span *ngIf="
                       liveData?.co2?.deltaPercentage === null ||
                       liveData?.co2?.deltaPercentage === undefined
-                    "
-                    class="delta-null"
-                    >N/A</span
-                  >
+                    " class="delta-null">N/A</span>
                 </div>
               </div>
             </div>
 
             <!-- TEMP -->
-            <div
-              class="kpi-card parameter-card"
-              [class.selected]="selectedMetric === 'temperature'"
-              (click)="selectMetric('temperature')"
-            >
+            <div class="kpi-card parameter-card" [class.selected]="selectedMetric === 'temperature'"
+              (click)="selectMetric('temperature')">
               <div class="kpi-header">
                 <span class="kpi-title">TEMP</span>
                 <span class="indicator-dot" [style.background-color]="tempStatusColor"></span>
@@ -291,41 +221,29 @@
                 <span class="kpi-unit">°C</span>
               </div>
               <div class="kpi-footer">
-                <div
-                  class="trend-delta"
-                  [class.negative]="!isDeltaPositive(liveData?.temperature?.deltaPercentage)"
-                >
-                  <ng-container
-                    *ngIf="
+                <div class="trend-delta" [class.negative]="!isDeltaPositive(liveData?.temperature?.deltaPercentage)">
+                  <ng-container *ngIf="
                       liveData?.temperature?.deltaPercentage !== null &&
                       liveData?.temperature?.deltaPercentage !== undefined
-                    "
-                  >
+                    ">
                     <mat-icon>{{
                       isDeltaPositive(liveData?.temperature?.deltaPercentage)
-                        ? 'arrow_upward'
-                        : 'arrow_downward'
-                    }}</mat-icon>
+                      ? 'arrow_upward'
+                      : 'arrow_downward'
+                      }}</mat-icon>
                     <span>{{ formatDelta(liveData?.temperature?.deltaPercentage) }}</span>
                   </ng-container>
-                  <span
-                    *ngIf="
+                  <span *ngIf="
                       liveData?.temperature?.deltaPercentage === null ||
                       liveData?.temperature?.deltaPercentage === undefined
-                    "
-                    class="delta-null"
-                    >N/A</span
-                  >
+                    " class="delta-null">N/A</span>
                 </div>
               </div>
             </div>
 
             <!-- HUMIDITY -->
-            <div
-              class="kpi-card parameter-card"
-              [class.selected]="selectedMetric === 'humidity'"
-              (click)="selectMetric('humidity')"
-            >
+            <div class="kpi-card parameter-card" [class.selected]="selectedMetric === 'humidity'"
+              (click)="selectMetric('humidity')">
               <div class="kpi-header">
                 <span class="kpi-title">HUMIDITY</span>
                 <span class="indicator-dot" [style.background-color]="humidityStatusColor"></span>
@@ -335,31 +253,22 @@
                 <span class="kpi-unit">%</span>
               </div>
               <div class="kpi-footer">
-                <div
-                  class="trend-delta"
-                  [class.negative]="!isDeltaPositive(liveData?.humidity?.deltaPercentage)"
-                >
-                  <ng-container
-                    *ngIf="
+                <div class="trend-delta" [class.negative]="!isDeltaPositive(liveData?.humidity?.deltaPercentage)">
+                  <ng-container *ngIf="
                       liveData?.humidity?.deltaPercentage !== null &&
                       liveData?.humidity?.deltaPercentage !== undefined
-                    "
-                  >
+                    ">
                     <mat-icon>{{
                       isDeltaPositive(liveData?.humidity?.deltaPercentage)
-                        ? 'arrow_upward'
-                        : 'arrow_downward'
-                    }}</mat-icon>
+                      ? 'arrow_upward'
+                      : 'arrow_downward'
+                      }}</mat-icon>
                     <span>{{ formatDelta(liveData?.humidity?.deltaPercentage) }}</span>
                   </ng-container>
-                  <span
-                    *ngIf="
+                  <span *ngIf="
                       liveData?.humidity?.deltaPercentage === null ||
                       liveData?.humidity?.deltaPercentage === undefined
-                    "
-                    class="delta-null"
-                    >N/A</span
-                  >
+                    " class="delta-null">N/A</span>
                 </div>
               </div>
             </div>
@@ -368,11 +277,9 @@
           <!-- TREND CARD -->
           <div class="kpi-card trend-card">
             <div class="kpi-header">
-              <span class="kpi-title"
-                >TREND ({{
-                  selectedMetric === 'aqiValue' ? 'AQI' : selectedMetric.toUpperCase()
-                }})</span
-              >
+              <span class="kpi-title">TREND ({{
+                selectedMetric === 'aqiValue' ? 'AQI' : selectedMetric.toUpperCase()
+                }})</span>
             </div>
 
             <div class="trend-chart-wrapper">
@@ -385,12 +292,8 @@
               </div>
 
               <!-- SVG Line chart -->
-              <svg
-                *ngIf="trendDataPoints.length > 0"
-                viewBox="0 0 500 150"
-                class="trend-svg"
-                preserveAspectRatio="none"
-              >
+              <svg *ngIf="trendDataPoints.length > 0" viewBox="0 0 500 150" class="trend-svg"
+                preserveAspectRatio="none">
                 <defs>
                   <!-- Gradient fill under chart line -->
                   <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
@@ -409,13 +312,8 @@
                 <path [attr.d]="chartFillPoints" fill="url(#chartGlow)"></path>
 
                 <!-- The line -->
-                <path
-                  [attr.d]="chartPoints"
-                  fill="none"
-                  stroke="#10b981"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                ></path>
+                <path [attr.d]="chartPoints" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round">
+                </path>
               </svg>
             </div>
 
@@ -424,7 +322,7 @@
                 <ng-container *ngIf="activeMetricDelta !== null">
                   <mat-icon>{{
                     isDeltaPositive(activeMetricDelta) ? 'arrow_upward' : 'arrow_downward'
-                  }}</mat-icon>
+                    }}</mat-icon>
                   <span>{{ formatDelta(activeMetricDelta) }}</span>
                 </ng-container>
                 <span *ngIf="activeMetricDelta === null" class="delta-null">N/A</span>
@@ -435,10 +333,7 @@
         <!-- /dashboard-grid -->
 
         <!-- Empty dashboard state (if both live and trend are missing/404) -->
-        <div
-          class="empty-dashboard-placeholder"
-          *ngIf="!loading && !liveData && trendDataPoints.length === 0"
-        >
+        <div class="empty-dashboard-placeholder" *ngIf="!loading && !liveData && trendDataPoints.length === 0">
           <mat-icon>analytics</mat-icon>
           <h3>No measurements available</h3>
           <p>This device has no telemetry or historical data for the selected period.</p>
@@ -450,49 +345,6 @@
           <span>Updated {{ formattedUpdateTime }}</span>
         </div>
 
-        <!-- Last Readings Section (Renamed from Thresholds) -->
-        <div class="last-readings-section">
-          <div class="section-title-row">
-            <h2>Last Readings</h2>
-            <mat-icon class="info-icon" title="Latest real-time device reading obtained via ACL"
-              >info</mat-icon
-            >
-          </div>
-
-          <div class="readings-grid">
-            <div class="reading-card">
-              <span class="reading-title">PM2.5</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ formatValue(lastReadings?.pm2_5) }}</span>
-                <span class="reading-unit">µg/m³</span>
-              </div>
-            </div>
-
-            <div class="reading-card">
-              <span class="reading-title">CO₂</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ formatValue(lastReadings?.co2) }}</span>
-                <span class="reading-unit">ppm</span>
-              </div>
-            </div>
-
-            <div class="reading-card">
-              <span class="reading-title">TEMP</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ formatValue(lastReadings?.temperature) }}</span>
-                <span class="reading-unit">°C</span>
-              </div>
-            </div>
-
-            <div class="reading-card">
-              <span class="reading-title">HUMIDITY</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ formatValue(lastReadings?.humidity) }}</span>
-                <span class="reading-unit">%</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- /analytics-container -->
     </main>
