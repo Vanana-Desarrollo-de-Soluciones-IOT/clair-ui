@@ -17,7 +17,11 @@ import { EvaluationContextFacadeImpl } from './evaluation/application/acl/evalua
 import { DEVICE_CONTEXT_FACADE } from './device/interfaces/acl/device-context-facade';
 import { DeviceContextFacadeImpl } from './device/application/acl/device-context-facade.impl';
 import { OVERVIEW_CONTEXT_FACADE } from './overview/interfaces/acl/overview-context-facade';
-import { OverviewContextFacadeImpl } from './overview/application/internal/acl/overview-context-facade.impl';
+import { OverviewContextFacadeImpl } from './overview/application/acl/overview-context-facade.impl';
+import { ANALYTICS_CONTEXT_FACADE } from './analytics/interfaces/acl/analytics-context-facade';
+import { AnalyticsContextFacadeImpl } from './analytics/application/acl/analytics-context-facade.impl';
+import { ALERTING_CONTEXT_FACADE } from './alerting/interfaces/acl/alerting-context-facade';
+import { AlertingContextFacadeImpl } from './alerting/application/acl/alerting-context-facade.impl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,6 +35,8 @@ export const appConfig: ApplicationConfig = {
     { provide: TELEMETRY_EVALUATION_GATEWAY, useClass: TelemetryEvaluationHttpGateway },
     { provide: EVALUATION_CONTEXT_FACADE, useClass: EvaluationContextFacadeImpl },
     { provide: DEVICE_CONTEXT_FACADE, useClass: DeviceContextFacadeImpl },
+    { provide: ANALYTICS_CONTEXT_FACADE, useClass: AnalyticsContextFacadeImpl },
+    { provide: ALERTING_CONTEXT_FACADE, useClass: AlertingContextFacadeImpl },
     { provide: OVERVIEW_CONTEXT_FACADE, useClass: OverviewContextFacadeImpl },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],

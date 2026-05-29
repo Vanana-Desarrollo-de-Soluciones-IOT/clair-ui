@@ -5,11 +5,27 @@
     <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
     <main class="content">
       <section class="overview-container">
-        <ng-container *ngIf="measurements$ | async as measurements; else emptyMeasurements">
+        <ng-container *ngIf="viewState$ | async as viewState">
+          <ng-container [ngSwitch]="viewState.status">
+            <section *ngSwitchCase="'loading'" class="overview-info-state">
+              <p>Loading overview...</p>
+            </section>
+
+            <section *ngSwitchCase="'error'" class="overview-info-state">
+              <p>Unable to load overview right now.</p>
+            </section>
+
+            <ng-container *ngSwitchCase="'empty'">
+              <ng-container *ngTemplateOutlet="emptyMeasurements"></ng-container>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              <ng-container *ngIf="viewState.measurements as measurements">
           <app-aqi-card
             [aqiValue]="measurements.aqi?.value ?? null"
             [aqiCategory]="measurements.aqi?.category ?? null"
             [updatedAt]="measurements.recordedAt"
+            [organizationCount]="measurements.organizations.length"
           ></app-aqi-card>
 
           <section class="overview-grid">
@@ -65,6 +81,9 @@
             ></app-organizations-card>
             <div class="side-panels"></div>
           </section>
+              </ng-container>
+            </ng-container>
+          </ng-container>
         </ng-container>
 
         <ng-template #emptyMeasurements>

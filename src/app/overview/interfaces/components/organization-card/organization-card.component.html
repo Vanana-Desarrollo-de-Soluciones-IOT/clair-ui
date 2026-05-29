@@ -13,6 +13,7 @@
       <div class="organization-meta">
         <h5>{{ getSpaceName(organization.spaceName) }}</h5>
         <span *ngIf="organization.organizationName">{{ organization.organizationName }}</span>
+        <span>{{ getAqiCategory(organization.aqiCategory) }}</span>
       </div>
     </article>
   </div>

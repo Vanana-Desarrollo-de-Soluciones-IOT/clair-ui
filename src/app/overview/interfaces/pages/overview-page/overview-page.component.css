@@ -95,6 +95,21 @@
   gap: 1rem;
 }
 
+.overview-info-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  border: 1px solid #262626;
+  border-radius: 16px;
+  background: #0f0f0f;
+  color: #d1d5db;
+}
+
+.overview-info-state p {
+  margin: 0;
+}
+
 @media (max-width: 1200px) {
   .overview-grid {
     grid-template-columns: 1fr;

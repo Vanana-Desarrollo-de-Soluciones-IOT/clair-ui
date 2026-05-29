@@ -5,6 +5,7 @@ export type OverviewOrganizationAqi = Readonly<{
   organizationName: string;
   spaceName: string;
   aqiValue: number | null;
+  aqiCategory: string | null;
 }>;
 
 

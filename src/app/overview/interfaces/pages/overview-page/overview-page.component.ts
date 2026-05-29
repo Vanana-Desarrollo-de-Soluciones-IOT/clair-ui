@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { catchError, map, Observable, of, startWith } from 'rxjs';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { AqiCardComponent } from '../../components/aqi-card/aqi-card.component';
@@ -9,6 +10,7 @@ import { AlertsCardComponent } from '../../components/alerts-card/alerts-card.co
 import {
   OVERVIEW_CONTEXT_FACADE,
   OverviewContextFacade,
+  OverviewMeasurements,
 } from '../../acl/overview-context-facade';
 
 @Component({
@@ -28,13 +30,25 @@ import {
 })
 export class OverviewPageComponent {
   isSidebarOpen = true;
-  readonly measurements$;
+  readonly viewState$: Observable<{
+    status: 'loading' | 'success' | 'empty' | 'error';
+    measurements: OverviewMeasurements | null;
+  }>;
 
   constructor(
     @Inject(OVERVIEW_CONTEXT_FACADE)
     private readonly overviewContextFacade: OverviewContextFacade,
   ) {
-    this.measurements$ = this.overviewContextFacade.getLatestOverviewMeasurements();
+    this.viewState$ = this.overviewContextFacade.getLatestOverviewMeasurements().pipe(
+      map((measurements) => {
+        if (!measurements) {
+          return { status: 'empty' as const, measurements: null };
+        }
+        return { status: 'success' as const, measurements };
+      }),
+      startWith({ status: 'loading' as const, measurements: null }),
+      catchError(() => of({ status: 'error' as const, measurements: null })),
+    );
   }
 
   toggleSidebar(): void {
