@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginPageComponent } from './iam/interfaces/pages/login-page/login-page.component';
 import { RegisterPageComponent } from './iam/interfaces/pages/register-page/register-page.component';
 import { ConfirmPageComponent } from './iam/interfaces/pages/confirm-page/confirm-page.component';
-import { OverviewPageComponent } from './iam/interfaces/pages/overview-page/overview-page.component';
+import { OverviewPageComponent } from './overview/interfaces/pages/overview-page/overview-page.component';
 import { SettingsPageComponent } from './iam/interfaces/pages/settings-page/settings-page.component';
 import { AuthCallbackPageComponent } from './iam/interfaces/pages/auth-callback-page/auth-callback-page.component';
 import { authGuard } from './iam/interfaces/guards/auth.guard';

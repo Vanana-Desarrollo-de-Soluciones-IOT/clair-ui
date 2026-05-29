@@ -1,0 +1,106 @@
+<div class="page-layout">
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
+
+  <div class="page-body">
+    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
+    <main class="content">
+      <section class="overview-container">
+        <ng-container *ngIf="measurements$ | async as measurements; else emptyMeasurements">
+          <app-aqi-card
+            [aqiValue]="measurements.aqi?.value ?? null"
+            [aqiCategory]="measurements.aqi?.category ?? null"
+            [updatedAt]="measurements.recordedAt"
+          ></app-aqi-card>
+
+          <section class="overview-grid">
+            <section class="pollutants-panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Pollutants</h3>
+                  <p>Updates every minute</p>
+                </div>
+                <div class="panel-tabs">
+                  <button class="tab active" type="button">Currently</button>
+                  <button class="tab" type="button">Daily Average</button>
+                </div>
+              </div>
+
+              <div class="pollutants-grid">
+                <app-pollutant-card
+                  label="PM2.5"
+                  [value]="measurements.pm2_5"
+                  unit="ug/m3"
+                  tone="warning"
+                ></app-pollutant-card>
+                <app-pollutant-card
+                  label="CO2"
+                  [value]="measurements.co2"
+                  unit="ppm"
+                  tone="success"
+                ></app-pollutant-card>
+                <app-pollutant-card
+                  label="TEMP"
+                  [value]="measurements.temperature"
+                  unit="°C"
+                  tone="info"
+                ></app-pollutant-card>
+                <app-pollutant-card
+                  label="HUMIDITY"
+                  [value]="measurements.humidity"
+                  unit="%"
+                  tone="success"
+                ></app-pollutant-card>
+              </div>
+            </section>
+
+            <div class="side-panels">
+              <app-alerts-card [alerts]="measurements.alerts"></app-alerts-card>
+            </div>
+          </section>
+
+          <section class="overview-grid">
+            <app-organizations-card
+              class="organizations-panel"
+              [organizations]="measurements.organizations"
+            ></app-organizations-card>
+            <div class="side-panels"></div>
+          </section>
+        </ng-container>
+
+        <ng-template #emptyMeasurements>
+          <app-aqi-card [aqiValue]="null" [aqiCategory]="null" [updatedAt]="null"></app-aqi-card>
+          <section class="overview-grid">
+            <section class="pollutants-panel">
+              <div class="panel-header">
+                <div>
+                  <h3>Pollutants</h3>
+                  <p>Updates every minute</p>
+                </div>
+                <div class="panel-tabs">
+                  <button class="tab active" type="button">Currently</button>
+                  <button class="tab" type="button">Daily Average</button>
+                </div>
+              </div>
+
+              <div class="pollutants-grid">
+                <app-pollutant-card label="PM2.5" [value]="null" unit="ug/m3" tone="warning"></app-pollutant-card>
+                <app-pollutant-card label="CO2" [value]="null" unit="ppm" tone="success"></app-pollutant-card>
+                <app-pollutant-card label="TEMP" [value]="null" unit="°C" tone="info"></app-pollutant-card>
+                <app-pollutant-card label="HUMIDITY" [value]="null" unit="%" tone="success"></app-pollutant-card>
+              </div>
+            </section>
+
+            <div class="side-panels">
+              <app-alerts-card [alerts]="[]"></app-alerts-card>
+            </div>
+          </section>
+
+          <section class="overview-grid">
+            <app-organizations-card class="organizations-panel" [organizations]="[]"></app-organizations-card>
+            <div class="side-panels"></div>
+          </section>
+        </ng-template>
+      </section>
+    </main>
+  </div>
+</div>
