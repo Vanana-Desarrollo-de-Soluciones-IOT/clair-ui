@@ -59,6 +59,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
   liveUnavailable = false;
+  liveUnavailableMessage = '';
 
   // Dropdown data
   organizations: FacadeOrganization[] = [];
@@ -218,6 +219,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     this.trendDataPoints = [];
     this.lastReadings = null;
     this.liveUnavailable = false;
+    this.liveUnavailableMessage = '';
     this.stopPolling();
 
     if (!this.selectedDeviceId) {
@@ -236,6 +238,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     this.liveUnavailable = false;
+    this.liveUnavailableMessage = '';
 
     // Format custom dates if active
     const startIso =
@@ -265,6 +268,16 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.liveData = null;
           if (err?.status === 404) {
             this.liveUnavailable = true;
+            const deviceName = this.devices.find((d) => d.id === this.selectedDeviceId)?.name || 'Device';
+            let message = err?.error?.message || 'Live data is not available right now.';
+            if (this.selectedDeviceId) {
+              if (message.includes('with ID ' + this.selectedDeviceId)) {
+                message = message.replace('with ID ' + this.selectedDeviceId, `"${deviceName}"`);
+              } else {
+                message = message.replace(this.selectedDeviceId, `"${deviceName}"`);
+              }
+            }
+            this.liveUnavailableMessage = message;
           }
           this.cdr.markForCheck();
         },

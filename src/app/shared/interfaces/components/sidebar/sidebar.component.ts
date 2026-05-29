@@ -46,7 +46,7 @@ export class SidebarComponent implements OnInit {
     @Inject(TOKEN_STORAGE_GATEWAY) private tokenStorage: TokenStorageGateway,
     private billingQueryService: BillingQueryServiceImpl,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.checkUserPlan();
@@ -84,7 +84,7 @@ export class SidebarComponent implements OnInit {
 
   readonly navItems: NavItem[] = [
     { label: 'Overview', component: 'overview', route: '/overview' },
-    { label: 'Analytics', component: 'air-quality', route: '/analytics' },
+    { label: 'Air Quality', component: 'air-quality', route: '/analytics' },
     { label: 'Alerts & Actions', component: 'alerts-actions', route: '/alerts' },
     { label: 'Reports', component: 'reports' },
     { label: 'Space & Devices', component: 'space-devices', route: '/space-devices' },
