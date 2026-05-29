@@ -51,3 +51,4 @@ export class AlertsCardComponent {
     return 'dot info';
   }
 }
+

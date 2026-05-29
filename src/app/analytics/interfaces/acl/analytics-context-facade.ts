@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AnalyticsOverviewSnapshot } from '../../domain/model/valueobjects/analytics-overview.value-object';
 
 export type AnalyticsContextDashboardMetrics = Readonly<{
   aqiValue: number;
@@ -15,6 +16,11 @@ export interface AnalyticsContextFacade {
   getLiveDashboardMetricsByDevice(
     deviceId: string,
   ): Observable<AnalyticsContextDashboardMetrics>;
+
+  getOverviewDashboard(
+    deviceLimitPerSpace?: number,
+    alertLimit?: number,
+  ): Observable<AnalyticsOverviewSnapshot>;
 }
 
 export const ANALYTICS_CONTEXT_FACADE = new InjectionToken<AnalyticsContextFacade>(

@@ -16,8 +16,6 @@ import { EVALUATION_CONTEXT_FACADE } from './evaluation/interfaces/acl/evaluatio
 import { EvaluationContextFacadeImpl } from './evaluation/application/acl/evaluation-context-facade.impl';
 import { DEVICE_CONTEXT_FACADE } from './device/interfaces/acl/device-context-facade';
 import { DeviceContextFacadeImpl } from './device/application/acl/device-context-facade.impl';
-import { OVERVIEW_CONTEXT_FACADE } from './overview/interfaces/acl/overview-context-facade';
-import { OverviewContextFacadeImpl } from './overview/application/acl/overview-context-facade.impl';
 import { ANALYTICS_CONTEXT_FACADE } from './analytics/interfaces/acl/analytics-context-facade';
 import { AnalyticsContextFacadeImpl } from './analytics/application/acl/analytics-context-facade.impl';
 import { ALERTING_CONTEXT_FACADE } from './alerting/interfaces/acl/alerting-context-facade';
@@ -37,7 +35,6 @@ export const appConfig: ApplicationConfig = {
     { provide: DEVICE_CONTEXT_FACADE, useClass: DeviceContextFacadeImpl },
     { provide: ANALYTICS_CONTEXT_FACADE, useClass: AnalyticsContextFacadeImpl },
     { provide: ALERTING_CONTEXT_FACADE, useClass: AlertingContextFacadeImpl },
-    { provide: OVERVIEW_CONTEXT_FACADE, useClass: OverviewContextFacadeImpl },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
 };

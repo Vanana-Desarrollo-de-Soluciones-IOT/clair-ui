@@ -26,10 +26,13 @@ export class PollutantCardComponent {
   }
 
   get displayDelta(): string {
-    return this.deltaLabel && this.deltaLabel.trim().length > 0 ? this.deltaLabel : '--';
+    return this.deltaLabel && this.deltaLabel.trim().length > 0
+      ? this.deltaLabel
+      : '--';
   }
 
   get dotClass(): string {
     return this.tone ? `dot ${this.tone}` : 'dot';
   }
 }
+

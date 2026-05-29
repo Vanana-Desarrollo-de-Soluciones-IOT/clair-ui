@@ -16,11 +16,15 @@ export class AqiCardComponent {
   @Input() maxAqiValue = 100;
 
   get displayAqiValue(): string | number {
-    return this.aqiValue === null || !Number.isFinite(this.aqiValue) ? '--' : Math.round(this.aqiValue);
+    return this.aqiValue === null || !Number.isFinite(this.aqiValue)
+      ? '--'
+      : Math.round(this.aqiValue);
   }
 
   get displayCategory(): string {
-    return this.aqiCategory && this.aqiCategory.trim().length > 0 ? this.aqiCategory : '--';
+    return this.aqiCategory && this.aqiCategory.trim().length > 0
+      ? this.aqiCategory
+      : '--';
   }
 
   get progressPercent(): number {
@@ -47,7 +51,10 @@ export class AqiCardComponent {
     if (Number.isNaN(parsed.getTime())) {
       return 'Updated --';
     }
-    const diffSeconds = Math.max(0, Math.floor((Date.now() - parsed.getTime()) / 1000));
+    const diffSeconds = Math.max(
+      0,
+      Math.floor((Date.now() - parsed.getTime()) / 1000),
+    );
     return `Updated ${diffSeconds} seconds ago`;
   }
 }

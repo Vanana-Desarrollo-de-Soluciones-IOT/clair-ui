@@ -37,3 +37,4 @@ export class OrganizationCardComponent {
     return category.replace(/_/g, ' ');
   }
 }
+

@@ -5,6 +5,7 @@ import { API_CONFIG } from '../../../../api.config';
 import { AnalyticsGateway } from './analytics.gateway';
 import { DashboardMetricsResource } from '../../../interfaces/rest/resources/dashboard-metrics.resource';
 import { TrendsResource } from '../../../interfaces/rest/resources/trends.resource';
+import { AnalyticsOverviewResource } from '../../../interfaces/rest/resources/analytics-overview.resource';
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsHttpGateway implements AnalyticsGateway {
@@ -38,5 +39,20 @@ export class AnalyticsHttpGateway implements AnalyticsGateway {
     if (endDate) params = params.set('endDate', endDate);
 
     return this.http.get<TrendsResource>(`${this.baseUrl}/devices/${deviceId}/trends`, { params });
+  }
+
+  getOverview(
+    deviceLimitPerSpace?: number,
+    alertLimit?: number,
+  ): Observable<AnalyticsOverviewResource> {
+    let params = new HttpParams();
+    if (Number.isFinite(deviceLimitPerSpace as number)) {
+      params = params.set('deviceLimitPerSpace', String(deviceLimitPerSpace));
+    }
+    if (Number.isFinite(alertLimit as number)) {
+      params = params.set('alertLimit', String(alertLimit));
+    }
+
+    return this.http.get<AnalyticsOverviewResource>(`${this.baseUrl}/overview`, { params });
   }
 }
