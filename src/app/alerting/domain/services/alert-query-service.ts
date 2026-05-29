@@ -1,4 +1,6 @@
 import { Observable } from 'rxjs';
+import { GetAlertDailySummaryQuery } from '../model/queries/get-alert-daily-summary.query';
+import { GetAlertsQuery } from '../model/queries/get-alerts.query';
 import { GetAlertsByDeviceQuery } from '../model/queries/get-alerts-by-device.query';
 import { GetAlertsBySpaceQuery } from '../model/queries/get-alerts-by-space.query';
 import { AlertId } from '../model/valueobjects/alert-id.value-object';
@@ -39,7 +41,9 @@ export type DailyAlertCount = Readonly<{
 }>;
 
 export interface AlertQueryService {
+  handleGetAlerts(query: GetAlertsQuery, status?: AlertStatus[]): Observable<AlertPage>;
   handleGetAlertsByDevice(query: GetAlertsByDeviceQuery, status?: AlertStatus[]): Observable<AlertPage>;
   handleGetAlertsBySpace(query: GetAlertsBySpaceQuery, status?: AlertStatus[]): Observable<AlertPage>;
+  handleGetDailySummary(query: GetAlertDailySummaryQuery): Observable<DailyAlertCount[]>;
   handleGetDailySummaryBySpace(spaceId: string, days: number): Observable<DailyAlertCount[]>;
 }
