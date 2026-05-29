@@ -5,6 +5,7 @@ export interface OrganizationAqiItem {
   organizationName?: string | null;
   spaceName: string | null;
   aqiValue: number | null;
+  aqiCategory?: string | null;
 }
 
 @Component({
@@ -29,5 +30,10 @@ export class OrganizationCardComponent {
 
   getSpaceName(name: string | null): string {
     return name && name.trim().length > 0 ? name : '--';
+  }
+
+  getAqiCategory(category: string | null | undefined): string {
+    if (!category || category.trim().length === 0) return '--';
+    return category.replace(/_/g, ' ');
   }
 }
