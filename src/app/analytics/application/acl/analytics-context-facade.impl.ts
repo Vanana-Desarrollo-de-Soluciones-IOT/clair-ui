@@ -6,10 +6,16 @@ import {
 } from '../../interfaces/acl/analytics-context-facade';
 import { AnalyticsQueryServiceImpl } from '../internal/queryservices/analytics-query-service.impl';
 import { createGetDashboardMetricsQuery } from '../../domain/model/queries/get-dashboard-metrics.query';
+import { AnalyticsOverviewQueryServiceImpl } from '../internal/queryservices/analytics-overview-query-service.impl';
+import { createGetAnalyticsOverviewQuery } from '../../domain/model/queries/get-analytics-overview.query';
+import { AnalyticsOverviewSnapshot } from '../../domain/model/valueobjects/analytics-overview.value-object';
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsContextFacadeImpl implements AnalyticsContextFacade {
-  constructor(private readonly analyticsQueryService: AnalyticsQueryServiceImpl) {}
+  constructor(
+    private readonly analyticsQueryService: AnalyticsQueryServiceImpl,
+    private readonly analyticsOverviewQueryService: AnalyticsOverviewQueryServiceImpl,
+  ) {}
 
   getLiveDashboardMetricsByDevice(
     deviceId: string,
@@ -26,5 +32,13 @@ export class AnalyticsContextFacadeImpl implements AnalyticsContextFacade {
         calculatedAt: metrics.calculatedAt,
       })),
     );
+  }
+
+  getOverviewDashboard(
+    deviceLimitPerSpace?: number,
+    alertLimit?: number,
+  ): Observable<AnalyticsOverviewSnapshot> {
+    const query = createGetAnalyticsOverviewQuery(deviceLimitPerSpace, alertLimit);
+    return this.analyticsOverviewQueryService.handleGetAnalyticsOverview(query);
   }
 }

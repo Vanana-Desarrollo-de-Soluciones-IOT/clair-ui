@@ -27,6 +27,21 @@ import { TrendPoint } from '../../../domain/model/valueobjects/trend-point.value
 import { LatestTelemetrySummary } from '../../../../evaluation/interfaces/acl/evaluation-context-facade';
 import { createGetDashboardMetricsQuery } from '../../../domain/model/queries/get-dashboard-metrics.query';
 import { createGetTrendsQuery } from '../../../domain/model/queries/get-trends.query';
+import {
+  getAqiColor,
+  getProgressOffset,
+  getPm25StatusColor,
+  getCo2StatusColor,
+  getTempStatusColor,
+  getHumidityStatusColor,
+  getActiveMetricDelta,
+  formatUpdateTime,
+} from '../../rest/transform/analytics-page.transform';
+
+// Reusable Components
+import { AqiGaugeCardComponent } from '../../components/aqi-gauge-card/aqi-gauge-card.component';
+import { MetricCardComponent } from '../../components/metric-card/metric-card.component';
+import { TrendChartCardComponent } from '../../components/trend-chart-card/trend-chart-card.component';
 
 @Component({
   selector: 'app-analytics-page',
@@ -44,6 +59,9 @@ import { createGetTrendsQuery } from '../../../domain/model/queries/get-trends.q
     MatDatepickerModule,
     SidebarComponent,
     HeaderComponent,
+    AqiGaugeCardComponent,
+    MetricCardComponent,
+    TrendChartCardComponent,
   ],
   templateUrl: './analytics-page.component.html',
   styleUrl: './analytics-page.component.css',
@@ -77,8 +95,8 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   lastReadings: LatestTelemetrySummary | null = null;
 
   // Controls
-  selectedPeriod = 'LIVE'; // Options: 'LIVE', 'Day', 'Week', 'Month', 'CUSTOM'
-  selectedMetric = 'aqiValue'; // Options: 'aqiValue', 'pm2_5', 'co2', 'temperature', 'humidity'
+  selectedPeriod = 'LIVE';
+  selectedMetric = 'aqiValue';
 
   // Custom Date range
   startDate: Date | null = null;
@@ -111,7 +129,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Load organizations
   private loadOrganizations(): void {
     this.loading = true;
     this.deviceAclService
@@ -129,7 +146,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Failed to load organizations', err);
           this.error = 'Failed to load organizations. Please try again.';
           this.loading = false;
           this.cdr.markForCheck();
@@ -137,17 +153,8 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Handler for Organization change
   onOrgChange(): void {
-    this.spaces = [];
-    this.devices = [];
-    this.selectedSpaceId = '';
-    this.selectedDeviceId = '';
-    this.liveData = null;
-    this.trendDataPoints = [];
-    this.lastReadings = null;
-    this.stopPolling();
-
+    this.resetSelections('ORG');
     if (!this.selectedOrgId) {
       this.cdr.markForCheck();
       return;
@@ -168,7 +175,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Failed to load spaces', err);
           this.error = 'Failed to load spaces.';
           this.loading = false;
           this.cdr.markForCheck();
@@ -176,15 +182,8 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Handler for Space change
   onSpaceChange(): void {
-    this.devices = [];
-    this.selectedDeviceId = '';
-    this.liveData = null;
-    this.trendDataPoints = [];
-    this.lastReadings = null;
-    this.stopPolling();
-
+    this.resetSelections('SPACE');
     if (!this.selectedSpaceId) {
       this.cdr.markForCheck();
       return;
@@ -205,7 +204,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Failed to load devices', err);
           this.error = 'Failed to load devices.';
           this.loading = false;
           this.cdr.markForCheck();
@@ -213,15 +211,8 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Handler for Device change
   onDeviceChange(): void {
-    this.liveData = null;
-    this.trendDataPoints = [];
-    this.lastReadings = null;
-    this.liveUnavailable = false;
-    this.liveUnavailableMessage = '';
-    this.stopPolling();
-
+    this.resetSelections('DEVICE');
     if (!this.selectedDeviceId) {
       this.cdr.markForCheck();
       return;
@@ -231,29 +222,36 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     this.startPolling();
   }
 
-  // Fetch telemetry, metrics and trend data
+  private resetSelections(level: 'ORG' | 'SPACE' | 'DEVICE'): void {
+    if (level === 'ORG') {
+      this.spaces = [];
+      this.selectedSpaceId = '';
+    }
+    if (level === 'ORG' || level === 'SPACE') {
+      this.devices = [];
+      this.selectedDeviceId = '';
+    }
+    this.liveData = null;
+    this.trendDataPoints = [];
+    this.lastReadings = null;
+    this.liveUnavailable = false;
+    this.liveUnavailableMessage = '';
+    this.stopPolling();
+  }
+
   fetchData(): void {
     if (!this.selectedDeviceId) return;
 
     this.loading = true;
     this.error = null;
     this.liveUnavailable = false;
-    this.liveUnavailableMessage = '';
 
-    // Format custom dates if active
-    const startIso =
-      this.selectedPeriod === 'CUSTOM' && this.startDate ? this.startDate.toISOString() : undefined;
-    const endIso =
-      this.selectedPeriod === 'CUSTOM' && this.endDate ? this.endDate.toISOString() : undefined;
+    const startIso = this.selectedPeriod === 'CUSTOM' && this.startDate ? this.startDate.toISOString() : undefined;
+    const endIso = this.selectedPeriod === 'CUSTOM' && this.endDate ? this.endDate.toISOString() : undefined;
     const apiPeriod = this.selectedPeriod === 'CUSTOM' ? undefined : this.selectedPeriod;
 
-    // 1. Fetch dashboard metric summary (e.g. averages and deltas)
-    const metricsQuery = createGetDashboardMetricsQuery(
-      this.selectedDeviceId,
-      apiPeriod,
-      startIso,
-      endIso,
-    );
+    // Metrics
+    const metricsQuery = createGetDashboardMetricsQuery(this.selectedDeviceId, apiPeriod, startIso, endIso);
     this.analyticsQueryService
       .handleGetDashboardMetrics(metricsQuery)
       .pipe(takeUntil(this.destroy$))
@@ -264,38 +262,19 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          console.warn('Dashboard metrics returned empty or failed:', err);
           this.liveData = null;
           if (err?.status === 404) {
             this.liveUnavailable = true;
             const deviceName = this.devices.find((d) => d.id === this.selectedDeviceId)?.name || 'Device';
-            let message = err?.error?.message || 'Live data is not available right now.';
-            if (this.selectedDeviceId) {
-              if (message.includes('with ID ' + this.selectedDeviceId)) {
-                message = message.replace('with ID ' + this.selectedDeviceId, `"${deviceName}"`);
-              } else {
-                message = message.replace(this.selectedDeviceId, `"${deviceName}"`);
-              }
-            }
-            this.liveUnavailableMessage = message;
+            this.liveUnavailableMessage = (err?.error?.message || 'Live data is not available right now.').replace(this.selectedDeviceId, `"${deviceName}"`);
           }
           this.cdr.markForCheck();
         },
       });
 
-    // 2. Fetch trend points for charts
-    const apiTrendPeriod =
-      this.selectedPeriod === 'LIVE'
-        ? 'DAY'
-        : this.selectedPeriod === 'CUSTOM'
-          ? undefined
-          : this.selectedPeriod.toUpperCase();
-    const trendsQuery = createGetTrendsQuery(
-      this.selectedDeviceId,
-      apiTrendPeriod,
-      startIso,
-      endIso,
-    );
+    // Trends
+    const apiTrendPeriod = this.selectedPeriod === 'LIVE' ? 'DAY' : this.selectedPeriod === 'CUSTOM' ? undefined : this.selectedPeriod.toUpperCase();
+    const trendsQuery = createGetTrendsQuery(this.selectedDeviceId, apiTrendPeriod, startIso, endIso);
     this.analyticsQueryService
       .handleGetTrends(trendsQuery)
       .pipe(takeUntil(this.destroy$))
@@ -305,15 +284,14 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.cdr.markForCheck();
         },
-        error: (err) => {
-          console.warn('Trend points returned empty or failed:', err);
+        error: () => {
           this.trendDataPoints = [];
           this.loading = false;
           this.cdr.markForCheck();
         },
       });
 
-    // 3. Fetch latest raw telemetry for "Last Readings" section via ACL
+    // Latest Readings
     this.telemetryAclService
       .fetchLatestTelemetryByDevice(this.selectedDeviceId)
       .pipe(takeUntil(this.destroy$))
@@ -322,33 +300,25 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
           this.lastReadings = telemetry;
           this.cdr.markForCheck();
         },
-        error: (err) => {
-          console.error('Failed to load last readings via ACL', err);
+        error: () => {
           this.lastReadings = null;
           this.cdr.markForCheck();
         },
       });
   }
 
-  // Setup auto-refresh polling
   private startPolling(): void {
     this.stopPolling();
-    // Poll every 30 seconds
     this.refreshSubscription = interval(30000)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.fetchData();
-      });
+      .subscribe(() => this.fetchData());
   }
 
   private stopPolling(): void {
-    if (this.refreshSubscription) {
-      this.refreshSubscription.unsubscribe();
-      this.refreshSubscription = undefined;
-    }
+    this.refreshSubscription?.unsubscribe();
+    this.refreshSubscription = undefined;
   }
 
-  // Polish: live counter tracker showing "Updated X seconds ago"
   private startSecondsCounter(): void {
     this.secondsCounterSubscription = interval(1000).subscribe(() => {
       this.secondsSinceUpdate++;
@@ -356,7 +326,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Handler for period buttons
   selectPeriod(period: string): void {
     this.selectedPeriod = period;
     this.startDate = null;
@@ -365,7 +334,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     this.startPolling();
   }
 
-  // Handlers for date selection from datepicker
   onStartDateChange(event: any): void {
     this.startDate = event.value;
   }
@@ -379,13 +347,12 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Handler for clicking KPI cards
   selectMetric(metric: string): void {
     this.selectedMetric = metric;
     this.cdr.markForCheck();
   }
 
-  // Getters for displaying data safely with fallbacks
+  // Getters using transformers
   get aqiValue(): number | string {
     return this.liveData?.aqi.value ?? '--';
   }
@@ -395,169 +362,26 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   }
 
   get formattedUpdateTime(): string {
-    if (this.secondsSinceUpdate < 5) return 'just now';
-    return `${this.secondsSinceUpdate} seconds ago`;
+    return formatUpdateTime(this.secondsSinceUpdate);
   }
 
-  // EPA AQI indicator color
-  get aqiColor(): string {
-    const val = this.liveData?.aqi.value;
-    if (val === undefined || val === null) return '#3a3a3c'; // Gray fallback
-    if (val <= 50) return '#10b981'; // Green
-    if (val <= 100) return '#f59e0b'; // Yellow
-    if (val <= 150) return '#f97316'; // Orange
-    return '#ef4444'; // Red
-  }
-
-  // Progress SVG parameters
-  get progressOffset(): number {
-    const val = this.liveData?.aqi.value;
-    if (val === undefined || val === null) return 251.2; // Full offset (empty circle)
-    const maxAqi = 150; // Map max AQI range to 150 for visible arc scaling
-    const percent = Math.min(Math.max(val / maxAqi, 0), 1);
-    const circumference = 251.2;
-    return circumference * (1 - percent);
-  }
-
-  // Dynamic indicator dot colors for KPI cards
   get pm25StatusColor(): string {
-    const val = this.liveData?.pm2_5.value;
-    if (val === undefined || val === null) return '#3a3a3c';
-    if (val <= 25) return '#10b981';
-    if (val <= 60) return '#f59e0b';
-    return '#ef4444';
+    return getPm25StatusColor(this.liveData?.pm2_5.value);
   }
 
   get co2StatusColor(): string {
-    const val = this.liveData?.co2.value;
-    if (val === undefined || val === null) return '#3a3a3c';
-    if (val <= 700) return '#10b981';
-    if (val <= 1000) return '#f59e0b';
-    return '#ef4444';
+    return getCo2StatusColor(this.liveData?.co2.value);
   }
 
   get tempStatusColor(): string {
-    const val = this.liveData?.temperature.value;
-    if (val === undefined || val === null) return '#3a3a3c';
-    if (val <= 26) return '#10b981';
-    return '#ef4444';
+    return getTempStatusColor(this.liveData?.temperature.value);
   }
 
   get humidityStatusColor(): string {
-    const val = this.liveData?.humidity.value;
-    if (val === undefined || val === null) return '#3a3a3c';
-    if (val <= 60) return '#10b981';
-    if (val <= 85) return '#f59e0b';
-    return '#ef4444';
+    return getHumidityStatusColor(this.liveData?.humidity.value);
   }
 
-  // SVG Chart Computations
-  get chartPoints(): string {
-    if (this.trendDataPoints.length === 0) return '';
-
-    const width = 500;
-    const height = 150;
-    const padding = 20;
-
-    const values = this.trendDataPoints.map((p) => this.getMetricValue(p, this.selectedMetric));
-    const minVal = Math.min(...values);
-    const maxVal = Math.max(...values);
-    const valRange = maxVal - minVal || 1;
-
-    const points = this.trendDataPoints.map((p, index) => {
-      const x = padding + (index / (this.trendDataPoints.length - 1)) * (width - 2 * padding);
-      const val = this.getMetricValue(p, this.selectedMetric);
-      const y = height - padding - ((val - minVal) / valRange) * (height - 2 * padding);
-      return { x, y };
-    });
-
-    if (points.length === 1) {
-      return `M ${points[0].x} ${points[0].y} L ${width - padding} ${points[0].y}`;
-    }
-
-    // Make smooth bezier curve
-    let d = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const curr = points[i];
-      const next = points[i + 1];
-      const xc = (curr.x + next.x) / 2;
-      const yc = (curr.y + next.y) / 2;
-      d += ` Q ${curr.x} ${curr.y}, ${xc} ${yc}`;
-    }
-    const last = points[points.length - 1];
-    d += ` L ${last.x} ${last.y}`;
-
-    return d;
-  }
-
-  get chartFillPoints(): string {
-    const linePath = this.chartPoints;
-    if (!linePath || this.trendDataPoints.length === 0) return '';
-
-    const width = 500;
-    const height = 150;
-    const padding = 20;
-    const points = this.trendDataPoints.map((p, index) => {
-      const x = padding + (index / (this.trendDataPoints.length - 1)) * (width - 2 * padding);
-      return x;
-    });
-
-    const firstX = points[0];
-    const lastX = points[points.length - 1] ?? width - padding;
-
-    return `${linePath} L ${lastX} ${height - padding} L ${firstX} ${height - padding} Z`;
-  }
-
-  // Get dynamic metric value from TrendPoint
-  getMetricValue(point: TrendPoint, metric: string): number {
-    switch (metric) {
-      case 'aqiValue':
-        return point.aqiValue;
-      case 'co2':
-        return point.co2;
-      case 'pm2_5':
-        return point.pm2_5;
-      case 'temperature':
-        return point.temperature;
-      case 'humidity':
-        return point.humidity;
-      default:
-        return point.aqiValue;
-    }
-  }
-
-  // Delta trend formatting supporting null values
   get activeMetricDelta(): number | null {
-    if (!this.liveData) return null;
-    switch (this.selectedMetric) {
-      case 'aqiValue':
-        return this.liveData.pm2_5.deltaPercentage; // Standard delta approximation for AQI
-      case 'co2':
-        return this.liveData.co2.deltaPercentage;
-      case 'pm2_5':
-        return this.liveData.pm2_5.deltaPercentage;
-      case 'temperature':
-        return this.liveData.temperature.deltaPercentage;
-      case 'humidity':
-        return this.liveData.humidity.deltaPercentage;
-      default:
-        return null;
-    }
-  }
-
-  isDeltaPositive(delta: number | null | undefined): boolean {
-    if (delta === null || delta === undefined) return false;
-    return delta >= 0;
-  }
-
-  formatDelta(delta: number | null | undefined): string {
-    if (delta === null || delta === undefined) return 'N/A';
-    const absVal = Math.abs(delta).toFixed(1);
-    return `${absVal}%`;
-  }
-
-  formatValue(val: number | null | undefined): string {
-    if (val === null || val === undefined) return '--';
-    return Number(val).toFixed(2);
+    return getActiveMetricDelta(this.liveData, this.selectedMetric);
   }
 }

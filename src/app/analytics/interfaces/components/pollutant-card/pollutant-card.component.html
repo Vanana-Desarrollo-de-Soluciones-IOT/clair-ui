@@ -1,0 +1,16 @@
+<article class="pollutant-card">
+  <div class="pollutant-header">
+    <span>{{ label }}</span>
+    <span [class]="dotClass"></span>
+  </div>
+  <div class="pollutant-value">
+    <strong>{{ displayValue }}</strong>
+    <span *ngIf="displayUnit">{{ displayUnit }}</span>
+  </div>
+  <div class="pollutant-delta">
+    <span [class]="deltaClass">
+      <mat-icon class="delta-icon" *ngIf="deltaIcon">{{ deltaIcon }}</mat-icon>
+      {{ displayDelta }}
+    </span>
+  </div>
+</article>

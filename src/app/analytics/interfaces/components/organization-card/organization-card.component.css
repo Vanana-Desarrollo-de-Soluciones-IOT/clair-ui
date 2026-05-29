@@ -1,0 +1,145 @@
+.organizations-card {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.organizations-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.organizations-title h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-family: var(--app-font-headline);
+}
+
+.organizations-action {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.organizations-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.organization-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #101010;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  min-width: 200px;
+}
+
+.organization-aqi {
+  min-width: 44px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.organization-aqi.good {
+  background: #0f1f1a;
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.organization-aqi.moderate {
+  background: #1f1a0f;
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.organization-aqi.sensitive {
+  background: #24160b;
+  border-color: #fb923c;
+  color: #fb923c;
+}
+
+.organization-aqi.unhealthy {
+  background: #2a0f12;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.organization-aqi.very-unhealthy {
+  background: #1b102a;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.organization-aqi.hazardous {
+  background: #2a0b17;
+  border-color: #be123c;
+  color: #be123c;
+}
+
+.organization-aqi.neutral {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.organization-meta h5 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.organization-meta span {
+  font-size: 0.7rem;
+  color: #6b7280;
+  display: block;
+  line-height: 1.2;
+}
+
+.organization-owner {
+  margin-top: 0.1rem;
+}
+
+.organization-status {
+  margin-top: 0.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.organizations-empty {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .organizations-card {
+    padding: 1.5rem;
+  }
+
+  .organization-item {
+    width: 100%;
+  }
+}
