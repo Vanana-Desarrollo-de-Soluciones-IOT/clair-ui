@@ -5,6 +5,7 @@ import { HeaderComponent } from '../../../../shared/interfaces/components/header
 import { AqiCardComponent } from '../../components/aqi-card/aqi-card.component';
 import { OrganizationCardComponent } from '../../components/organization-card/organization-card.component';
 import { PollutantCardComponent } from '../../components/pollutant-card/pollutant-card.component';
+import { AlertsCardComponent } from '../../components/alerts-card/alerts-card.component';
 import {
   OVERVIEW_CONTEXT_FACADE,
   OverviewContextFacade,
@@ -20,6 +21,7 @@ import {
     AqiCardComponent,
     OrganizationCardComponent,
     PollutantCardComponent,
+    AlertsCardComponent,
   ],
   templateUrl: './overview-page.component.html',
   styleUrl: './overview-page.component.css',

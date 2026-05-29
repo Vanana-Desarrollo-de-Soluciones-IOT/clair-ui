@@ -22,7 +22,7 @@ export class PollutantCardComponent {
   }
 
   get displayUnit(): string {
-    return this.unit.trim() || '';
+    return this.unit || '';
   }
 
   get displayDelta(): string {

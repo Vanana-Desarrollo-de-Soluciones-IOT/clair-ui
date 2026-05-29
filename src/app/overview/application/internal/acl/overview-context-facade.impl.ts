@@ -11,9 +11,16 @@ import {
 import { AnalyticsQueryServiceImpl } from '../../../../analytics/application/internal/queryservices/analytics-query-service.impl';
 import { createGetDashboardMetricsQuery } from '../../../../analytics/domain/model/queries/get-dashboard-metrics.query';
 import {
+  AlertQueryServiceImpl,
+} from '../../../../alerting/application/internal/queryservices/alert-query-service.impl';
+import { createGetAlertsByDeviceQuery } from '../../../../alerting/domain/model/queries/get-alerts-by-device.query';
+import { AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED } from '../../../../alerting/domain/model/valueobjects/alert-status.value-object';
+import { SpaceDevicesNavigationStateService } from '../../../../device/interfaces/pages/space-devices-page/space-devices-navigation-state.service';
+import {
   OverviewContextFacade,
   OverviewMeasurements,
   OverviewOrganizationAqi,
+  OverviewAlertItem,
 } from '../../../interfaces/acl/overview-context-facade';
 
 @Injectable({ providedIn: 'root' })
@@ -24,22 +31,26 @@ export class OverviewContextFacadeImpl implements OverviewContextFacade {
     @Inject(EVALUATION_CONTEXT_FACADE)
     private readonly evaluationContextFacade: EvaluationContextFacade,
     private readonly analyticsQueryService: AnalyticsQueryServiceImpl,
+    private readonly alertQueryService: AlertQueryServiceImpl,
+    private readonly navigationState: SpaceDevicesNavigationStateService,
   ) {}
 
   getLatestOverviewMeasurements(): Observable<OverviewMeasurements | null> {
     return this.deviceContextFacade.getOrganizations().pipe(
       switchMap((orgs) => {
-        if (!orgs?.length) return of(null);
-        const primaryOrgId = orgs[0].id;
+        const hasOrganizations = !!orgs?.length;
+        const primaryOrgId = hasOrganizations ? orgs[0].id : null;
         return forkJoin({
-          core: this.loadCoreMeasurements(primaryOrgId),
-          organizations: this.loadOrganizationsAqi(orgs),
+          core: primaryOrgId ? this.loadCoreMeasurements(primaryOrgId) : of(null),
+          organizations: hasOrganizations ? this.loadOrganizationsAqi(orgs) : of([]),
+          alerts: this.loadActiveDeviceAlerts(),
         });
       }),
       map((result): OverviewMeasurements | null => {
         if (!result) return null;
         const core = result.core;
         const organizations = result.organizations ?? [];
+        const alerts = result.alerts ?? [];
 
         if (!core) {
           return {
@@ -50,12 +61,14 @@ export class OverviewContextFacadeImpl implements OverviewContextFacade {
             pm2_5: null,
             recordedAt: null,
             organizations,
+            alerts,
           };
         }
 
         return {
           ...core,
           organizations,
+          alerts,
         };
       }),
       catchError((error) => {
@@ -65,7 +78,9 @@ export class OverviewContextFacadeImpl implements OverviewContextFacade {
     );
   }
 
-  private loadCoreMeasurements(orgId: string): Observable<Omit<OverviewMeasurements, 'organizations'> | null> {
+  private loadCoreMeasurements(
+    orgId: string,
+  ): Observable<Omit<OverviewMeasurements, 'organizations' | 'alerts'> | null> {
     return this.deviceContextFacade.getSpacesByOrganization(orgId).pipe(
       switchMap((spaces) => {
         const spaceId = spaces?.[0]?.id;
@@ -161,5 +176,29 @@ export class OverviewContextFacadeImpl implements OverviewContextFacade {
     return orgRequests.length
       ? forkJoin(orgRequests).pipe(map((orgResults) => orgResults.flat()))
       : of([]);
+  }
+
+  private loadActiveDeviceAlerts(): Observable<OverviewAlertItem[]> {
+    const selection = this.navigationState.readSelectionFromLocalStorage();
+    const deviceId = selection?.deviceId ?? null;
+    if (!deviceId) return of([]);
+
+    const query = createGetAlertsByDeviceQuery(deviceId, 0, 5);
+    return this.alertQueryService
+      .handleGetAlertsByDevice(query, [AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED])
+      .pipe(
+        map((page) =>
+          page.content.map((alert) => ({
+            id: alert.id.value,
+            message: alert.message,
+            severity: alert.severity,
+            status: alert.status,
+            deviceName: alert.deviceName,
+            spaceName: alert.spaceName,
+            occurredAt: alert.occurredAt,
+          })),
+        ),
+        catchError(() => of([])),
+      );
   }
 }

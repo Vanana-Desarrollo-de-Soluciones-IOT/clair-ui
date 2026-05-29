@@ -23,6 +23,19 @@
   gap: 2rem;
 }
 
+.overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.side-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .pollutants-panel {
   display: flex;
   flex-direction: column;
@@ -83,6 +96,9 @@
 }
 
 @media (max-width: 1200px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 1024px) {

@@ -7,6 +7,17 @@ export type OverviewOrganizationAqi = Readonly<{
   aqiValue: number | null;
 }>;
 
+
+export type OverviewAlertItem = Readonly<{
+  id: string;
+  message: string;
+  severity: string;
+  status: string;
+  deviceName: string | null;
+  spaceName: string | null;
+  occurredAt: string;
+}>;
+
 export type OverviewMeasurements = Readonly<{
   aqi: {
     value: number;
@@ -18,6 +29,7 @@ export type OverviewMeasurements = Readonly<{
   pm2_5: number | null;
   recordedAt: string | null;
   organizations: OverviewOrganizationAqi[];
+  alerts: OverviewAlertItem[];
 }>;
 
 export interface OverviewContextFacade {
