@@ -34,8 +34,49 @@
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.status-pill.good {
   background: #d1fae5;
+  border-color: #10b981;
   color: #047857;
+}
+
+.status-pill.moderate {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.status-pill.sensitive {
+  background: #ffedd5;
+  border-color: #fb923c;
+  color: #9a3412;
+}
+
+.status-pill.unhealthy {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.status-pill.very-unhealthy {
+  background: #ede9fe;
+  border-color: #8b5cf6;
+  color: #5b21b6;
+}
+
+.status-pill.hazardous {
+  background: #ffe4e6;
+  border-color: #be123c;
+  color: #9f1239;
+}
+
+.status-pill.neutral {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
 }
 
 .aqi-score {
@@ -54,8 +95,16 @@
 
 .aqi-progress-bar {
   height: 100%;
-  background: #10b981;
+  background: #6b7280;
 }
+
+.aqi-progress-bar.good { background: #10b981; }
+.aqi-progress-bar.moderate { background: #f59e0b; }
+.aqi-progress-bar.sensitive { background: #fb923c; }
+.aqi-progress-bar.unhealthy { background: #ef4444; }
+.aqi-progress-bar.very-unhealthy { background: #8b5cf6; }
+.aqi-progress-bar.hazardous { background: #be123c; }
+.aqi-progress-bar.neutral { background: #6b7280; }
 
 .aqi-footer {
   display: flex;
@@ -96,4 +145,3 @@
     align-items: flex-start;
   }
 }
-

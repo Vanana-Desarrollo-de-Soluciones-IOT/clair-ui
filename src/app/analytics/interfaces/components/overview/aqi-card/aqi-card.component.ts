@@ -15,6 +15,27 @@ export class AqiCardComponent {
   @Input() organizationCount: number | null = null;
   @Input() maxAqiValue = 100;
 
+  private normalizeCategory(raw: string): string {
+    return raw
+      .trim()
+      .toUpperCase()
+      .replace(/[\s-]+/g, '_')
+      .replace(/_+/g, '_');
+  }
+
+  private getCategoryKey(): string | null {
+    const raw = (this.aqiCategory || '').trim();
+    if (raw) return this.normalizeCategory(raw);
+    if (this.aqiValue === null || !Number.isFinite(this.aqiValue)) return null;
+    const value = Math.round(this.aqiValue);
+    if (value <= 50) return 'GOOD';
+    if (value <= 100) return 'MODERATE';
+    if (value <= 150) return 'UNHEALTHY_FOR_SENSITIVE';
+    if (value <= 200) return 'UNHEALTHY';
+    if (value <= 300) return 'VERY_UNHEALTHY';
+    return 'HAZARDOUS';
+  }
+
   get displayAqiValue(): string | number {
     return this.aqiValue === null || !Number.isFinite(this.aqiValue)
       ? '--'
@@ -22,9 +43,22 @@ export class AqiCardComponent {
   }
 
   get displayCategory(): string {
-    return this.aqiCategory && this.aqiCategory.trim().length > 0
-      ? this.aqiCategory
-      : '--';
+    const key = this.getCategoryKey();
+    if (!key) return '--';
+    return key.replace(/_/g, ' ');
+  }
+
+  get toneClass(): string {
+    const key = this.getCategoryKey();
+    if (!key) return 'neutral';
+    if (key === 'GOOD') return 'good';
+    if (key === 'MODERATE') return 'moderate';
+    if (key === 'UNHEALTHY_FOR_SENSITIVE') return 'sensitive';
+    if (key === 'UNHEALTHY_FOR_SENSITIVE_GROUPS') return 'sensitive';
+    if (key === 'UNHEALTHY') return 'unhealthy';
+    if (key === 'VERY_UNHEALTHY') return 'very-unhealthy';
+    if (key === 'HAZARDOUS') return 'hazardous';
+    return 'neutral';
   }
 
   get progressPercent(): number {
@@ -58,4 +92,3 @@ export class AqiCardComponent {
     return `Updated ${diffSeconds} seconds ago`;
   }
 }
-

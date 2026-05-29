@@ -2,12 +2,12 @@
   <div class="aqi-header">
     <div class="aqi-title-row">
       <h2>Air Quality Index</h2>
-      <span class="status-pill">{{ displayCategory }}</span>
+      <span class="status-pill" [ngClass]="toneClass">{{ displayCategory }}</span>
     </div>
     <span class="aqi-score">{{ displayAqiValue }}</span>
   </div>
   <div class="aqi-progress">
-    <div class="aqi-progress-bar" [style.width.%]="progressPercent"></div>
+    <div class="aqi-progress-bar" [ngClass]="toneClass" [style.width.%]="progressPercent"></div>
   </div>
   <div class="aqi-footer">
     <div class="aqi-meta">
@@ -16,4 +16,3 @@
       </div>
   </div>
 </section>
-

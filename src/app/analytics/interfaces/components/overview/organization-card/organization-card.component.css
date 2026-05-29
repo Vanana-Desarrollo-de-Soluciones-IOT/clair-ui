@@ -56,12 +56,54 @@
   min-width: 44px;
   padding: 0.3rem 0.6rem;
   border-radius: 10px;
-  background: #0f1f1a;
-  border: 1px solid #10b981;
-  color: #10b981;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #e5e7eb;
   font-size: 0.85rem;
   font-weight: 700;
   text-align: center;
+}
+
+.organization-aqi.good {
+  background: #0f1f1a;
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.organization-aqi.moderate {
+  background: #1f1a0f;
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.organization-aqi.sensitive {
+  background: #24160b;
+  border-color: #fb923c;
+  color: #fb923c;
+}
+
+.organization-aqi.unhealthy {
+  background: #2a0f12;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.organization-aqi.very-unhealthy {
+  background: #1b102a;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.organization-aqi.hazardous {
+  background: #2a0b17;
+  border-color: #be123c;
+  color: #be123c;
+}
+
+.organization-aqi.neutral {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
 }
 
 .organization-meta h5 {
@@ -73,6 +115,18 @@
 .organization-meta span {
   font-size: 0.7rem;
   color: #6b7280;
+  display: block;
+  line-height: 1.2;
+}
+
+.organization-owner {
+  margin-top: 0.1rem;
+}
+
+.organization-status {
+  margin-top: 0.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .organizations-empty {
@@ -89,4 +143,3 @@
     width: 100%;
   }
 }
-

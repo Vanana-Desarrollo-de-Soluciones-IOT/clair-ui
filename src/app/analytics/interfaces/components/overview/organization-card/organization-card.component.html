@@ -7,13 +7,13 @@
 
   <div class="organizations-grid" *ngIf="hasOrganizations; else emptyState">
     <article class="organization-item" *ngFor="let organization of organizations">
-      <div class="organization-aqi">
+      <div class="organization-aqi" [ngClass]="getAqiToneClass(organization.aqiValue, organization.aqiCategory)">
         {{ getAqiValue(organization.aqiValue) }}
       </div>
       <div class="organization-meta">
         <h5>{{ getSpaceName(organization.spaceName) }}</h5>
-        <span *ngIf="organization.organizationName">{{ organization.organizationName }}</span>
-        <span>{{ getAqiCategory(organization.aqiCategory) }}</span>
+        <span class="organization-owner" *ngIf="organization.organizationName">{{ organization.organizationName }}</span>
+        <span class="organization-status">{{ getAqiCategory(organization.aqiCategory) }}</span>
       </div>
     </article>
   </div>
@@ -22,4 +22,3 @@
     <div class="organizations-empty">{{ emptyLabel }}</div>
   </ng-template>
 </section>
-
