@@ -8,7 +8,9 @@
     <span *ngIf="displayUnit">{{ displayUnit }}</span>
   </div>
   <div class="pollutant-delta">
-    {{ displayDelta }}
+    <span [class]="deltaClass">
+      <span class="delta-arrow" *ngIf="deltaArrow">{{ deltaArrow }}</span>
+      {{ displayDelta }}
+    </span>
   </div>
 </article>
-

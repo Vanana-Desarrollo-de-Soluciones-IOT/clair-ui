@@ -59,6 +59,13 @@ export class OverviewPageComponent {
     this.isSidebarOpen = false;
   }
 
+  private formatDelta(delta: number | null | undefined): string | null {
+    if (delta === null || delta === undefined || !Number.isFinite(delta)) return null;
+    const rounded = Math.round(delta * 10) / 10;
+    const sign = rounded > 0 ? '+' : '';
+    return `${sign}${rounded}%`;
+  }
+
   private toOverviewMeasurements(snapshot: AnalyticsOverviewSnapshot | null): OverviewMeasurements | null {
     if (!snapshot) return null;
 
@@ -91,6 +98,10 @@ export class OverviewPageComponent {
       temperature: snapshot.core.averageTemperature ?? null,
       humidity: snapshot.core.averageHumidity ?? null,
       pm2_5: snapshot.core.averagePm2_5 ?? null,
+      co2DeltaLabel: this.formatDelta(snapshot.core.co2DeltaPercentage),
+      pm2_5DeltaLabel: this.formatDelta(snapshot.core.pm2_5DeltaPercentage),
+      temperatureDeltaLabel: this.formatDelta(snapshot.core.temperatureDeltaPercentage),
+      humidityDeltaLabel: this.formatDelta(snapshot.core.humidityDeltaPercentage),
       recordedAt: snapshot.core.recordedAt ?? snapshot.updatedAt ?? null,
       organizations,
       alerts,
@@ -107,6 +118,10 @@ type OverviewMeasurements = Readonly<{
   temperature: number | null;
   humidity: number | null;
   pm2_5: number | null;
+  co2DeltaLabel: string | null;
+  pm2_5DeltaLabel: string | null;
+  temperatureDeltaLabel: string | null;
+  humidityDeltaLabel: string | null;
   recordedAt: string | null;
   organizations: OrganizationAqiItem[];
   alerts: AlertsCardItem[];

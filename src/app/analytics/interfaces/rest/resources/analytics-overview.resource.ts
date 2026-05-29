@@ -12,6 +12,10 @@ export type AnalyticsOverviewCoreMetricsResource = Readonly<{
   averagePm2_5: number | null;
   averageTemperature: number | null;
   averageHumidity: number | null;
+  co2DeltaPercentage: number | null;
+  pm2_5DeltaPercentage: number | null;
+  temperatureDeltaPercentage: number | null;
+  humidityDeltaPercentage: number | null;
   recordedAt: string | null;
   organizationCount: number;
   spaceCount: number;
@@ -47,4 +51,3 @@ export type AnalyticsOverviewAlertResource = Readonly<{
   status: string;
   occurredAt: string;
 }>;
-

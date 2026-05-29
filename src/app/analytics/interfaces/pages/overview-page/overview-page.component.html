@@ -46,24 +46,28 @@
                   label="PM2.5"
                   [value]="measurements.pm2_5"
                   unit="ug/m3"
+                  [deltaLabel]="measurements.pm2_5DeltaLabel"
                   tone="warning"
                 ></app-pollutant-card>
                 <app-pollutant-card
                   label="CO2"
                   [value]="measurements.co2"
                   unit="ppm"
+                  [deltaLabel]="measurements.co2DeltaLabel"
                   tone="success"
                 ></app-pollutant-card>
                 <app-pollutant-card
                   label="TEMP"
                   [value]="measurements.temperature"
                   unit="°C"
+                  [deltaLabel]="measurements.temperatureDeltaLabel"
                   tone="info"
                 ></app-pollutant-card>
                 <app-pollutant-card
                   label="HUMIDITY"
                   [value]="measurements.humidity"
                   unit="%"
+                  [deltaLabel]="measurements.humidityDeltaLabel"
                   tone="success"
                 ></app-pollutant-card>
               </div>
@@ -123,4 +127,3 @@
     </main>
   </div>
 </div>
-

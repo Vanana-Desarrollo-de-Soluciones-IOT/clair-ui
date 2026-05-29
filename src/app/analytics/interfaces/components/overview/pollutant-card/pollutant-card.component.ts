@@ -17,6 +17,14 @@ export class PollutantCardComponent {
   @Input() deltaLabel: string | null = null;
   @Input() tone: PollutantTone = 'success';
 
+  private parseDeltaNumber(value: string | null): number | null {
+    if (!value) return null;
+    const cleaned = value.trim().replace('%', '');
+    if (!cleaned) return null;
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
   get displayValue(): string | number {
     return this.value === null || !Number.isFinite(this.value) ? '--' : this.value;
   }
@@ -31,8 +39,20 @@ export class PollutantCardComponent {
       : '--';
   }
 
+  get deltaClass(): string {
+    const delta = this.parseDeltaNumber(this.deltaLabel);
+    if (delta === null) return 'delta-null';
+    if (delta < 0) return 'delta negative';
+    return 'delta positive';
+  }
+
+  get deltaArrow(): string {
+    const delta = this.parseDeltaNumber(this.deltaLabel);
+    if (delta === null || delta === 0) return '';
+    return delta > 0 ? '▲' : '▼';
+  }
+
   get dotClass(): string {
     return this.tone ? `dot ${this.tone}` : 'dot';
   }
 }
-
