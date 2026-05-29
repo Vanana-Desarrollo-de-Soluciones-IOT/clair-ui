@@ -1,0 +1,35 @@
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+type PollutantTone = 'warning' | 'success' | 'info' | 'muted';
+
+@Component({
+  selector: 'app-pollutant-card',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './pollutant-card.component.html',
+  styleUrls: ['./pollutant-card.component.css'],
+})
+export class PollutantCardComponent {
+  @Input() label = '';
+  @Input() value: number | null = null;
+  @Input() unit = '';
+  @Input() deltaLabel: string | null = null;
+  @Input() tone: PollutantTone = 'success';
+
+  get displayValue(): string | number {
+    return this.value === null || !Number.isFinite(this.value) ? '--' : this.value;
+  }
+
+  get displayUnit(): string {
+    return this.unit.trim() || '';
+  }
+
+  get displayDelta(): string {
+    return this.deltaLabel && this.deltaLabel.trim().length > 0 ? this.deltaLabel : '--';
+  }
+
+  get dotClass(): string {
+    return this.tone ? `dot ${this.tone}` : 'dot';
+  }
+}

@@ -1,6 +1,12 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
+export type OverviewOrganizationAqi = Readonly<{
+  organizationName: string;
+  spaceName: string;
+  aqiValue: number | null;
+}>;
+
 export type OverviewMeasurements = Readonly<{
   aqi: {
     value: number;
@@ -11,7 +17,7 @@ export type OverviewMeasurements = Readonly<{
   humidity: number | null;
   pm2_5: number | null;
   recordedAt: string | null;
-
+  organizations: OverviewOrganizationAqi[];
 }>;
 
 export interface OverviewContextFacade {

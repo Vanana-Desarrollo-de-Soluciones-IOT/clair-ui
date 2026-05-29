@@ -16,6 +16,8 @@ import { EVALUATION_CONTEXT_FACADE } from './evaluation/interfaces/acl/evaluatio
 import { EvaluationContextFacadeImpl } from './evaluation/application/acl/evaluation-context-facade.impl';
 import { DEVICE_CONTEXT_FACADE } from './device/interfaces/acl/device-context-facade';
 import { DeviceContextFacadeImpl } from './device/application/acl/device-context-facade.impl';
+import { OVERVIEW_CONTEXT_FACADE } from './overview/interfaces/acl/overview-context-facade';
+import { OverviewContextFacadeImpl } from './overview/application/internal/acl/overview-context-facade.impl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +31,7 @@ export const appConfig: ApplicationConfig = {
     { provide: TELEMETRY_EVALUATION_GATEWAY, useClass: TelemetryEvaluationHttpGateway },
     { provide: EVALUATION_CONTEXT_FACADE, useClass: EvaluationContextFacadeImpl },
     { provide: DEVICE_CONTEXT_FACADE, useClass: DeviceContextFacadeImpl },
+    { provide: OVERVIEW_CONTEXT_FACADE, useClass: OverviewContextFacadeImpl },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
 };

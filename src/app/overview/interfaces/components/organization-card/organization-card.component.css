@@ -1,0 +1,91 @@
+.organizations-card {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  padding: 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.organizations-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.organizations-title h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-family: var(--app-font-headline);
+}
+
+.organizations-action {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.organizations-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.organization-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #101010;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  min-width: 200px;
+}
+
+.organization-aqi {
+  min-width: 44px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  background: #0f1f1a;
+  border: 1px solid #10b981;
+  color: #10b981;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.organization-meta h5 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.organization-meta span {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.organizations-empty {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .organizations-card {
+    padding: 1.5rem;
+  }
+
+  .organization-item {
+    width: 100%;
+  }
+}
