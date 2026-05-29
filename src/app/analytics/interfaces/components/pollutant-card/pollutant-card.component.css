@@ -48,11 +48,13 @@
   letter-spacing: 0.01em;
 }
 
-.delta-arrow {
-  font-size: 0.75rem;
-  line-height: 1;
+.delta-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 
 .delta.positive {

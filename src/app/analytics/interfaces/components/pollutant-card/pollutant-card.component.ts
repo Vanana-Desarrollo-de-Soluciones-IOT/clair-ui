@@ -1,12 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 type PollutantTone = 'warning' | 'success' | 'info' | 'muted';
 
 @Component({
   selector: 'app-pollutant-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './pollutant-card.component.html',
   styleUrls: ['./pollutant-card.component.css'],
 })
@@ -46,10 +47,10 @@ export class PollutantCardComponent {
     return 'delta positive';
   }
 
-  get deltaArrow(): string {
+  get deltaIcon(): string {
     const delta = this.parseDeltaNumber(this.deltaLabel);
     if (delta === null || delta === 0) return '';
-    return delta > 0 ? '▲' : '▼';
+    return delta > 0 ? 'trending_up' : 'trending_down';
   }
 
   get dotClass(): string {
