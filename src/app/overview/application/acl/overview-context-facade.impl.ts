@@ -5,7 +5,7 @@ import {
   OverviewMeasurements,
 } from '../../interfaces/acl/overview-context-facade';
 import { createGetLatestOverviewMeasurementsQuery } from '../../domain/model/queries/get-latest-overview-measurements.query';
-import { OverviewQueryServiceImpl } from '../internal/acl/queryservices/overview-query-service.impl';
+import { OverviewQueryServiceImpl } from '../internal/queryservices/overview-query-service.impl';
 
 @Injectable({ providedIn: 'root' })
 export class OverviewContextFacadeImpl implements OverviewContextFacade {
