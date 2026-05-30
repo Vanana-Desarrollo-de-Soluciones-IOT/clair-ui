@@ -1,27 +1,28 @@
-import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { ANALYTICS_OVERVIEW_QUERY_SERVICE, AnalyticsOverviewQueryService } from "../../domain/services/analytics-overview-query-service";
+import { ANALYTICS_QUERY_SERVICE, AnalyticsQueryService } from "../../domain/services/analytics-query-service";
+import { Inject, Injectable } from "@angular/core";
+import { map, Observable } from "rxjs";
 import {
   AnalyticsContextDashboardMetrics,
   AnalyticsContextFacade,
-} from '../../interfaces/acl/analytics-context-facade';
-import { AnalyticsQueryServiceImpl } from '../internal/queryservices/analytics-query-service.impl';
-import { createGetDashboardMetricsQuery } from '../../domain/model/queries/get-dashboard-metrics.query';
-import { AnalyticsOverviewQueryServiceImpl } from '../internal/queryservices/analytics-overview-query-service.impl';
-import { createGetAnalyticsOverviewQuery } from '../../domain/model/queries/get-analytics-overview.query';
-import { AnalyticsOverviewSnapshot } from '../../domain/model/valueobjects/analytics-overview.value-object';
+} from "../../interfaces/acl/analytics-context-facade";
 
-@Injectable({ providedIn: 'root' })
+import { createGetDashboardMetricsQuery } from "../../domain/model/queries/get-dashboard-metrics.query";
+import { createGetAnalyticsOverviewQuery } from "../../domain/model/queries/get-analytics-overview.query";
+import { AnalyticsOverviewSnapshot } from "../../domain/model/valueobjects/analytics-overview.value-object";
+
+@Injectable({ providedIn: "root" })
 export class AnalyticsContextFacadeImpl implements AnalyticsContextFacade {
   constructor(
-    private readonly analyticsQueryService: AnalyticsQueryServiceImpl,
-    private readonly analyticsOverviewQueryService: AnalyticsOverviewQueryServiceImpl,
+    @Inject(ANALYTICS_QUERY_SERVICE) private readonly queryService: AnalyticsQueryService,
+    @Inject(ANALYTICS_OVERVIEW_QUERY_SERVICE) private readonly overviewQueryService: AnalyticsOverviewQueryService
   ) {}
 
   getLiveDashboardMetricsByDevice(
     deviceId: string,
   ): Observable<AnalyticsContextDashboardMetrics> {
-    const query = createGetDashboardMetricsQuery(deviceId, 'LIVE');
-    return this.analyticsQueryService.handleGetDashboardMetrics(query).pipe(
+    const query = createGetDashboardMetricsQuery(deviceId, "LIVE");
+    return this.queryService.handleGetDashboardMetrics(query).pipe(
       map((metrics) => ({
         aqiValue: metrics.aqi.value,
         aqiCategory: metrics.aqi.category,
@@ -39,6 +40,6 @@ export class AnalyticsContextFacadeImpl implements AnalyticsContextFacade {
     alertLimit?: number,
   ): Observable<AnalyticsOverviewSnapshot> {
     const query = createGetAnalyticsOverviewQuery(deviceLimitPerSpace, alertLimit);
-    return this.analyticsOverviewQueryService.handleGetAnalyticsOverview(query);
+    return this.overviewQueryService.handleGetAnalyticsOverview(query);
   }
 }

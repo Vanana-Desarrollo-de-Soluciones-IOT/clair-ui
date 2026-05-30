@@ -146,10 +146,10 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
 
   selectDevice(device: Device): void {
     this.selectedDevice = device;
+    this.selectedDeviceThresholds = device.thresholds;
     this.stopListTelemetryPolling();
     this.startTelemetryPolling(device.id.value);
     this.startStatusPolling(device.id.value, 10_000);
-    this.loadThresholds(device.id.value);
     this.navigationState.syncQueryParams(this.router, this.route, { spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
     this.navigationState.persistSelectionToLocalStorage({ spaceId: this.selectedSpace?.id.value ?? null, deviceId: device.id.value });
   }
@@ -183,9 +183,9 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
         }
 
         if (device.spaceId) this.loadDevices(device.spaceId);
+        this.selectedDeviceThresholds = device.thresholds;
         this.startTelemetryPolling(device.id.value);
         this.startStatusPolling(device.id.value, 10_000);
-        this.loadThresholds(device.id.value);
 
         this.navigationState.syncQueryParams(this.router, this.route, {
           spaceId: device.spaceId ? device.spaceId.value : null,

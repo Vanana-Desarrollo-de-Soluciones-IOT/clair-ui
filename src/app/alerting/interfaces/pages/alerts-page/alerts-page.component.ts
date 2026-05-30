@@ -1,3 +1,5 @@
+import { Inject } from '@angular/core';
+import { ALERT_QUERY_SERVICE, AlertQueryService } from '../../../domain/services/alert-query-service';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
-import { AlertQueryServiceImpl } from '../../../application/internal/queryservices/alert-query-service.impl';
+
 import { Alert, AlertPage, DailyAlertCount } from '../../../domain/services/alert-query-service';
 import { AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED, AlertStatus_RESOLVED } from '../../../domain/model/valueobjects/alert-status.value-object';
 import { createGetAlertDailySummaryQuery } from '../../../domain/model/queries/get-alert-daily-summary.query';
@@ -33,8 +35,7 @@ type AlertTab = 'active' | 'history';
 export class AlertsPageComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  constructor(
-    private readonly alertQueryService: AlertQueryServiceImpl,
+  constructor(@Inject(ALERT_QUERY_SERVICE) private readonly alertQueryService: AlertQueryService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 

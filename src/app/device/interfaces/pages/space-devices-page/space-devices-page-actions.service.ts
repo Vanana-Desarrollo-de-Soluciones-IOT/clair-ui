@@ -1,10 +1,12 @@
+import { Inject } from '@angular/core';
+import { DEVICE_THRESHOLD_QUERY_SERVICE, DeviceThresholdQueryService } from '../../../domain/services/device-threshold-query-service';
+import { DEVICE_STATUS_QUERY_SERVICE, DeviceStatusQueryService } from '../../../domain/services/device-status-query-service';
+import { DEVICE_QUERY_SERVICE, DeviceQueryService } from '../../../domain/services/device-query-service';
+import { DEVICE_COMMAND_SERVICE, DeviceCommandService } from '../../../domain/services/device-command-service';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, of, switchMap, tap, interval, startWith, catchError, forkJoin, map } from 'rxjs';
-import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
-import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
-import { DeviceStatusQueryServiceImpl } from '../../../application/internal/queryservices/device-status-query-service.impl';
 import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { DeviceStatusSnapshot } from '../../../domain/services/device-status-query-service';
@@ -28,17 +30,16 @@ import { DeleteDeviceDialogComponent, DeleteDeviceDialogData } from '../../compo
 import { extractApiErrorMessage } from '../../rest/transform/extract-api-error-message.transform';
 import { createGetDeviceStatusByIdQuery } from '../../../domain/model/queries/get-device-status-by-id.query';
 import { createDeviceId } from '../../../domain/model/valueobjects/device-id.value-object';
-import { DeviceThresholdQueryServiceImpl } from '../../../application/internal/queryservices/device-threshold-query-service.impl';
 import { EditDeviceThresholdsDialogComponent } from '../../components/edit-device-thresholds-dialog/edit-device-thresholds-dialog.component';
 import { createGetDeviceThresholdsByDeviceQuery } from '../../../domain/model/queries/get-device-thresholds-by-device.query';
 
 @Injectable({ providedIn: 'root' })
 export class SpaceDevicesPageActionsService {
   constructor(
-    private readonly deviceCommandService: DeviceCommandServiceImpl,
-    private readonly deviceQueryService: DeviceQueryServiceImpl,
-    private readonly deviceStatusQueryService: DeviceStatusQueryServiceImpl,
-    private readonly deviceThresholdQueryService: DeviceThresholdQueryServiceImpl,
+    @Inject(DEVICE_COMMAND_SERVICE) private readonly deviceCommandService: DeviceCommandService,
+    @Inject(DEVICE_QUERY_SERVICE) private readonly deviceQueryService: DeviceQueryService,
+    @Inject(DEVICE_STATUS_QUERY_SERVICE) private readonly deviceStatusQueryService: DeviceStatusQueryService,
+    @Inject(DEVICE_THRESHOLD_QUERY_SERVICE) private readonly deviceThresholdQueryService: DeviceThresholdQueryService,
     private readonly externalTelemetryService: ExternalTelemetryEvaluationService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar

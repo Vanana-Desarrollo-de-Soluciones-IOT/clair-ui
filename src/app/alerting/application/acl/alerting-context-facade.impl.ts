@@ -1,16 +1,19 @@
-import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { ALERT_QUERY_SERVICE, AlertQueryService } from "../../domain/services/alert-query-service";
+import { Inject, Injectable } from "@angular/core";
+import { map, Observable } from "rxjs";
 import {
   AlertingContextAlertItem,
   AlertingContextAlertStatus,
   AlertingContextFacade,
-} from '../../interfaces/acl/alerting-context-facade';
-import { AlertQueryServiceImpl } from '../internal/queryservices/alert-query-service.impl';
-import { createGetAlertsQuery } from '../../domain/model/queries/get-alerts.query';
+} from "../../interfaces/acl/alerting-context-facade";
 
-@Injectable({ providedIn: 'root' })
+import { createGetAlertsQuery } from "../../domain/model/queries/get-alerts.query";
+
+@Injectable({ providedIn: "root" })
 export class AlertingContextFacadeImpl implements AlertingContextFacade {
-  constructor(private readonly alertQueryService: AlertQueryServiceImpl) {}
+  constructor(
+    @Inject(ALERT_QUERY_SERVICE) private readonly alertQueryService: AlertQueryService
+  ) {}
 
   getCurrentUserAlerts(
     page: number,

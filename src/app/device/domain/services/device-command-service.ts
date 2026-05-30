@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CreateOrganizationCommand } from '../model/commands/create-organization.command';
 import { CreateSpaceCommand } from '../model/commands/create-space.command';
@@ -49,3 +50,6 @@ export interface DeviceCommandService {
   handleUpdateDeviceName(command: UpdateDeviceNameCommand): Observable<void>;
   handleDeleteDevice(command: DeleteDeviceCommand): Observable<void>;
 }
+
+
+export const DEVICE_COMMAND_SERVICE = new InjectionToken<DeviceCommandService>('DeviceCommandService');

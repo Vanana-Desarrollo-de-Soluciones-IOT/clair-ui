@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { DeviceContextFacade, FacadeOrganization, FacadeSpace, FacadeDevice } from '../../interfaces/acl/device-context-facade';
-import { DeviceQueryServiceImpl } from '../internal/queryservices/device-query-service.impl';
-import { createGetCurrentUserOrganizationsQuery } from '../../domain/model/queries/get-current-user-organizations.query';
-import { createGetSpacesByOrganizationQuery } from '../../domain/model/queries/get-spaces-by-organization.query';
-import { createOrganizationId } from '../../domain/model/valueobjects/organization-id.value-object';
-import { createGetDevicesBySpaceQuery } from '../../domain/model/queries/get-devices-by-space.query';
-import { createSpaceId } from '../../domain/model/valueobjects/space-id.value-object';
+import { Inject, Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { DeviceContextFacade, FacadeOrganization, FacadeSpace, FacadeDevice } from "../../interfaces/acl/device-context-facade";
+import { DEVICE_QUERY_SERVICE, DeviceQueryService } from "../../domain/services/device-query-service";
+import { createGetCurrentUserOrganizationsQuery } from "../../domain/model/queries/get-current-user-organizations.query";
+import { createGetSpacesByOrganizationQuery } from "../../domain/model/queries/get-spaces-by-organization.query";
+import { createOrganizationId } from "../../domain/model/valueobjects/organization-id.value-object";
+import { createGetDevicesBySpaceQuery } from "../../domain/model/queries/get-devices-by-space.query";
+import { createSpaceId } from "../../domain/model/valueobjects/space-id.value-object";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class DeviceContextFacadeImpl implements DeviceContextFacade {
-  constructor(private readonly queryService: DeviceQueryServiceImpl) {}
+  constructor(@Inject(DEVICE_QUERY_SERVICE) private readonly queryService: DeviceQueryService) {}
 
   getOrganizations(): Observable<FacadeOrganization[]> {
     const query = createGetCurrentUserOrganizationsQuery();
@@ -32,7 +32,6 @@ export class DeviceContextFacadeImpl implements DeviceContextFacade {
   }
 
   getDevicesBySpace(spaceId: string): Observable<FacadeDevice[]> {
-    // Get up to 100 devices per space for the selection dropdown
     const query = createGetDevicesBySpaceQuery(createSpaceId(spaceId), 0, 100);
     return this.queryService.handleGetDevicesBySpace(query).pipe(
       map((page) => page.content.map((d) => ({

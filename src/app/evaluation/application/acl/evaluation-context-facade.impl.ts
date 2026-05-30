@@ -1,3 +1,5 @@
+import { TELEMETRY_EVALUATION_QUERY_SERVICE, TelemetryEvaluationQueryService } from '../../domain/services/telemetry-evaluation-query-service';
+import { Inject } from '@angular/core';
 import { Injectable } from "@angular/core";
 import { Observable, catchError, map, of } from "rxjs";
 import { EvaluationContextFacade, LatestTelemetrySummary } from "../../interfaces/acl/evaluation-context-facade";
@@ -7,7 +9,7 @@ import { createEvaluationDeviceId } from "../../domain/model/valueobjects/evalua
 
 @Injectable({ providedIn: "root" })
 export class EvaluationContextFacadeImpl implements EvaluationContextFacade {
-  constructor(private readonly queryService: TelemetryEvaluationQueryServiceImpl) {}
+  constructor(@Inject(TELEMETRY_EVALUATION_QUERY_SERVICE) private readonly queryService: TelemetryEvaluationQueryService) {}
 
   getLatestTelemetryByDevice(deviceId: string): Observable<LatestTelemetrySummary | null> {
     const query = createGetLatestEvaluationByDeviceQuery(createEvaluationDeviceId(deviceId));

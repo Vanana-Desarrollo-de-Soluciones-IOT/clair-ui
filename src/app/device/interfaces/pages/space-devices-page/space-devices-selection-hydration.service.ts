@@ -1,6 +1,8 @@
+import { DEVICE_QUERY_SERVICE, DeviceQueryService } from '../../../domain/services/device-query-service';
+import { Inject } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { Observable, map, of, switchMap } from 'rxjs';
-import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
+
 import { Device, Space } from '../../../domain/services/device-query-service';
 import { createGetDeviceByIdQuery } from '../../../domain/model/queries/get-device-by-id.query';
 import { createGetSpaceByIdQuery } from '../../../domain/model/queries/get-space-by-id.query';
@@ -14,7 +16,7 @@ export type HydratedDeviceSelection = Readonly<{
 
 @Injectable({ providedIn: 'root' })
 export class SpaceDevicesSelectionHydrationService {
-  constructor(private readonly deviceQueryService: DeviceQueryServiceImpl) {}
+  constructor(@Inject(DEVICE_QUERY_SERVICE) private readonly deviceQueryService: DeviceQueryService) {}
 
   hydrateFromDeviceId(deviceId: string): Observable<HydratedDeviceSelection | null> {
     let parsedDeviceId;

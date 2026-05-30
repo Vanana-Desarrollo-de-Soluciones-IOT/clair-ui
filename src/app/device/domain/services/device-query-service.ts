@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from "rxjs";
 import { GetCurrentUserOrganizationsQuery } from "../model/queries/get-current-user-organizations.query";
 import { GetOrganizationByIdQuery } from "../model/queries/get-organization-by-id.query";
@@ -63,3 +64,6 @@ export interface DeviceQueryService {
   handleGetDevicesBySpace(query: GetDevicesBySpaceQuery): Observable<DevicePage>;
   handleGetDeviceById(query: GetDeviceByIdQuery): Observable<Device | null>;
 }
+
+
+export const DEVICE_QUERY_SERVICE = new InjectionToken<DeviceQueryService>('DeviceQueryService');

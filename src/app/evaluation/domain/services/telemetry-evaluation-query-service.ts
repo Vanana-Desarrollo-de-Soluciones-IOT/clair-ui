@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EvaluationId } from '../model/valueobjects/evaluation-id.value-object';
 import { EvaluationDeviceId } from '../model/valueobjects/evaluation-device-id.value-object';
@@ -32,3 +33,6 @@ export interface TelemetryEvaluationQueryService {
   handleGetEvaluationsByDevice(query: GetEvaluationsByDeviceQuery): Observable<TelemetryEvaluationPage>;
   handleGetLatestEvaluationByDevice(query: GetLatestEvaluationByDeviceQuery): Observable<TelemetryEvaluation | null>;
 }
+
+
+export const TELEMETRY_EVALUATION_QUERY_SERVICE = new InjectionToken<TelemetryEvaluationQueryService>('TelemetryEvaluationQueryService');
