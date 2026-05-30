@@ -1,16 +1,16 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatCardModule } from '@angular/material/card';
-import { ClairDeviceComponent } from '../../../../shared/interfaces/components/clair-device/clair-device.component';
-import { Device } from '../../../domain/services/device-query-service';
-import { DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
-import { resolveDeviceConnectivityColor } from '../../rest/transform/device-connectivity-color.transform';
+import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatCardModule } from "@angular/material/card";
+import { ClairDeviceComponent } from "../../../../shared/interfaces/components/clair-device/clair-device.component";
+import { Device } from "../../../domain/services/device-query-service";
+import { DeviceTelemetrySnapshot } from "../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service";
+import { resolveDeviceConnectivityColor } from "../../rest/transform/device-connectivity-color.transform";
 
 @Component({
-  selector: 'app-device-info-card',
+  selector: "app-device-info-card",
   standalone: true,
   imports: [
     CommonModule,
@@ -20,8 +20,8 @@ import { resolveDeviceConnectivityColor } from '../../rest/transform/device-conn
     MatCardModule,
     ClairDeviceComponent,
   ],
-  templateUrl: './device-info-card.component.html',
-  styleUrl: './device-info-card.component.css',
+  templateUrl: "./device-info-card.component.html",
+  styleUrl: "./device-info-card.component.css",
 })
 export class DeviceInfoCardComponent {
   @Input() device!: Device;
@@ -49,25 +49,25 @@ export class DeviceInfoCardComponent {
 
   getStatusColor(): string {
     switch (this.device.status) {
-      case 'ONLINE':
-        return '#10b981';
-      case 'STANDBY':
-        return '#6b7280';
-      case 'OFFLINE':
-        return '#6b7280';
-      case 'MAINTENANCE':
-        return '#f59e0b';
-      case 'ERROR':
-        return '#ef4444';
-      case 'DECOMMISSIONED':
-        return '#ef4444';
+      case "ONLINE":
+        return "#10b981";
+      case "STANDBY":
+        return "#6b7280";
+      case "OFFLINE":
+        return "#6b7280";
+      case "MAINTENANCE":
+        return "#f59e0b";
+      case "ERROR":
+        return "#ef4444";
+      case "DECOMMISSIONED":
+        return "#ef4444";
       default:
-        return '#6b7280';
+        return "#6b7280";
     }
   }
 
-  getPowerButtonVariant(): 'on' | 'off' {
-    return this.isDeviceLikelyAwake() ? 'on' : 'off';
+  getPowerButtonVariant(): "on" | "off" {
+    return this.isDeviceLikelyAwake() ? "on" : "off";
   }
 
   getConnectivityColor(): string {
@@ -81,7 +81,19 @@ export class DeviceInfoCardComponent {
     return null;
   }
 
+  formatUptime(): string {
+    const seconds = this.telemetry?.uptime;
+    if (seconds == null) return "--";
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ${minutes % 60}m`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ${hours % 24}h`;
+  }
+
   private isDeviceLikelyAwake(): boolean {
-    return this.device.status === 'ONLINE';
+    return this.device.status === "ONLINE";
   }
 }

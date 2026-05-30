@@ -1,21 +1,21 @@
-import { Injectable, Inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Injectable, Inject } from "@angular/core";
+import { Observable, map } from "rxjs";
 import {
   EvaluationContextFacade,
   EVALUATION_CONTEXT_FACADE,
-} from '../../../../../evaluation/interfaces/acl/evaluation-context-facade';
+} from "../../../../../evaluation/interfaces/acl/evaluation-context-facade";
 
 export type DeviceTelemetrySnapshot = Readonly<{
   connectivityStatus: string | null;
   connectivitySignalStrength: number | null;
-  uptime: string;
+  uptime: number;
   healthStatus: number;
   lastUpdateMinutes: number | null;
   network: string | null;
   location: string | null;
 }>;
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class ExternalTelemetryEvaluationService {
   constructor(
     @Inject(EVALUATION_CONTEXT_FACADE)

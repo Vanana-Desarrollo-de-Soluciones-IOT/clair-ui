@@ -1,3 +1,5 @@
+import { DeviceThresholdResource } from "./device-threshold.resource";
+
 export interface DeviceResource {
   readonly id: string;
   readonly serialNumber: string;
@@ -6,6 +8,7 @@ export interface DeviceResource {
   readonly spaceId: string | null;
   readonly ownerUserId: string | null;
   readonly configuration: Record<string, string>;
+  readonly thresholds: DeviceThresholdResource[];
   readonly hardwareId: string;
   readonly deviceType: string;
   readonly activatedAt: string | null;

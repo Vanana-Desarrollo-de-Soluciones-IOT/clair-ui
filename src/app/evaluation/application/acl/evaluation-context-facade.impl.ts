@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
-import { EvaluationContextFacade, LatestTelemetrySummary } from '../../interfaces/acl/evaluation-context-facade';
-import { TelemetryEvaluationQueryServiceImpl } from '../internal/queryservices/telemetry-evaluation-query-service.impl';
-import { createGetLatestEvaluationByDeviceQuery } from '../../domain/model/queries/get-latest-evaluation-by-device.query';
-import { createEvaluationDeviceId } from '../../domain/model/valueobjects/evaluation-device-id.value-object';
+import { Injectable } from "@angular/core";
+import { Observable, catchError, map, of } from "rxjs";
+import { EvaluationContextFacade, LatestTelemetrySummary } from "../../interfaces/acl/evaluation-context-facade";
+import { TelemetryEvaluationQueryServiceImpl } from "../internal/queryservices/telemetry-evaluation-query-service.impl";
+import { createGetLatestEvaluationByDeviceQuery } from "../../domain/model/queries/get-latest-evaluation-by-device.query";
+import { createEvaluationDeviceId } from "../../domain/model/valueobjects/evaluation-device-id.value-object";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class EvaluationContextFacadeImpl implements EvaluationContextFacade {
   constructor(private readonly queryService: TelemetryEvaluationQueryServiceImpl) {}
 
@@ -17,7 +17,7 @@ export class EvaluationContextFacadeImpl implements EvaluationContextFacade {
         return {
           connectivityStatus: evaluation.connectivity.status,
           signalStrength: evaluation.connectivity.signalStrength,
-          uptime: evaluation.uptime,
+          uptime: evaluation.uptime.value,
           healthStatus: evaluation.healthStatus,
           recordedAt: evaluation.recordedAt,
           network: evaluation.connectivity.network,
