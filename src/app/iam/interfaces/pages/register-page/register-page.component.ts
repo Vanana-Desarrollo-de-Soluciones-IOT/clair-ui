@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,10 +13,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
 import { GoogleIconComponent } from '../../../../shared/interfaces/components/icons/google/google-icon.component';
-import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
+import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
 import { createSignUpCommand } from '../../../domain/model/commands/sign-up.command';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-register-page',
@@ -42,9 +43,10 @@ import { createSignUpCommand } from '../../../domain/model/commands/sign-up.comm
 })
 export class RegisterPageComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly authCommandService = inject(AUTH_COMMAND_SERVICE) as AuthCommandService;
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   registerForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -72,7 +74,7 @@ export class RegisterPageComponent {
       const passwordVo = createPassword(password);
       const command = createSignUpCommand(emailVo, passwordVo);
 
-      this.authCommandService.handleSignUp(command).subscribe({
+      this.authCommandService.handleSignUp(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (result) => {
           this.loading = false;
           this.snackBar.open('Registration successful. Check your email to confirm.', 'Close', { duration: 3000 });

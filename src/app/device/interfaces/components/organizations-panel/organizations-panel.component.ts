@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -7,8 +17,8 @@ import { AddOrganizationDialogComponent } from '../add-organization-dialog/add-o
 import { AddSpaceDialogComponent } from '../add-space-dialog/add-space-dialog.component';
 import { DeleteOrganizationDialogComponent } from '../delete-organization-dialog/delete-organization-dialog.component';
 import { EditNameDialogComponent } from '../edit-name-dialog/edit-name-dialog.component';
-import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
-import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
+import { DEVICE_COMMAND_SERVICE, DeviceCommandService } from '../../../domain/services/device-command-service';
+import { DEVICE_QUERY_SERVICE, DeviceQueryService } from '../../../domain/services/device-query-service';
 import { Organization, Space } from '../../../domain/services/device-query-service';
 import { OrganizationId, createOrganizationId } from '../../../domain/model/valueobjects/organization-id.value-object';
 import { SpaceId } from '../../../domain/model/valueobjects/space-id.value-object';
@@ -19,9 +29,11 @@ import { createUpdateOrganizationNameCommand } from '../../../domain/model/comma
 import { createDeleteOrganizationCommand } from '../../../domain/model/commands/delete-organization.command';
 import { createCreateSpaceCommand } from '../../../domain/model/commands/create-space.command';
 import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/update-space-name.command';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { catchError, finalize, map, mergeMap, tap } from 'rxjs/operators';
 import { createGetCurrentUserOrganizationsQuery } from '../../../domain/model/queries/get-current-user-organizations.query';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { extractApiErrorMessage } from '../../rest/transform/extract-api-error-message.transform';
 
 @Component({
   selector: 'app-organizations-panel',
@@ -29,13 +41,15 @@ import { createGetCurrentUserOrganizationsQuery } from '../../../domain/model/qu
   imports: [CommonModule, MatDialogModule, MatSnackBarModule, OrganizationsBarComponent],
   templateUrl: './organizations-panel.component.html',
   styleUrl: './organizations-panel.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationsPanelComponent implements OnInit {
-  private readonly deviceCommandService = inject(DeviceCommandServiceImpl);
-  private readonly deviceQueryService = inject(DeviceQueryServiceImpl);
+  private readonly deviceCommandService = inject(DEVICE_COMMAND_SERVICE) as DeviceCommandService;
+  private readonly deviceQueryService = inject(DEVICE_QUERY_SERVICE) as DeviceQueryService;
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   @Input() selectedSpaceId: string | null = null;
   @Output() spaceSelected = new EventEmitter<Space>();
@@ -47,6 +61,7 @@ export class OrganizationsPanelComponent implements OnInit {
   loadingSpacesByOrganizationId: Record<string, boolean> = {};
   errorSpacesByOrganizationId: Record<string, string> = {};
   deviceCountsBySpaceId: Record<string, number> = {};
+  private readonly deviceCountsInFlightBySpaceId = new Set<string>();
   private restoredExpandedState = false;
 
   private static readonly expandedOrganizationsStorageKey = 'clair.organizationsPanel.expandedOrganizationIds';
@@ -92,15 +107,16 @@ export class OrganizationsPanelComponent implements OnInit {
 
   openAddOrganizationDialog(): void {
     const dialogRef = this.dialog.open(AddOrganizationDialogComponent, { width: '400px' });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((name: string | undefined) => {
       if (!name) return;
       const command = createCreateOrganizationCommand(name);
-      this.deviceCommandService.handleCreateOrganization(command).subscribe({
+      this.deviceCommandService.handleCreateOrganization(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.snackBar.open('Organization created', 'Close', { duration: 3000 });
           this.loadOrganizations();
         },
-        error: () => this.snackBar.open('Failed to create organization', 'Close', { duration: 3000 }),
+        error: (error) =>
+          this.snackBar.open(extractApiErrorMessage(error, 'Failed to create organization'), 'Close', { duration: 3000 }),
       });
     });
   }
@@ -117,25 +133,26 @@ export class OrganizationsPanelComponent implements OnInit {
         placeholder: 'Enter organization name',
       },
     });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((name: string | undefined) => {
       if (!name) return;
       const command = createUpdateOrganizationNameCommand(orgId, name);
-      this.deviceCommandService.handleUpdateOrganizationName(command).subscribe({
+      this.deviceCommandService.handleUpdateOrganizationName(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.snackBar.open('Organization updated', 'Close', { duration: 3000 });
           this.loadOrganizations();
         },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update organization'), 'Close', { duration: 3000 }),
+        error: (error) =>
+          this.snackBar.open(extractApiErrorMessage(error, 'Failed to update organization'), 'Close', { duration: 3000 }),
       });
     });
   }
 
   openDeleteOrganizationDialog(orgId: OrganizationId): void {
     const dialogRef = this.dialog.open(DeleteOrganizationDialogComponent, { width: '400px' });
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed: boolean) => {
       if (!confirmed) return;
       const command = createDeleteOrganizationCommand(orgId);
-      this.deviceCommandService.handleDeleteOrganization(command).subscribe({
+      this.deviceCommandService.handleDeleteOrganization(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.snackBar.open('Organization deleted', 'Close', { duration: 3000 });
           if (this.spacesByOrganizationId[orgId.value]?.some((space) => space.id.value === this.selectedSpaceId)) {
@@ -143,22 +160,23 @@ export class OrganizationsPanelComponent implements OnInit {
           }
           this.loadOrganizations();
         },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to delete organization'), 'Close', { duration: 3000 }),
+        error: (error) =>
+          this.snackBar.open(extractApiErrorMessage(error, 'Failed to delete organization'), 'Close', { duration: 3000 }),
       });
     });
   }
 
   openAddSpaceDialog(orgId: OrganizationId): void {
     const dialogRef = this.dialog.open(AddSpaceDialogComponent, { width: '400px' });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((name: string | undefined) => {
       if (!name) return;
       const command = createCreateSpaceCommand(name, orgId);
-      this.deviceCommandService.handleCreateSpace(command).subscribe({
+      this.deviceCommandService.handleCreateSpace(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.snackBar.open('Space created', 'Close', { duration: 3000 });
           this.loadSpaces(orgId);
         },
-        error: () => this.snackBar.open('Failed to create space', 'Close', { duration: 3000 }),
+        error: (error) => this.snackBar.open(extractApiErrorMessage(error, 'Failed to create space'), 'Close', { duration: 3000 }),
       });
     });
   }
@@ -175,28 +193,29 @@ export class OrganizationsPanelComponent implements OnInit {
         placeholder: 'Enter space name',
       },
     });
-    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((name: string | undefined) => {
       if (!name) return;
       const command = createUpdateSpaceNameCommand(spaceId, name);
-      this.deviceCommandService.handleUpdateSpaceName(command).subscribe({
+      this.deviceCommandService.handleUpdateSpaceName(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.snackBar.open('Space updated', 'Close', { duration: 3000 });
           this.loadSpaces(space.organizationId);
         },
-        error: (error) => this.snackBar.open(this.getErrorMessage(error, 'Failed to update space'), 'Close', { duration: 3000 }),
+        error: (error) => this.snackBar.open(extractApiErrorMessage(error, 'Failed to update space'), 'Close', { duration: 3000 }),
       });
     });
   }
 
   private loadOrganizations(): void {
     const query = createGetCurrentUserOrganizationsQuery();
-    this.deviceQueryService.handleGetCurrentUserOrganizations(query).subscribe({
+    this.deviceQueryService.handleGetCurrentUserOrganizations(query).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (orgs) => {
         this.organizations = orgs;
         this.restoreExpandedOrganizationsIfNeeded();
         this.cdr.markForCheck();
       },
-      error: () => this.snackBar.open('Failed to load organizations', 'Close', { duration: 3000 }),
+      error: (error) =>
+        this.snackBar.open(extractApiErrorMessage(error, 'Failed to load organizations'), 'Close', { duration: 3000 }),
     });
   }
 
@@ -204,16 +223,20 @@ export class OrganizationsPanelComponent implements OnInit {
     const key = orgId.value;
     this.loadingSpacesByOrganizationId = { ...this.loadingSpacesByOrganizationId, [key]: true };
     this.errorSpacesByOrganizationId = { ...this.errorSpacesByOrganizationId, [key]: '' };
+    this.cdr.markForCheck();
     const query = createGetSpacesByOrganizationQuery(orgId);
-    this.deviceQueryService.handleGetSpacesByOrganization(query).subscribe({
+    this.deviceQueryService.handleGetSpacesByOrganization(query).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (spaces) => {
         this.spacesByOrganizationId = { ...this.spacesByOrganizationId, [key]: spaces };
         this.loadingSpacesByOrganizationId = { ...this.loadingSpacesByOrganizationId, [key]: false };
         this.loadDeviceCountsForSpaces(spaces);
         this.cdr.markForCheck();
       },
-      error: () => {
-        this.errorSpacesByOrganizationId = { ...this.errorSpacesByOrganizationId, [key]: 'Failed to load spaces' };
+      error: (error) => {
+        this.errorSpacesByOrganizationId = {
+          ...this.errorSpacesByOrganizationId,
+          [key]: extractApiErrorMessage(error, 'Failed to load spaces'),
+        };
         this.loadingSpacesByOrganizationId = { ...this.loadingSpacesByOrganizationId, [key]: false };
         this.cdr.markForCheck();
       },
@@ -222,22 +245,33 @@ export class OrganizationsPanelComponent implements OnInit {
 
   private loadDeviceCountsForSpaces(spaces: Space[]): void {
     if (spaces.length === 0) return;
-    const requests = spaces.map((space) =>
-      this.deviceQueryService.handleGetDevicesBySpace(createGetDevicesBySpaceQuery(space.id, 0, 1)).pipe(
-        map((page) => ({ spaceId: space.id.value, totalElements: page.totalElements })),
-        catchError(() => of({ spaceId: space.id.value, totalElements: 0 }))
-      )
+
+    const spacesToFetch = spaces.filter(
+      (space) =>
+        !(space.id.value in this.deviceCountsBySpaceId) && !this.deviceCountsInFlightBySpaceId.has(space.id.value)
     );
-    forkJoin(requests).subscribe((results) => {
-      this.deviceCountsBySpaceId = {
-        ...this.deviceCountsBySpaceId,
-        ...results.reduce<Record<string, number>>((acc, item) => {
-          acc[item.spaceId] = item.totalElements;
-          return acc;
-        }, {}),
-      };
-      this.cdr.markForCheck();
-    });
+    if (spacesToFetch.length === 0) return;
+
+    spacesToFetch.forEach((space) => this.deviceCountsInFlightBySpaceId.add(space.id.value));
+
+    from(spacesToFetch)
+      .pipe(
+        mergeMap(
+          (space) =>
+            this.deviceQueryService.handleGetDevicesBySpace(createGetDevicesBySpaceQuery(space.id, 0, 1)).pipe(
+              map((page) => ({ spaceId: space.id.value, totalElements: page.totalElements })),
+              catchError(() => of({ spaceId: space.id.value, totalElements: 0 })),
+              finalize(() => this.deviceCountsInFlightBySpaceId.delete(space.id.value))
+            ),
+          4
+        ),
+        tap(({ spaceId, totalElements }) => {
+          this.deviceCountsBySpaceId = { ...this.deviceCountsBySpaceId, [spaceId]: totalElements };
+          this.cdr.markForCheck();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
   }
 
   private get allSpaces(): Space[] {
@@ -283,14 +317,5 @@ export class OrganizationsPanelComponent implements OnInit {
     }
   }
 
-  private getErrorMessage(error: unknown, fallback: string): string {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const responseBody = (error as { error?: unknown }).error;
-      if (responseBody && typeof responseBody === 'object' && 'message' in responseBody) {
-        const message = (responseBody as { message?: unknown }).message;
-        if (typeof message === 'string' && message.trim().length > 0) return message;
-      }
-    }
-    return fallback;
-  }
+  // NOTE: error parsing centralized in extractApiErrorMessage()
 }

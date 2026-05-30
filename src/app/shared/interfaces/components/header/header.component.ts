@@ -1,10 +1,22 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, OnInit, HostListener, ChangeDetectorRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  HostListener,
+  ChangeDetectorRef,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClairLyricsComponent } from '../clair-lyrics/clair-lyrics.component';
 import { NotificationService, PushNotificationLog } from '../../../services/notification.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-header',
@@ -20,6 +32,7 @@ export class HeaderComponent implements OnInit {
 
   private readonly notificationService = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   notifications: PushNotificationLog[] = [];
   isNotificationPanelOpen = false;
@@ -48,7 +61,7 @@ export class HeaderComponent implements OnInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.notificationService.getPushNotifications(0).subscribe({
+    this.notificationService.getPushNotifications(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (page) => {
         this.notifications = page.content || [];
         this.calculateUnreadCount();

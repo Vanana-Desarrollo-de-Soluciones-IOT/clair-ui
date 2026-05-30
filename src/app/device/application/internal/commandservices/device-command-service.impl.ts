@@ -13,7 +13,7 @@ import { UpdateSpaceNameCommand } from '../../../domain/model/commands/update-sp
 import { UpdateOrganizationNameCommand } from '../../../domain/model/commands/update-organization-name.command';
 import { UpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
 import { DeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
-import { CreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
+import { QueueDeviceCommand } from '../../../domain/model/commands/queue-device-command.command';
 import { DeviceHttpGateway } from '../../../infrastructure/api/gateways/device-http.gateway';
 import { createOrganizationCommandToResource } from '../../../interfaces/rest/transform/create-organization.transform';
 import { createSpaceCommandToResource } from '../../../interfaces/rest/transform/create-space.transform';
@@ -26,7 +26,7 @@ import { organizationResourceToDomain } from '../../../interfaces/rest/transform
 import { spaceResourceToDomain } from '../../../interfaces/rest/transform/space.transform';
 import { deviceResourceToDomain } from '../../../interfaces/rest/transform/device.transform';
 import { devicePairingResourceToDomain } from '../../../interfaces/rest/transform/device-pairing.transform';
-import { createDeviceCommandCommandToResource } from '../../../interfaces/rest/transform/create-device-command.transform';
+import { queueDeviceCommandToResource } from '../../../interfaces/rest/transform/queue-device-command.transform';
 import { deviceCommandResourceToDomain } from '../../../interfaces/rest/transform/device-command.transform';
 
 @Injectable({ providedIn: 'root' })
@@ -57,9 +57,9 @@ export class DeviceCommandServiceImpl implements DeviceCommandService {
       .pipe(map((resource) => devicePairingResourceToDomain(resource)));
   }
 
-  handleCreateDeviceCommand(command: CreateDeviceCommandCommand): Observable<DeviceCommand> {
+  handleQueueDeviceCommand(command: QueueDeviceCommand): Observable<DeviceCommand> {
     return this.deviceGateway
-      .createDeviceCommand(command.deviceId.value, createDeviceCommandCommandToResource(command))
+      .createDeviceCommand(command.deviceId.value, queueDeviceCommandToResource(command))
       .pipe(map((resource) => deviceCommandResourceToDomain(resource)));
   }
 

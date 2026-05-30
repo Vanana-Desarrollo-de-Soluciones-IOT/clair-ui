@@ -8,6 +8,10 @@ import { AuthHttpGateway } from './iam/infrastructure/api/gateways/auth-http.gat
 import { TOKEN_STORAGE_GATEWAY } from './iam/infrastructure/storage/token-storage.gateway';
 import { LocalTokenStorageGateway } from './iam/infrastructure/storage/local-token-storage.gateway';
 import { AuthHttpInterceptor } from './iam/infrastructure/api/interceptors/auth-http.interceptor';
+import { AUTH_COMMAND_SERVICE } from './iam/domain/services/auth-command-service';
+import { AuthCommandServiceImpl } from './iam/application/internal/commandservices/auth-command-service.impl';
+import { AUTH_QUERY_SERVICE } from './iam/domain/services/auth-query-service';
+import { AuthQueryServiceImpl } from './iam/application/internal/queryservices/auth-query-service.impl';
 import { DEVICE_GATEWAY } from './device/infrastructure/api/gateways/device.gateway';
 import { DeviceHttpGateway } from './device/infrastructure/api/gateways/device-http.gateway';
 import { TELEMETRY_EVALUATION_GATEWAY } from './evaluation/infrastructure/api/gateways/telemetry-evaluation.gateway';
@@ -43,6 +47,8 @@ import { AlertQueryServiceImpl } from './alerting/application/internal/queryserv
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: AUTH_COMMAND_SERVICE, useClass: AuthCommandServiceImpl },
+    { provide: AUTH_QUERY_SERVICE, useClass: AuthQueryServiceImpl },
     { provide: ANALYTICS_OVERVIEW_QUERY_SERVICE, useClass: AnalyticsOverviewQueryServiceImpl },
     { provide: ALERT_QUERY_SERVICE, useClass: AlertQueryServiceImpl },
     { provide: DEVICE_QUERY_SERVICE, useClass: DeviceQueryServiceImpl },

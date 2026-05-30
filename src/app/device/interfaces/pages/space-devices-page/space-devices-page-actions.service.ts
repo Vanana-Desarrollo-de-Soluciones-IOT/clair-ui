@@ -6,7 +6,8 @@ import { DEVICE_COMMAND_SERVICE, DeviceCommandService } from '../../../domain/se
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, of, switchMap, tap, interval, startWith, catchError, forkJoin, map } from 'rxjs';
+import { Observable, from, of, switchMap, tap, interval, startWith, catchError, map, mergeMap } from 'rxjs';
+import { reduce } from 'rxjs/operators';
 import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { DeviceStatusSnapshot } from '../../../domain/services/device-status-query-service';
@@ -20,7 +21,7 @@ import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/upd
 import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
 import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
 import { createDeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
-import { createCreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
+import { createQueueDeviceCommand } from '../../../domain/model/commands/queue-device-command.command';
 import { createDeviceCommandType } from '../../../domain/model/valueobjects/device-command-type.value-object';
 import { ClaimDeviceDialogComponent, ClaimDeviceDialogResult } from '../../components/claim-device-dialog/claim-device-dialog.component';
 import { PairDeviceDialogComponent, PairDeviceDialogResult } from '../../components/pair-device-dialog/pair-device-dialog.component';
@@ -82,19 +83,21 @@ export class SpaceDevicesPageActionsService {
   loadLatestTelemetryByDevices(devices: readonly Device[]): Observable<Record<string, DeviceTelemetrySnapshot | null>> {
     if (devices.length === 0) return of({});
 
-    const requests = devices.map((device) =>
-      this.loadLatestTelemetry(device.id.value).pipe(
-        map((snapshot) => [device.id.value, snapshot] as const),
-        catchError(() => of([device.id.value, null] as const))
-      )
-    );
-
-    return forkJoin(requests).pipe(
-      map((entries) =>
-        entries.reduce<Record<string, DeviceTelemetrySnapshot | null>>((acc, [deviceId, snapshot]) => {
+    return from(devices).pipe(
+      mergeMap(
+        (device) =>
+          this.loadLatestTelemetry(device.id.value).pipe(
+            map((snapshot) => ({ deviceId: device.id.value, snapshot })),
+            catchError(() => of({ deviceId: device.id.value, snapshot: null }))
+          ),
+        6
+      ),
+      reduce(
+        (acc, { deviceId, snapshot }) => {
           acc[deviceId] = snapshot;
           return acc;
-        }, {})
+        },
+        {} as Record<string, DeviceTelemetrySnapshot | null>
       )
     );
   }
@@ -263,8 +266,8 @@ export class SpaceDevicesPageActionsService {
 
     const nextType = createDeviceCommandType(intent);
 
-    const command = createCreateDeviceCommandCommand(selectedDevice.id, nextType);
-    return this.deviceCommandService.handleCreateDeviceCommand(command).pipe(
+    const command = createQueueDeviceCommand(selectedDevice.id, nextType);
+    return this.deviceCommandService.handleQueueDeviceCommand(command).pipe(
       tap({
         next: (created) => this.snackBar.open(`Command queued: ${created.type}`, 'Close', { duration: 3000 }),
         error: (error) =>
