@@ -1,3 +1,5 @@
+import { DEVICE_THRESHOLD_COMMAND_SERVICE, DeviceThresholdCommandService } from '../../../domain/services/device-threshold-command-service';
+import { DEVICE_THRESHOLD_QUERY_SERVICE, DeviceThresholdQueryService } from '../../../domain/services/device-threshold-query-service';
 import { Component, inject, OnInit } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -8,8 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
-import { DeviceThresholdQueryServiceImpl } from '../../../application/internal/queryservices/device-threshold-query-service.impl';
-import { DeviceThresholdCommandServiceImpl } from '../../../application/internal/commandservices/device-threshold-command-service.impl';
+
+
 import { extractApiErrorMessage } from '../../rest/transform/extract-api-error-message.transform';
 import { DeviceThreshold } from '../../../domain/services/device-threshold-query-service';
 import { MetricThreshold, METRIC_THRESHOLDS, getMetricThresholdDetails } from '../../../domain/model/valueobjects/metric-threshold.value-object';
@@ -48,8 +50,8 @@ export class EditDeviceThresholdsDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly queryService = inject(DeviceThresholdQueryServiceImpl);
-  private readonly commandService = inject(DeviceThresholdCommandServiceImpl);
+  private readonly queryService = inject(DEVICE_THRESHOLD_QUERY_SERVICE);
+  private readonly commandService = inject(DEVICE_THRESHOLD_COMMAND_SERVICE);
   readonly data: EditDeviceThresholdsDialogData = inject(MAT_DIALOG_DATA);
 
   readonly metrics = METRIC_THRESHOLDS;

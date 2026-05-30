@@ -26,7 +26,7 @@
 
 <div *ngIf="!loadingDevices && devicesPage && devicesPage.content.length > 0" [class.device-grid]="viewMode === 'grid'" [class.device-list]="viewMode === 'list'">
   <app-device-card
-    *ngFor="let device of devicesPage.content"
+    *ngFor="let device of devicesPage.content; trackBy: trackByDeviceId"
     [device]="device"
     [viewMode]="viewMode"
     [telemetry]="telemetryByDeviceId[device.id.value] ?? null"

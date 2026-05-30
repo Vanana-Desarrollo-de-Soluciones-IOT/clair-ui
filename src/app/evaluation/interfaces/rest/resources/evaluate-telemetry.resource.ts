@@ -1,7 +1,7 @@
 export interface EvaluateTelemetryResource {
   readonly deviceId: string;
   readonly timestamp: string;
-  readonly uptime: string;
+  readonly uptime: number;
   readonly airQuality: AirQualityResource;
   readonly particulateMatter: ParticulateMatterResource;
   readonly connectivity: ConnectivityResource;
@@ -32,4 +32,3 @@ export interface ConnectivityResource {
 export interface LocationResource {
   readonly country?: string | null;
 }
-

@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GetDashboardMetricsQuery } from '../model/queries/get-dashboard-metrics.query';
 import { GetTrendsQuery } from '../model/queries/get-trends.query';
@@ -18,3 +19,6 @@ export interface AnalyticsQueryService {
   handleGetDashboardMetrics(query: GetDashboardMetricsQuery): Observable<DashboardMetrics>;
   handleGetTrends(query: GetTrendsQuery): Observable<TrendPoint[]>;
 }
+
+
+export const ANALYTICS_QUERY_SERVICE = new InjectionToken<AnalyticsQueryService>('AnalyticsQueryService');

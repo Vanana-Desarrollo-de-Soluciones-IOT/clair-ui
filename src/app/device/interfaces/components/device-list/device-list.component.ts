@@ -18,6 +18,9 @@ export type DeviceViewMode = 'grid' | 'list';
   styleUrl: './device-list.component.css',
 })
 export class DeviceListComponent {
+  trackByDeviceId(index: number, device: Device): string {
+    return device.id.value;
+  }
   @Input() selectedSpace: Space | null = null;
   @Input() devicesPage: DevicePage | null = null;
   @Input() loadingDevices = false;

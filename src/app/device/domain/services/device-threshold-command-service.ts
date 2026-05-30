@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CreateDeviceThresholdCommand } from '../model/commands/create-device-threshold.command';
 import { UpdateDeviceThresholdCommand } from '../model/commands/update-device-threshold.command';
@@ -10,3 +11,6 @@ export interface DeviceThresholdCommandService {
   handleDeleteDeviceThreshold(command: DeleteDeviceThresholdCommand): Observable<void>;
 }
 
+
+
+export const DEVICE_THRESHOLD_COMMAND_SERVICE = new InjectionToken<DeviceThresholdCommandService>('DeviceThresholdCommandService');

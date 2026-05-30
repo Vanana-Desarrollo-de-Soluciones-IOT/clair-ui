@@ -8,6 +8,10 @@ import { AuthHttpGateway } from './iam/infrastructure/api/gateways/auth-http.gat
 import { TOKEN_STORAGE_GATEWAY } from './iam/infrastructure/storage/token-storage.gateway';
 import { LocalTokenStorageGateway } from './iam/infrastructure/storage/local-token-storage.gateway';
 import { AuthHttpInterceptor } from './iam/infrastructure/api/interceptors/auth-http.interceptor';
+import { AUTH_COMMAND_SERVICE } from './iam/domain/services/auth-command-service';
+import { AuthCommandServiceImpl } from './iam/application/internal/commandservices/auth-command-service.impl';
+import { AUTH_QUERY_SERVICE } from './iam/domain/services/auth-query-service';
+import { AuthQueryServiceImpl } from './iam/application/internal/queryservices/auth-query-service.impl';
 import { DEVICE_GATEWAY } from './device/infrastructure/api/gateways/device.gateway';
 import { DeviceHttpGateway } from './device/infrastructure/api/gateways/device-http.gateway';
 import { TELEMETRY_EVALUATION_GATEWAY } from './evaluation/infrastructure/api/gateways/telemetry-evaluation.gateway';
@@ -20,9 +24,41 @@ import { ANALYTICS_CONTEXT_FACADE } from './analytics/interfaces/acl/analytics-c
 import { AnalyticsContextFacadeImpl } from './analytics/application/acl/analytics-context-facade.impl';
 import { ALERTING_CONTEXT_FACADE } from './alerting/interfaces/acl/alerting-context-facade';
 import { AlertingContextFacadeImpl } from './alerting/application/acl/alerting-context-facade.impl';
+import { DEVICE_QUERY_SERVICE } from './device/domain/services/device-query-service';
+import { DeviceQueryServiceImpl } from './device/application/internal/queryservices/device-query-service.impl';
+import { DEVICE_COMMAND_SERVICE } from './device/domain/services/device-command-service';
+import { DeviceCommandServiceImpl } from './device/application/internal/commandservices/device-command-service.impl';
+import { DEVICE_STATUS_QUERY_SERVICE } from './device/domain/services/device-status-query-service';
+import { DeviceStatusQueryServiceImpl } from './device/application/internal/queryservices/device-status-query-service.impl';
+import { DEVICE_THRESHOLD_QUERY_SERVICE } from './device/domain/services/device-threshold-query-service';
+import { DeviceThresholdQueryServiceImpl } from './device/application/internal/queryservices/device-threshold-query-service.impl';
+import { DEVICE_THRESHOLD_COMMAND_SERVICE } from './device/domain/services/device-threshold-command-service';
+import { DeviceThresholdCommandServiceImpl } from './device/application/internal/commandservices/device-threshold-command-service.impl';
+import { ANALYTICS_QUERY_SERVICE } from './analytics/domain/services/analytics-query-service';
+import { AnalyticsQueryServiceImpl } from './analytics/application/internal/queryservices/analytics-query-service.impl';
+import { TELEMETRY_EVALUATION_QUERY_SERVICE } from './evaluation/domain/services/telemetry-evaluation-query-service';
+import { TelemetryEvaluationQueryServiceImpl } from './evaluation/application/internal/queryservices/telemetry-evaluation-query-service.impl';
+import { TELEMETRY_EVALUATION_COMMAND_SERVICE } from './evaluation/domain/services/telemetry-evaluation-command-service';
+import { TelemetryEvaluationCommandServiceImpl } from './evaluation/application/internal/commandservices/telemetry-evaluation-command-service.impl';
+import { ANALYTICS_OVERVIEW_QUERY_SERVICE } from './analytics/domain/services/analytics-overview-query-service';
+import { AnalyticsOverviewQueryServiceImpl } from './analytics/application/internal/queryservices/analytics-overview-query-service.impl';
+import { ALERT_QUERY_SERVICE } from './alerting/domain/services/alert-query-service';
+import { AlertQueryServiceImpl } from './alerting/application/internal/queryservices/alert-query-service.impl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: AUTH_COMMAND_SERVICE, useClass: AuthCommandServiceImpl },
+    { provide: AUTH_QUERY_SERVICE, useClass: AuthQueryServiceImpl },
+    { provide: ANALYTICS_OVERVIEW_QUERY_SERVICE, useClass: AnalyticsOverviewQueryServiceImpl },
+    { provide: ALERT_QUERY_SERVICE, useClass: AlertQueryServiceImpl },
+    { provide: DEVICE_QUERY_SERVICE, useClass: DeviceQueryServiceImpl },
+    { provide: DEVICE_COMMAND_SERVICE, useClass: DeviceCommandServiceImpl },
+    { provide: DEVICE_STATUS_QUERY_SERVICE, useClass: DeviceStatusQueryServiceImpl },
+    { provide: DEVICE_THRESHOLD_QUERY_SERVICE, useClass: DeviceThresholdQueryServiceImpl },
+    { provide: DEVICE_THRESHOLD_COMMAND_SERVICE, useClass: DeviceThresholdCommandServiceImpl },
+    { provide: ANALYTICS_QUERY_SERVICE, useClass: AnalyticsQueryServiceImpl },
+    { provide: TELEMETRY_EVALUATION_QUERY_SERVICE, useClass: TelemetryEvaluationQueryServiceImpl },
+    { provide: TELEMETRY_EVALUATION_COMMAND_SERVICE, useClass: TelemetryEvaluationCommandServiceImpl },
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),

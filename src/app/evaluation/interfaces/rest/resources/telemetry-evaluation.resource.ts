@@ -2,7 +2,7 @@ export interface TelemetryEvaluationResource {
   readonly id: string;
   readonly deviceId: string;
   readonly deviceTime: string;
-  readonly uptime: string;
+  readonly uptime: number;
   readonly airQuality: AirQualityResource;
   readonly particulateMatter: ParticulateMatterResource;
   readonly connectivity: ConnectivityResource;
@@ -42,4 +42,3 @@ export interface TelemetryEvaluationPageResource {
   readonly size: number;
   readonly number: number;
 }
-

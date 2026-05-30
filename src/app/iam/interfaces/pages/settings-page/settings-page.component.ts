@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -8,9 +8,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
-import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
+import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-settings-page',
@@ -30,10 +31,11 @@ import { NotificationService } from '../../../../shared/services/notification.se
 })
 export class SettingsPageComponent {
   private readonly router = inject(Router);
-  private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly authCommandService = inject(AUTH_COMMAND_SERVICE) as AuthCommandService;
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly snackBar = inject(MatSnackBar);
   private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   isLoggingOut = false;
   isSidebarOpen = true;
@@ -52,7 +54,7 @@ export class SettingsPageComponent {
     this.isLoggingOut = true;
     this.statusMessage = '';
 
-    this.authCommandService.handleSignOut().subscribe({
+    this.authCommandService.handleSignOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.clearSessionAndNavigate('Session closed successfully.'),
       error: () => this.clearSessionAndNavigate('Session closed locally after API logout issue.'),
     });

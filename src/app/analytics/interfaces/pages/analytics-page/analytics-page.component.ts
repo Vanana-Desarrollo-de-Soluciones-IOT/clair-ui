@@ -1,3 +1,4 @@
+import { ANALYTICS_QUERY_SERVICE } from '../../../domain/services/analytics-query-service';
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +17,7 @@ import { SidebarComponent } from '../../../../shared/interfaces/components/sideb
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { ExternalDeviceService } from '../../../application/internal/outboundservices/acl/external-device.service';
 import { ExternalTelemetryService } from '../../../application/internal/outboundservices/acl/external-telemetry.service';
-import { AnalyticsQueryServiceImpl } from '../../../application/internal/queryservices/analytics-query-service.impl';
+import { AnalyticsQueryService } from '../../../domain/services/analytics-query-service';
 import {
   FacadeOrganization,
   FacadeSpace,
@@ -69,7 +70,7 @@ import { TrendChartCardComponent } from '../../components/trend-chart-card/trend
 export class AnalyticsPageComponent implements OnInit, OnDestroy {
   private readonly deviceAclService = inject(ExternalDeviceService);
   private readonly telemetryAclService = inject(ExternalTelemetryService);
-  private readonly analyticsQueryService = inject(AnalyticsQueryServiceImpl);
+  private readonly analyticsQueryService = inject(ANALYTICS_QUERY_SERVICE) as AnalyticsQueryService;
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 

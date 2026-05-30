@@ -1,10 +1,13 @@
+import { Inject } from '@angular/core';
+import { DEVICE_THRESHOLD_QUERY_SERVICE, DeviceThresholdQueryService } from '../../../domain/services/device-threshold-query-service';
+import { DEVICE_STATUS_QUERY_SERVICE, DeviceStatusQueryService } from '../../../domain/services/device-status-query-service';
+import { DEVICE_QUERY_SERVICE, DeviceQueryService } from '../../../domain/services/device-query-service';
+import { DEVICE_COMMAND_SERVICE, DeviceCommandService } from '../../../domain/services/device-command-service';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, of, switchMap, tap, interval, startWith, catchError, forkJoin, map } from 'rxjs';
-import { DeviceCommandServiceImpl } from '../../../application/internal/commandservices/device-command-service.impl';
-import { DeviceQueryServiceImpl } from '../../../application/internal/queryservices/device-query-service.impl';
-import { DeviceStatusQueryServiceImpl } from '../../../application/internal/queryservices/device-status-query-service.impl';
+import { Observable, from, of, switchMap, tap, interval, startWith, catchError, map, mergeMap } from 'rxjs';
+import { reduce } from 'rxjs/operators';
 import { ExternalTelemetryEvaluationService, DeviceTelemetrySnapshot } from '../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service';
 import { Device, DevicePage, Space } from '../../../domain/services/device-query-service';
 import { DeviceStatusSnapshot } from '../../../domain/services/device-status-query-service';
@@ -18,7 +21,7 @@ import { createUpdateSpaceNameCommand } from '../../../domain/model/commands/upd
 import { createDeleteSpaceCommand } from '../../../domain/model/commands/delete-space.command';
 import { createUpdateDeviceNameCommand } from '../../../domain/model/commands/update-device-name.command';
 import { createDeleteDeviceCommand } from '../../../domain/model/commands/delete-device.command';
-import { createCreateDeviceCommandCommand } from '../../../domain/model/commands/create-device-command.command';
+import { createQueueDeviceCommand } from '../../../domain/model/commands/queue-device-command.command';
 import { createDeviceCommandType } from '../../../domain/model/valueobjects/device-command-type.value-object';
 import { ClaimDeviceDialogComponent, ClaimDeviceDialogResult } from '../../components/claim-device-dialog/claim-device-dialog.component';
 import { PairDeviceDialogComponent, PairDeviceDialogResult } from '../../components/pair-device-dialog/pair-device-dialog.component';
@@ -28,17 +31,16 @@ import { DeleteDeviceDialogComponent, DeleteDeviceDialogData } from '../../compo
 import { extractApiErrorMessage } from '../../rest/transform/extract-api-error-message.transform';
 import { createGetDeviceStatusByIdQuery } from '../../../domain/model/queries/get-device-status-by-id.query';
 import { createDeviceId } from '../../../domain/model/valueobjects/device-id.value-object';
-import { DeviceThresholdQueryServiceImpl } from '../../../application/internal/queryservices/device-threshold-query-service.impl';
 import { EditDeviceThresholdsDialogComponent } from '../../components/edit-device-thresholds-dialog/edit-device-thresholds-dialog.component';
 import { createGetDeviceThresholdsByDeviceQuery } from '../../../domain/model/queries/get-device-thresholds-by-device.query';
 
 @Injectable({ providedIn: 'root' })
 export class SpaceDevicesPageActionsService {
   constructor(
-    private readonly deviceCommandService: DeviceCommandServiceImpl,
-    private readonly deviceQueryService: DeviceQueryServiceImpl,
-    private readonly deviceStatusQueryService: DeviceStatusQueryServiceImpl,
-    private readonly deviceThresholdQueryService: DeviceThresholdQueryServiceImpl,
+    @Inject(DEVICE_COMMAND_SERVICE) private readonly deviceCommandService: DeviceCommandService,
+    @Inject(DEVICE_QUERY_SERVICE) private readonly deviceQueryService: DeviceQueryService,
+    @Inject(DEVICE_STATUS_QUERY_SERVICE) private readonly deviceStatusQueryService: DeviceStatusQueryService,
+    @Inject(DEVICE_THRESHOLD_QUERY_SERVICE) private readonly deviceThresholdQueryService: DeviceThresholdQueryService,
     private readonly externalTelemetryService: ExternalTelemetryEvaluationService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar
@@ -81,19 +83,21 @@ export class SpaceDevicesPageActionsService {
   loadLatestTelemetryByDevices(devices: readonly Device[]): Observable<Record<string, DeviceTelemetrySnapshot | null>> {
     if (devices.length === 0) return of({});
 
-    const requests = devices.map((device) =>
-      this.loadLatestTelemetry(device.id.value).pipe(
-        map((snapshot) => [device.id.value, snapshot] as const),
-        catchError(() => of([device.id.value, null] as const))
-      )
-    );
-
-    return forkJoin(requests).pipe(
-      map((entries) =>
-        entries.reduce<Record<string, DeviceTelemetrySnapshot | null>>((acc, [deviceId, snapshot]) => {
+    return from(devices).pipe(
+      mergeMap(
+        (device) =>
+          this.loadLatestTelemetry(device.id.value).pipe(
+            map((snapshot) => ({ deviceId: device.id.value, snapshot })),
+            catchError(() => of({ deviceId: device.id.value, snapshot: null }))
+          ),
+        6
+      ),
+      reduce(
+        (acc, { deviceId, snapshot }) => {
           acc[deviceId] = snapshot;
           return acc;
-        }, {})
+        },
+        {} as Record<string, DeviceTelemetrySnapshot | null>
       )
     );
   }
@@ -262,8 +266,8 @@ export class SpaceDevicesPageActionsService {
 
     const nextType = createDeviceCommandType(intent);
 
-    const command = createCreateDeviceCommandCommand(selectedDevice.id, nextType);
-    return this.deviceCommandService.handleCreateDeviceCommand(command).pipe(
+    const command = createQueueDeviceCommand(selectedDevice.id, nextType);
+    return this.deviceCommandService.handleQueueDeviceCommand(command).pipe(
       tap({
         next: (created) => this.snackBar.open(`Command queued: ${created.type}`, 'Close', { duration: 3000 }),
         error: (error) =>

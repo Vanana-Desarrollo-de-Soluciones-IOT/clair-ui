@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GetAlertDailySummaryQuery } from '../model/queries/get-alert-daily-summary.query';
 import { GetAlertsQuery } from '../model/queries/get-alerts.query';
@@ -47,3 +48,5 @@ export interface AlertQueryService {
   handleGetDailySummary(query: GetAlertDailySummaryQuery): Observable<DailyAlertCount[]>;
   handleGetDailySummaryBySpace(spaceId: string, days: number): Observable<DailyAlertCount[]>;
 }
+
+export const ALERT_QUERY_SERVICE = new InjectionToken<AlertQueryService>('AlertQueryService');
