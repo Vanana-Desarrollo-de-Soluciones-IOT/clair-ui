@@ -1,6 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AnalyticsOverviewSnapshot } from '../../domain/model/valueobjects/analytics-overview.value-object';
+import { LiveTelemetry } from '../../domain/services/analytics-query-service';
 
 export type AnalyticsContextDashboardMetrics = Readonly<{
   aqiValue: number;
@@ -21,6 +22,8 @@ export interface AnalyticsContextFacade {
     deviceLimitPerSpace?: number,
     alertLimit?: number,
   ): Observable<AnalyticsOverviewSnapshot>;
+
+  streamLiveTelemetry(deviceId: string): Observable<LiveTelemetry>;
 }
 
 export const ANALYTICS_CONTEXT_FACADE = new InjectionToken<AnalyticsContextFacade>(
