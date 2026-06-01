@@ -166,47 +166,7 @@
           <span>Updated {{ formattedUpdateTime }}</span>
         </div>
 
-        <!-- Latest Readings Section -->
-        <div class="last-readings-section" *ngIf="lastReadings">
-          <div class="section-title-row">
-            <h2>Last Readings</h2>
-            <mat-icon class="info-icon" title="Raw telemetry values from the last device transmission.">info</mat-icon>
-          </div>
 
-          <div class="readings-grid">
-            <div class="reading-card">
-              <span class="reading-title">PM2.5</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings.pm2_5 !== null ? lastReadings.pm2_5.toFixed(1) : '--' }}</span>
-                <span class="reading-unit">µg/m³</span>
-              </div>
-            </div>
-
-            <div class="reading-card">
-              <span class="reading-title">CO₂</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings.co2 !== null ? lastReadings.co2.toFixed(0) : '--' }}</span>
-                <span class="reading-unit">ppm</span>
-              </div>
-            </div>
-
-            <div class="reading-card">
-              <span class="reading-title">TEMP</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings.temperature !== null ? lastReadings.temperature.toFixed(1) : '--' }}</span>
-                <span class="reading-unit">°C</span>
-              </div>
-            </div>
-
-            <div class="reading-card">
-              <span class="reading-title">HUMIDITY</span>
-              <div class="reading-value-row">
-                <span class="reading-value">{{ lastReadings.humidity !== null ? lastReadings.humidity.toFixed(1) : '--' }}</span>
-                <span class="reading-unit">%</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   </div>

@@ -6,6 +6,15 @@ import { Aqi } from '../model/valueobjects/aqi.value-object';
 import { MetricDelta } from '../model/valueobjects/metric-delta.value-object';
 import { TrendPoint } from '../model/valueobjects/trend-point.value-object';
 
+export interface LiveTelemetry {
+  deviceId: string;
+  co2: number;
+  pm2_5: number;
+  temperature: number;
+  humidity: number;
+  timestamp: string;
+}
+
 export type DashboardMetrics = Readonly<{
   aqi: Aqi;
   co2: MetricDelta;
@@ -18,6 +27,7 @@ export type DashboardMetrics = Readonly<{
 export interface AnalyticsQueryService {
   handleGetDashboardMetrics(query: GetDashboardMetricsQuery): Observable<DashboardMetrics>;
   handleGetTrends(query: GetTrendsQuery): Observable<TrendPoint[]>;
+  handleStreamLiveTelemetry(deviceId: string): Observable<LiveTelemetry>;
 }
 
 

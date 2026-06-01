@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AnalyticsQueryService, DashboardMetrics } from '../../../domain/services/analytics-query-service';
+import { AnalyticsQueryService, DashboardMetrics, LiveTelemetry } from '../../../domain/services/analytics-query-service';
 import { GetDashboardMetricsQuery } from '../../../domain/model/queries/get-dashboard-metrics.query';
 import { GetTrendsQuery } from '../../../domain/model/queries/get-trends.query';
 import { TrendPoint } from '../../../domain/model/valueobjects/trend-point.value-object';
@@ -22,5 +22,9 @@ export class AnalyticsQueryServiceImpl implements AnalyticsQueryService {
     return this.gateway.getTrends(query.deviceId, query.period, query.startDate, query.endDate).pipe(
       map((resource) => resource.dataPoints.map(trendDataPointResourceToDomain))
     );
+  }
+
+  handleStreamLiveTelemetry(deviceId: string): Observable<LiveTelemetry> {
+    return this.gateway.streamLiveTelemetry(deviceId);
   }
 }

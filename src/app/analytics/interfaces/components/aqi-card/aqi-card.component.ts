@@ -12,7 +12,7 @@ export class AqiCardComponent {
   @Input() aqiValue: number | null = null;
   @Input() aqiCategory: string | null = null;
   @Input() updatedAt: string | null = null;
-  @Input() organizationCount: number | null = null;
+  @Input() deviceCount: number | null = null;
   @Input() maxAqiValue = 100;
 
   private normalizeCategory(raw: string): string {
@@ -69,12 +69,12 @@ export class AqiCardComponent {
     return Math.min(100, Math.max(0, Math.round((this.aqiValue / max) * 100)));
   }
 
-  get organizationLabel(): string {
-    if (this.organizationCount === null || this.organizationCount === undefined) {
-      return '-- organization';
+  get deviceLabel(): string {
+    if (this.deviceCount === null || this.deviceCount === undefined) {
+      return '-- devices';
     }
-    const label = this.organizationCount === 1 ? 'organization' : 'organizations';
-    return `${this.organizationCount} ${label}`;
+    const label = this.deviceCount === 1 ? 'device' : 'devices';
+    return `${this.deviceCount} ${label}`;
   }
 
   get updatedLabel(): string {

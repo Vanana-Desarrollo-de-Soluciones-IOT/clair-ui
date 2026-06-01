@@ -22,6 +22,7 @@ export type OverviewMeasurements = Readonly<{
   temperatureDeltaLabel: string | null;
   humidityDeltaLabel: string | null;
   recordedAt: string | null;
+  deviceCount: number | null;
   organizations: OrganizationAqiItem[];
   alerts: AlertsCardItem[];
 }>;
@@ -93,6 +94,7 @@ export const analyticsOverviewSnapshotToOverviewMeasurements = (
     temperatureDeltaLabel: formatDelta(snapshot.core.temperatureDeltaPercentage),
     humidityDeltaLabel: formatDelta(snapshot.core.humidityDeltaPercentage),
     recordedAt: snapshot.core.recordedAt ?? snapshot.updatedAt ?? null,
+    deviceCount: snapshot.core.deviceCount ?? null,
     organizations,
     alerts,
   };

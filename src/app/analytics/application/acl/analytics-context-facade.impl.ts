@@ -1,5 +1,5 @@
 import { ANALYTICS_OVERVIEW_QUERY_SERVICE, AnalyticsOverviewQueryService } from "../../domain/services/analytics-overview-query-service";
-import { ANALYTICS_QUERY_SERVICE, AnalyticsQueryService } from "../../domain/services/analytics-query-service";
+import { ANALYTICS_QUERY_SERVICE, AnalyticsQueryService, LiveTelemetry } from "../../domain/services/analytics-query-service";
 import { Inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 import {
@@ -41,5 +41,9 @@ export class AnalyticsContextFacadeImpl implements AnalyticsContextFacade {
   ): Observable<AnalyticsOverviewSnapshot> {
     const query = createGetAnalyticsOverviewQuery(deviceLimitPerSpace, alertLimit);
     return this.overviewQueryService.handleGetAnalyticsOverview(query);
+  }
+
+  streamLiveTelemetry(deviceId: string): Observable<LiveTelemetry> {
+    return this.queryService.handleStreamLiveTelemetry(deviceId);
   }
 }

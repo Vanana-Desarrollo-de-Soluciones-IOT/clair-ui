@@ -16,16 +16,13 @@ import { takeUntil } from 'rxjs/operators';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { ExternalDeviceService } from '../../../application/internal/outboundservices/acl/external-device.service';
-import { ExternalTelemetryService } from '../../../application/internal/outboundservices/acl/external-telemetry.service';
-import { AnalyticsQueryService } from '../../../domain/services/analytics-query-service';
+import { AnalyticsQueryService, DashboardMetrics, LiveTelemetry } from '../../../domain/services/analytics-query-service';
 import {
   FacadeOrganization,
   FacadeSpace,
   FacadeDevice,
 } from '../../../../device/interfaces/acl/device-context-facade';
-import { DashboardMetrics } from '../../../domain/services/analytics-query-service';
-import { TrendPoint } from '../../../domain/model/valueobjects/trend-point.value-object';
-import { LatestTelemetrySummary } from '../../../../evaluation/interfaces/acl/evaluation-context-facade';
+import { TrendPoint, createTrendPoint } from '../../../domain/model/valueobjects/trend-point.value-object';
 import { createGetDashboardMetricsQuery } from '../../../domain/model/queries/get-dashboard-metrics.query';
 import { createGetTrendsQuery } from '../../../domain/model/queries/get-trends.query';
 import {
@@ -69,7 +66,6 @@ import { TrendChartCardComponent } from '../../components/trend-chart-card/trend
 })
 export class AnalyticsPageComponent implements OnInit, OnDestroy {
   private readonly deviceAclService = inject(ExternalDeviceService);
-  private readonly telemetryAclService = inject(ExternalTelemetryService);
   private readonly analyticsQueryService = inject(ANALYTICS_QUERY_SERVICE) as AnalyticsQueryService;
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -93,7 +89,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   // Telemetry & analytics data
   liveData: DashboardMetrics | null = null;
   trendDataPoints: TrendPoint[] = [];
-  lastReadings: LatestTelemetrySummary | null = null;
 
   // Controls
   selectedPeriod = 'LIVE';
@@ -107,6 +102,7 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   secondsSinceUpdate = 0;
   private refreshSubscription?: Subscription;
   private secondsCounterSubscription?: Subscription;
+  private liveStreamSubscription?: Subscription;
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -234,7 +230,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
     }
     this.liveData = null;
     this.trendDataPoints = [];
-    this.lastReadings = null;
     this.liveUnavailable = false;
     this.liveUnavailableMessage = '';
     this.stopPolling();
@@ -292,32 +287,98 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
         },
       });
 
-    // Latest Readings
-    this.telemetryAclService
-      .fetchLatestTelemetryByDevice(this.selectedDeviceId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (telemetry) => {
-          this.lastReadings = telemetry;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.lastReadings = null;
-          this.cdr.markForCheck();
-        },
-      });
+
   }
 
   private startPolling(): void {
     this.stopPolling();
-    this.refreshSubscription = interval(30000)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.fetchData());
+    if (this.selectedPeriod === 'LIVE') {
+      this.startLiveStream();
+    } else {
+      this.refreshSubscription = interval(30000)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.fetchData());
+    }
   }
 
   private stopPolling(): void {
     this.refreshSubscription?.unsubscribe();
     this.refreshSubscription = undefined;
+    this.liveStreamSubscription?.unsubscribe();
+    this.liveStreamSubscription = undefined;
+  }
+
+  private startLiveStream(): void {
+    if (!this.selectedDeviceId) return;
+
+    this.liveStreamSubscription?.unsubscribe();
+    this.liveStreamSubscription = this.analyticsQueryService
+      .handleStreamLiveTelemetry(this.selectedDeviceId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (telemetry) => {
+          const calculatedAqi = calculateAqiFromPm25(telemetry.pm2_5);
+          if (this.liveData) {
+            this.liveData = {
+              ...this.liveData,
+              aqi: {
+                value: calculatedAqi.value,
+                category: calculatedAqi.category
+              },
+              co2: {
+                ...this.liveData.co2,
+                value: telemetry.co2
+              },
+              pm2_5: {
+                ...this.liveData.pm2_5,
+                value: telemetry.pm2_5
+              },
+              temperature: {
+                ...this.liveData.temperature,
+                value: telemetry.temperature
+              },
+              humidity: {
+                ...this.liveData.humidity,
+                value: telemetry.humidity
+              },
+              calculatedAt: telemetry.timestamp
+            };
+          } else {
+            this.liveData = {
+              aqi: { value: calculatedAqi.value, category: calculatedAqi.category },
+              co2: { value: telemetry.co2, deltaPercentage: null },
+              pm2_5: { value: telemetry.pm2_5, deltaPercentage: null },
+              temperature: { value: telemetry.temperature, deltaPercentage: null },
+              humidity: { value: telemetry.humidity, deltaPercentage: null },
+              calculatedAt: telemetry.timestamp
+            };
+          }
+
+
+
+          const newPoint = createTrendPoint(
+            telemetry.timestamp,
+            calculatedAqi.value,
+            telemetry.co2,
+            telemetry.pm2_5,
+            telemetry.temperature,
+            telemetry.humidity
+          );
+
+          if (this.trendDataPoints.length > 0) {
+            const limit = Math.max(30, this.trendDataPoints.length);
+            this.trendDataPoints = [...this.trendDataPoints, newPoint].slice(-limit);
+          } else {
+            this.trendDataPoints = [newPoint];
+          }
+
+          this.secondsSinceUpdate = 0;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error in live telemetry stream:', err);
+        }
+      });
   }
 
   private startSecondsCounter(): void {
@@ -385,4 +446,34 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   get activeMetricDelta(): number | null {
     return getActiveMetricDelta(this.liveData, this.selectedMetric);
   }
+}
+
+function calculateAqiFromPm25(pm2_5: number): { value: number; category: string } {
+  let aqi: number;
+  if (pm2_5 <= 12.0) {
+    aqi = ((50 - 0) / (12.0 - 0.0)) * (pm2_5 - 0.0) + 0;
+  } else if (pm2_5 <= 35.4) {
+    aqi = ((100 - 51) / (35.4 - 12.1)) * (pm2_5 - 12.1) + 51;
+  } else if (pm2_5 <= 55.4) {
+    aqi = ((150 - 101) / (55.4 - 35.5)) * (pm2_5 - 35.5) + 101;
+  } else if (pm2_5 <= 150.4) {
+    aqi = ((200 - 151) / (150.4 - 55.5)) * (pm2_5 - 55.5) + 151;
+  } else if (pm2_5 <= 250.4) {
+    aqi = ((300 - 201) / (250.4 - 150.5)) * (pm2_5 - 150.5) + 201;
+  } else if (pm2_5 <= 350.4) {
+    aqi = ((400 - 301) / (350.4 - 250.5)) * (pm2_5 - 250.5) + 301;
+  } else {
+    aqi = ((500 - 401) / (500.4 - 350.5)) * (pm2_5 - 350.5) + 401;
+  }
+
+  aqi = Math.round(aqi);
+  let category = 'Good';
+  if (aqi <= 50) category = 'Good';
+  else if (aqi <= 100) category = 'Moderate';
+  else if (aqi <= 150) category = 'Unhealthy for Sensitive';
+  else if (aqi <= 200) category = 'Unhealthy';
+  else if (aqi <= 300) category = 'Very Unhealthy';
+  else category = 'Hazardous';
+
+  return { value: aqi, category };
 }
