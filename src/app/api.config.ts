@@ -5,6 +5,7 @@ export const API_CONFIG = {
   endpoints: {
     iam: '/v1/auth',
     subscriptions: '/v1/subscriptions',
+    notifications: '/v1/notifications',
     organizations: '/v1/organizations',
     spaces: '/v1/spaces',
     devices: '/v1/devices',

@@ -15,8 +15,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClairLyricsComponent } from '../clair-lyrics/clair-lyrics.component';
-import { NotificationService, PushNotificationLog } from '../../../services/notification.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+  PushNotificationLog,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-header',
@@ -30,11 +34,11 @@ export class HeaderComponent implements OnInit {
   @Input() isSidebarOpen = true;
   @Output() sidebarToggleRequested = new EventEmitter<void>();
 
-  private readonly notificationService = inject(NotificationService);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
-  notifications: PushNotificationLog[] = [];
+  notifications: ReadonlyArray<PushNotificationLog> = [];
   isNotificationPanelOpen = false;
   unreadCount = 0;
   loading = false;
@@ -61,7 +65,7 @@ export class HeaderComponent implements OnInit {
     this.loading = true;
     this.cdr.markForCheck();
 
-    this.notificationService.getPushNotifications(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.notificationsContextFacade.getPushNotifications(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (page) => {
         this.notifications = page.content || [];
         this.calculateUnreadCount();

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NotificationService } from './shared/services/notification.service';
+import { NOTIFICATIONS_CONTEXT_FACADE, NotificationsContextFacade } from './notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-root',
@@ -10,9 +10,9 @@ import { NotificationService } from './shared/services/notification.service';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
-  private readonly notificationService = inject(NotificationService);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
 
   ngOnInit(): void {
-    this.notificationService.initOneSignal();
+    this.notificationsContextFacade.initOneSignal();
   }
 }

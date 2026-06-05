@@ -5,7 +5,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 import { jwtDecode } from 'jwt-decode';
-import { NotificationService } from '../../../../shared/services/notification.service';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-auth-callback-page',
@@ -18,7 +21,7 @@ export class AuthCallbackPageComponent {
   private readonly router = inject(Router);
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly notificationService = inject(NotificationService);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
 
   errorMessage: string | null = null;
 
@@ -40,8 +43,8 @@ export class AuthCallbackPageComponent {
       try {
         const payload = jwtDecode<{ sub: string }>(token);
         if (payload && payload.sub) {
-          this.notificationService.loginUser(payload.sub);
-          this.notificationService.requestPermission();
+          this.notificationsContextFacade.loginUser(payload.sub);
+          this.notificationsContextFacade.requestPermission();
         }
       } catch (e) {
         console.error('[AuthCallback] Error decoding token for OneSignal:', e);

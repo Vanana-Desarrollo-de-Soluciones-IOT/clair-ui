@@ -10,16 +10,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
-import { GoogleIconComponent } from '../../../../shared/interfaces/components/icons/google/google-icon.component';
+import { ClairLogoComponent } from '../../components/icons/clair-logo/clair-logo.component';
+import { GoogleIconComponent } from '../../components/icons/google/google-icon.component';
 import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
 import { createSignInCommand } from '../../../domain/model/commands/sign-in.command';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 import { jwtDecode } from 'jwt-decode';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-login-page',
@@ -48,7 +51,7 @@ export class LoginPageComponent {
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly notificationService = inject(NotificationService);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
   private readonly destroyRef = inject(DestroyRef);
 
   loginForm: FormGroup = this.fb.group({
@@ -93,8 +96,8 @@ export class LoginPageComponent {
           try {
             const payload = jwtDecode<{ sub: string }>(token);
             if (payload && payload.sub) {
-              this.notificationService.loginUser(payload.sub);
-              this.notificationService.requestPermission();
+              this.notificationsContextFacade.loginUser(payload.sub);
+              this.notificationsContextFacade.requestPermission();
             }
           } catch (e) {
             console.error('[Login] Error decoding token for OneSignal:', e);
