@@ -6,9 +6,9 @@ This document contains the Context Mapping diagram for the clair-UI (Frontend).
 
 ```mermaid
 flowchart LR
-    %% Context Mapping - Web Services (UI)
+    %% Context Mapping - Web Application
 
-    title["Context Mapping - Web Services (UI)"]
+    title["Context Mapping - Web Application"]
 
     IAM(("IAM"))
     Device(("Device"))
