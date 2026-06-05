@@ -44,6 +44,12 @@ import { ANALYTICS_OVERVIEW_QUERY_SERVICE } from './analytics/domain/services/an
 import { AnalyticsOverviewQueryServiceImpl } from './analytics/application/internal/queryservices/analytics-overview-query-service.impl';
 import { ALERT_QUERY_SERVICE } from './alerting/domain/services/alert-query-service';
 import { AlertQueryServiceImpl } from './alerting/application/internal/queryservices/alert-query-service.impl';
+import { NOTIFICATION_QUERY_SERVICE } from './notifications/domain/services/notification-query-service';
+import { NotificationQueryServiceImpl } from './notifications/application/internal/queryservices/notification-query-service.impl';
+import { NOTIFICATION_GATEWAY } from './notifications/infrastructure/api/gateways/notification.gateway';
+import { NotificationHttpGateway } from './notifications/infrastructure/api/gateways/notification-http.gateway';
+import { NOTIFICATIONS_CONTEXT_FACADE } from './notifications/interfaces/acl/notifications-context-facade';
+import { NotificationsContextFacadeImpl } from './notifications/application/acl/notifications-context-facade.impl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -51,6 +57,7 @@ export const appConfig: ApplicationConfig = {
     { provide: AUTH_QUERY_SERVICE, useClass: AuthQueryServiceImpl },
     { provide: ANALYTICS_OVERVIEW_QUERY_SERVICE, useClass: AnalyticsOverviewQueryServiceImpl },
     { provide: ALERT_QUERY_SERVICE, useClass: AlertQueryServiceImpl },
+    { provide: NOTIFICATION_QUERY_SERVICE, useClass: NotificationQueryServiceImpl },
     { provide: DEVICE_QUERY_SERVICE, useClass: DeviceQueryServiceImpl },
     { provide: DEVICE_COMMAND_SERVICE, useClass: DeviceCommandServiceImpl },
     { provide: DEVICE_STATUS_QUERY_SERVICE, useClass: DeviceStatusQueryServiceImpl },
@@ -66,11 +73,13 @@ export const appConfig: ApplicationConfig = {
     { provide: AUTH_GATEWAY, useClass: AuthHttpGateway },
     { provide: TOKEN_STORAGE_GATEWAY, useClass: LocalTokenStorageGateway },
     { provide: DEVICE_GATEWAY, useClass: DeviceHttpGateway },
+    { provide: NOTIFICATION_GATEWAY, useClass: NotificationHttpGateway },
     { provide: TELEMETRY_EVALUATION_GATEWAY, useClass: TelemetryEvaluationHttpGateway },
     { provide: EVALUATION_CONTEXT_FACADE, useClass: EvaluationContextFacadeImpl },
     { provide: DEVICE_CONTEXT_FACADE, useClass: DeviceContextFacadeImpl },
     { provide: ANALYTICS_CONTEXT_FACADE, useClass: AnalyticsContextFacadeImpl },
     { provide: ALERTING_CONTEXT_FACADE, useClass: AlertingContextFacadeImpl },
+    { provide: NOTIFICATIONS_CONTEXT_FACADE, useClass: NotificationsContextFacadeImpl },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
 };

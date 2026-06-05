@@ -10,8 +10,11 @@ import { SidebarComponent } from '../../../../shared/interfaces/components/sideb
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-settings-page',
@@ -34,7 +37,7 @@ export class SettingsPageComponent {
   private readonly authCommandService = inject(AUTH_COMMAND_SERVICE) as AuthCommandService;
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly notificationService = inject(NotificationService);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
   private readonly destroyRef = inject(DestroyRef);
 
   isLoggingOut = false;
@@ -61,7 +64,7 @@ export class SettingsPageComponent {
   }
 
   private clearSessionAndNavigate(message: string): void {
-    this.notificationService.logoutUser();
+    this.notificationsContextFacade.logoutUser();
     this.tokenStorage.clearTokens();
     this.statusMessage = message;
     this.isLoggingOut = false;
