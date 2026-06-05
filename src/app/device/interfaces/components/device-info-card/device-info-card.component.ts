@@ -4,7 +4,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatCardModule } from "@angular/material/card";
-import { ClairDeviceComponent } from "../../../../shared/interfaces/components/clair-device/clair-device.component";
+import { ClairDeviceComponent } from "../../components/icons/clair-device/clair-device.component";
 import { Device } from "../../../domain/services/device-query-service";
 import { DeviceTelemetrySnapshot } from "../../../application/internal/outboundservices/acl/external-telemetry-evaluation.service";
 import { resolveDeviceConnectivityColor } from "../../rest/transform/device-connectivity-color.transform";
