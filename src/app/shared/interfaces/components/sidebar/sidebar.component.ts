@@ -86,7 +86,7 @@ export class SidebarComponent implements OnInit {
     { label: 'Overview', component: 'overview', route: '/overview' },
     { label: 'Air Quality', component: 'air-quality', route: '/analytics' },
     { label: 'Alerts & Actions', component: 'alerts-actions', route: '/alerts' },
-    { label: 'Reports', component: 'reports' },
+    { label: 'Reports', component: 'reports', route: '/reports' },
     { label: 'Space & Devices', component: 'space-devices', route: '/space-devices' },
   ];
 }
