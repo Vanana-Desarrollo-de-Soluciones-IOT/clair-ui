@@ -42,6 +42,8 @@ import { TELEMETRY_EVALUATION_COMMAND_SERVICE } from './evaluation/domain/servic
 import { TelemetryEvaluationCommandServiceImpl } from './evaluation/application/internal/commandservices/telemetry-evaluation-command-service.impl';
 import { ANALYTICS_OVERVIEW_QUERY_SERVICE } from './analytics/domain/services/analytics-overview-query-service';
 import { AnalyticsOverviewQueryServiceImpl } from './analytics/application/internal/queryservices/analytics-overview-query-service.impl';
+import { REPORT_QUERY_SERVICE } from './analytics/domain/services/report-query-service';
+import { ReportQueryServiceImpl } from './analytics/application/internal/queryservices/report-query-service.impl';
 import { ALERT_QUERY_SERVICE } from './alerting/domain/services/alert-query-service';
 import { AlertQueryServiceImpl } from './alerting/application/internal/queryservices/alert-query-service.impl';
 import { NOTIFICATION_QUERY_SERVICE } from './notifications/domain/services/notification-query-service';
@@ -64,6 +66,7 @@ export const appConfig: ApplicationConfig = {
     { provide: DEVICE_THRESHOLD_QUERY_SERVICE, useClass: DeviceThresholdQueryServiceImpl },
     { provide: DEVICE_THRESHOLD_COMMAND_SERVICE, useClass: DeviceThresholdCommandServiceImpl },
     { provide: ANALYTICS_QUERY_SERVICE, useClass: AnalyticsQueryServiceImpl },
+    { provide: REPORT_QUERY_SERVICE, useClass: ReportQueryServiceImpl },
     { provide: TELEMETRY_EVALUATION_QUERY_SERVICE, useClass: TelemetryEvaluationQueryServiceImpl },
     { provide: TELEMETRY_EVALUATION_COMMAND_SERVICE, useClass: TelemetryEvaluationCommandServiceImpl },
     provideBrowserGlobalErrorListeners(),
