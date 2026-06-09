@@ -7,7 +7,6 @@ export type PushNotificationLog = Readonly<{
   sent: boolean;
   errorMessage: string | null;
   createdAt: string;
-  updatedAt: string;
 }>;
 
 const ensureNonEmptyString = (value: string, fieldName: string): void => {
@@ -22,7 +21,6 @@ export const createPushNotificationLog = (log: PushNotificationLog): PushNotific
   ensureNonEmptyString(log.title, 'title');
   ensureNonEmptyString(log.message, 'message');
   ensureNonEmptyString(log.createdAt, 'createdAt');
-  ensureNonEmptyString(log.updatedAt, 'updatedAt');
 
   return Object.freeze({
     ...log,
