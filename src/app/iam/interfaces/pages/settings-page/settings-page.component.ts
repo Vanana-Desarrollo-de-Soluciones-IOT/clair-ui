@@ -1,25 +1,44 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
-import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
+import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, SidebarComponent, HeaderComponent],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    SidebarComponent,
+    HeaderComponent,
+  ],
   templateUrl: './settings-page.component.html',
   styleUrl: './settings-page.component.css',
 })
 export class SettingsPageComponent {
   private readonly router = inject(Router);
-  private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly authCommandService = inject(AUTH_COMMAND_SERVICE) as AuthCommandService;
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
+  private readonly destroyRef = inject(DestroyRef);
 
   isLoggingOut = false;
   isSidebarOpen = true;
@@ -38,16 +57,18 @@ export class SettingsPageComponent {
     this.isLoggingOut = true;
     this.statusMessage = '';
 
-    this.authCommandService.handleSignOut().subscribe({
+    this.authCommandService.handleSignOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.clearSessionAndNavigate('Session closed successfully.'),
       error: () => this.clearSessionAndNavigate('Session closed locally after API logout issue.'),
     });
   }
 
   private clearSessionAndNavigate(message: string): void {
+    this.notificationsContextFacade.logoutUser();
     this.tokenStorage.clearTokens();
     this.statusMessage = message;
     this.isLoggingOut = false;
+    this.snackBar.open(message, 'Close', { duration: 3000 });
     this.router.navigate(['/login']);
   }
 }

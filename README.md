@@ -19,11 +19,12 @@ Once the server is running, open your browser and navigate to `http://localhost:
 
 CRITICAL: lo que pongas en `src/environments/` se empaqueta en el frontend (no guardar secretos).
 
-Para desarrollo, `npm start` usa `proxy.conf.cjs` y lee `.env` para redirigir `/api/*` al backend:
+Para desarrollo, `npm start` usa `proxy.conf.cjs` y lee `.env` para redirigir `/api/*` al backend. El endpoint `/api/config/stripe-public-key` se responde desde el proxy local usando la key publica de Stripe:
 
 - `.env`: `CLAIR_BACKEND_BASE_URL=http://localhost:8080`
+- `.env`: `STRIPE_PUBLIC_KEY=pk_test_...`
 
-En Vercel (producción), `vercel.json` reescribe `/api/*` hacia `${CLAIR_BACKEND_BASE_URL}/api/*`. Configura `CLAIR_BACKEND_BASE_URL` en Vercel con la URL publica del backend.
+En Vercel (producción), `api/config/stripe-public-key.js` responde la key publica de Stripe desde `STRIPE_PUBLIC_KEY`, y `vercel.json` reescribe el resto de `/api/*` hacia `${CLAIR_BACKEND_BASE_URL}/api/*`. Configura `CLAIR_BACKEND_BASE_URL` y `STRIPE_PUBLIC_KEY` en Vercel.
 
 ## Code scaffolding
 

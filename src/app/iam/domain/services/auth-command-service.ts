@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SignUpCommand } from '../model/commands/sign-up.command';
 import { SignInCommand } from '../model/commands/sign-in.command';
@@ -18,3 +19,5 @@ export interface AuthCommandService {
   handleGoogleSignIn(command: SignInWithGoogleCommand): Observable<{ accessToken: AccessToken; refreshToken: RefreshToken }>;
   getGoogleAuthorizeUrl(): string;
 }
+
+export const AUTH_COMMAND_SERVICE = new InjectionToken<AuthCommandService>('AuthCommandService');

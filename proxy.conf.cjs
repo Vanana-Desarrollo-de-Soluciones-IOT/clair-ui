@@ -36,6 +36,25 @@ if (!target) {
 }
 
 module.exports = {
+  '/api/config/stripe-public-key': {
+    target,
+    secure: false,
+    changeOrigin: true,
+    bypass: (_req, res) => {
+      const stripePublicKey = env.STRIPE_PUBLIC_KEY;
+
+      res.setHeader('Content-Type', 'application/json');
+
+      if (!stripePublicKey) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ message: 'Missing STRIPE_PUBLIC_KEY in `.env`.' }));
+        return true;
+      }
+
+      res.end(JSON.stringify({ stripePublicKey }));
+      return true;
+    },
+  },
   '/api': {
     target,
     secure: false,
@@ -43,4 +62,3 @@ module.exports = {
     logLevel: 'warn',
   },
 };
-

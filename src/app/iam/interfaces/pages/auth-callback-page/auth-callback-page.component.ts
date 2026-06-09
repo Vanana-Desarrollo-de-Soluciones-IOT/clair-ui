@@ -2,18 +2,26 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
+import { jwtDecode } from 'jwt-decode';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-auth-callback-page',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, RouterLink],
+  imports: [CommonModule, MatProgressSpinnerModule, MatSnackBarModule, RouterLink],
   templateUrl: './auth-callback-page.component.html',
   styleUrl: './auth-callback-page.component.css',
 })
 export class AuthCallbackPageComponent {
   private readonly router = inject(Router);
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
 
   errorMessage: string | null = null;
 
@@ -25,14 +33,28 @@ export class AuthCallbackPageComponent {
 
     if (reason === 'google_oauth_failed') {
       this.errorMessage = 'Google authentication failed. Please try again.';
+      this.snackBar.open(this.errorMessage, 'Close', { duration: 4000 });
       return;
     }
 
     if (token && refreshToken) {
       this.tokenStorage.setTokens(token, refreshToken);
+
+      try {
+        const payload = jwtDecode<{ sub: string }>(token);
+        if (payload && payload.sub) {
+          this.notificationsContextFacade.loginUser(payload.sub);
+          this.notificationsContextFacade.requestPermission();
+        }
+      } catch (e) {
+        console.error('[AuthCallback] Error decoding token for OneSignal:', e);
+      }
+
+      this.snackBar.open('Sign-in successful', 'Close', { duration: 2000 });
       this.router.navigate(['/overview']);
     } else {
       this.errorMessage = 'Authentication incomplete. Missing tokens.';
+      this.snackBar.open(this.errorMessage, 'Close', { duration: 4000 });
     }
   }
 }

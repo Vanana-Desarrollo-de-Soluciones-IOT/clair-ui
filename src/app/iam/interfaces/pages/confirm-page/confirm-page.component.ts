@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -8,9 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { createVerificationCode } from '../../../domain/model/valueobjects/verification-code.value-object';
 import { createConfirmRegistrationCommand } from '../../../domain/model/commands/confirm-registration.command';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-confirm-page',
@@ -24,6 +26,7 @@ import { createConfirmRegistrationCommand } from '../../../domain/model/commands
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     RouterLink,
   ],
   templateUrl: './confirm-page.component.html',
@@ -31,9 +34,11 @@ import { createConfirmRegistrationCommand } from '../../../domain/model/commands
 })
 export class ConfirmPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly authCommandService = inject(AUTH_COMMAND_SERVICE) as AuthCommandService;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
   confirmForm: FormGroup = this.fb.group({
     code: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{4}-[A-Z0-9]{4}$')]],
@@ -48,6 +53,7 @@ export class ConfirmPageComponent implements OnInit {
     this.sessionId = this.route.snapshot.queryParamMap.get('sessionId');
     if (!this.sessionId) {
       this.errorMessage = 'Invalid registration session. Please register again.';
+      this.snackBar.open(this.errorMessage, 'Close', { duration: 4000 });
     }
   }
 
@@ -67,10 +73,11 @@ export class ConfirmPageComponent implements OnInit {
       const codeVo = createVerificationCode(code);
       const command = createConfirmRegistrationCommand(this.sessionId, codeVo);
 
-      this.authCommandService.handleConfirmRegistration(command).subscribe({
+      this.authCommandService.handleConfirmRegistration(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.loading = false;
           this.successMessage = 'Account verified successfully. Redirecting to login...';
+          this.snackBar.open(this.successMessage, 'Close', { duration: 2500 });
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 1500);
@@ -78,11 +85,13 @@ export class ConfirmPageComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.errorMessage = err?.error?.message || 'Invalid verification code. Please try again.';
+          this.snackBar.open(this.errorMessage ?? 'Invalid verification code. Please try again.', 'Close', { duration: 4000 });
         },
       });
     } catch (err: any) {
       this.loading = false;
       this.errorMessage = err.message || 'Validation error';
+      this.snackBar.open(this.errorMessage ?? 'Validation error', 'Close', { duration: 4000 });
     }
   }
 }

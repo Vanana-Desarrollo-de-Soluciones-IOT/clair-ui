@@ -1,0 +1,173 @@
+<div class="page-layout">
+  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
+
+  <div class="page-body">
+    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
+
+    <main class="content">
+      <div class="analytics-container">
+        <div class="dashboard-header">
+          <div class="header-left">
+            <h1 class="page-title">Air Quality</h1>
+          </div>
+
+          <div class="header-right">
+            <div class="period-selector-pill">
+              <button type="button" [class.active]="selectedPeriod === 'LIVE'" (click)="selectPeriod('LIVE')">
+                LIVE
+              </button>
+              <button type="button" [class.active]="selectedPeriod === 'Day' || selectedPeriod === 'DAY'"
+                (click)="selectPeriod('Day')">
+                Day
+              </button>
+              <button type="button" [class.active]="selectedPeriod === 'Week' || selectedPeriod === 'WEEK'"
+                (click)="selectPeriod('Week')">
+                Week
+              </button>
+              <button type="button" [class.active]="selectedPeriod === 'Month' || selectedPeriod === 'MONTH'"
+                (click)="selectPeriod('Month')">
+                Month
+              </button>
+            </div>
+
+            <div class="calendar-wrapper">
+              <div class="calendar-trigger-container" style="position: relative; display: inline-block">
+                <button class="icon-action-btn" type="button" (click)="picker.open()" aria-label="Calendar"
+                  title="Select custom range">
+                  <mat-icon>calendar_today</mat-icon>
+                </button>
+                <mat-date-range-input [rangePicker]="picker" class="hidden-datepicker-input">
+                  <input matStartDate (dateChange)="onStartDateChange($event)" />
+                  <input matEndDate (dateChange)="onEndDateChange($event)" />
+                </mat-date-range-input>
+              </div>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </div>
+          </div>
+        </div>
+
+        <div class="dropdowns-row">
+          <div class="dropdown-item">
+            <label class="dropdown-label">ORGANIZATION</label>
+            <mat-form-field appearance="outline" class="custom-select-field">
+              <mat-select [(ngModel)]="selectedOrgId" (selectionChange)="onOrgChange()">
+                <mat-option *ngFor="let org of organizations" [value]="org.id">
+                  {{ org.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="dropdown-item">
+            <label class="dropdown-label">SPACES</label>
+            <mat-form-field appearance="outline" class="custom-select-field">
+              <mat-select [(ngModel)]="selectedSpaceId" (selectionChange)="onSpaceChange()">
+                <mat-option *ngFor="let space of spaces" [value]="space.id">
+                  {{ space.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="dropdown-item">
+            <label class="dropdown-label">DEVICE</label>
+            <mat-form-field appearance="outline" class="custom-select-field">
+              <mat-select [(ngModel)]="selectedDeviceId" (selectionChange)="onDeviceChange()">
+                <mat-option *ngFor="let device of devices" [value]="device.id">
+                  {{ device.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div *ngIf="loading && !liveData" class="loading-state">
+          <mat-icon class="spin">cached</mat-icon>
+          <p>Loading analytics data...</p>
+        </div>
+
+        <div *ngIf="!loading && liveUnavailable" class="live-unavailable-state">
+          <mat-icon>cloud_off</mat-icon>
+          <p>{{ liveUnavailableMessage || 'Live data is not available right now.' }}</p>
+        </div>
+
+        <div *ngIf="error" class="error-state">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ error }}</p>
+        </div>
+
+        <div class="dashboard-grid" *ngIf="liveData || trendDataPoints.length > 0">
+          <app-aqi-gauge-card
+            [value]="aqiValue"
+            [category]="aqiCategory"
+            [delta]="activeMetricDelta"
+            [isSelected]="selectedMetric === 'aqiValue'"
+            (cardClick)="selectMetric('aqiValue')">
+          </app-aqi-gauge-card>
+
+          <div class="kpis-subgrid">
+            <app-metric-card
+              title="PM2.5"
+              [value]="liveData?.pm2_5?.value"
+              unit="µg/m³"
+              [delta]="liveData?.pm2_5?.deltaPercentage"
+              [statusColor]="pm25StatusColor"
+              [isSelected]="selectedMetric === 'pm2_5'"
+              (cardClick)="selectMetric('pm2_5')">
+            </app-metric-card>
+
+            <app-metric-card
+              title="CO₂"
+              [value]="liveData?.co2?.value"
+              unit="ppm"
+              [delta]="liveData?.co2?.deltaPercentage"
+              [statusColor]="co2StatusColor"
+              [isSelected]="selectedMetric === 'co2'"
+              (cardClick)="selectMetric('co2')">
+            </app-metric-card>
+
+            <app-metric-card
+              title="TEMP"
+              [value]="liveData?.temperature?.value"
+              unit="°C"
+              [delta]="liveData?.temperature?.deltaPercentage"
+              [statusColor]="tempStatusColor"
+              [isSelected]="selectedMetric === 'temperature'"
+              (cardClick)="selectMetric('temperature')">
+            </app-metric-card>
+
+            <app-metric-card
+              title="HUMIDITY"
+              [value]="liveData?.humidity?.value"
+              unit="%"
+              [delta]="liveData?.humidity?.deltaPercentage"
+              [statusColor]="humidityStatusColor"
+              [isSelected]="selectedMetric === 'humidity'"
+              (cardClick)="selectMetric('humidity')">
+            </app-metric-card>
+          </div>
+
+          <app-trend-chart-card
+            [title]="selectedMetric === 'aqiValue' ? 'AQI' : selectedMetric.toUpperCase()"
+            [points]="trendDataPoints"
+            [metric]="selectedMetric"
+            [delta]="activeMetricDelta">
+          </app-trend-chart-card>
+        </div>
+
+        <div class="empty-dashboard-placeholder" *ngIf="!loading && !liveData && trendDataPoints.length === 0">
+          <mat-icon>analytics</mat-icon>
+          <h3>No measurements available</h3>
+          <p>This device has no telemetry or historical data for the selected period.</p>
+        </div>
+
+        <div class="updated-row" *ngIf="liveData">
+          <mat-icon class="update-icon">sync</mat-icon>
+          <span>Updated {{ formattedUpdateTime }}</span>
+        </div>
+
+
+      </div>
+    </main>
+  </div>
+</div>

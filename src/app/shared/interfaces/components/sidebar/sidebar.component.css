@@ -5,7 +5,7 @@
 .sidebar-container {
   height: calc(100vh - 84px);
   width: 260px;
-  background-color: #050505;
+  background-color: #0a0a0a;
   display: flex;
   flex-direction: column;
   padding: 16px;
@@ -56,6 +56,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
 }
 
 .nav-item {
@@ -94,8 +95,12 @@
   color: #ffffff;
 }
 
-.settings-wrapper {
+.upgrade-btn {
   margin-top: auto;
+  margin-bottom: 12px;
+}
+
+.settings-wrapper {
   padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }

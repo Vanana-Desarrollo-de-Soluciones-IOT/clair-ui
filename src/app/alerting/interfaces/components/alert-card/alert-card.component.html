@@ -1,0 +1,33 @@
+<mat-card class="alert-card">
+  <div class="card-header">
+    <div class="metric-row">
+      <mat-icon class="metric-icon">{{ metricIcon(alert.metric) }}</mat-icon>
+      <span class="metric-name">{{ alert.metricLabel }}</span>
+      <span class="metric-unit">({{ alert.metricUnit }})</span>
+    </div>
+    <app-alert-status-badge [status]="alert.status"></app-alert-status-badge>
+  </div>
+
+  <div class="message">{{ alert.message }}</div>
+
+  <div class="values-row">
+    <div class="value-block">
+      <span class="value-label">Threshold</span>
+      <span class="value-number">{{ alert.thresholdValue }}</span>
+    </div>
+    <div class="value-block">
+      <span class="value-label">Actual</span>
+      <span class="value-number">{{ alert.actualValue }}</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="date">
+      <mat-icon style="font-size:14px;width:14px;height:14px;color:#9ca3af;">schedule</mat-icon>
+      <span>{{ formatDate(alert.occurredAt) }}</span>
+    </div>
+    <div *ngIf="alert.resolvedAt" class="resolved-text">
+      Resolved {{ formatDate(alert.resolvedAt) }}
+    </div>
+  </div>
+</mat-card>

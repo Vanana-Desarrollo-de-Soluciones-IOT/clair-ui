@@ -1,0 +1,278 @@
+.checkout-page-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #000000;
+  min-height: 100vh;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.checkout-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 11rem;
+  width: 100%;
+}
+
+.logo-header {
+  height: 48px;
+  margin-bottom: 9.5rem;
+  margin-top: 4rem;
+  object-fit: fill;
+}
+
+.checkout-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 3rem;
+  margin-top: 5rem;
+}
+
+.checkout-title {
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+  font-family: var(--app-font-headline);
+}
+
+.checkout-subtitle {
+  color: #757676;
+  font-size: 1rem;
+  margin: 0;
+  text-align: center;
+}
+
+.checkout-details-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+  padding: 0 1rem;
+}
+
+/* Plan Summary Box */
+.plan-summary-box {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  border: 1px solid #757676;
+}
+
+.plan-summary-title {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  font-family: var(--app-font-headline);
+}
+
+.plan-price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+.plan-price-amount {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  font-family: var(--app-font-headline);
+}
+
+.plan-price-period {
+  color: #757676;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Order Details Box */
+.order-details-box {
+  display: flex;
+  flex-direction: column;
+  background-color: #141414;
+  padding: 1.5rem;
+  gap: 1rem;
+  border-radius: 1rem;
+}
+
+.order-details-title {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  font-family: var(--app-font-headline);
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-item-name,
+.order-item-price {
+  color: #A9AAAA;
+  font-size: 1rem;
+}
+
+.order-divider {
+  height: 1px;
+  background-color: rgba(255,255,255,0.1);
+  margin: 0.5rem 0;
+}
+
+/* Add Payment Button */
+.add-payment-btn {
+  display: flex;
+  align-items: center;
+  background-color: #141414;
+  padding: 0.75rem 1.5rem;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  justify-content: center;
+}
+
+.add-payment-btn:hover {
+  background-color: #1a1a1a;
+}
+
+.payment-icon {
+  color: #ffffff;
+  font-size: 24px;
+}
+
+.payment-btn-text {
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: var(--app-font-body);
+}
+
+/* Autorenew Box */
+.autorenew-box {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #757676;
+  gap: 1rem;
+}
+
+.info-icon {
+  color: #757676;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.autorenew-text {
+  color: #757676;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Terms Box */
+.terms-box {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  gap: 0.75rem;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.125rem;
+}
+
+.terms-checkbox {
+  display: none;
+}
+
+.custom-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #757676;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+
+.terms-checkbox:checked + .custom-checkbox {
+  background-color: #ffffff;
+}
+
+.terms-checkbox:checked + .custom-checkbox::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.terms-text {
+  color: #ffffff;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Subscribe Button */
+.subscribe-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #141414;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--app-font-headline);
+}
+
+.subscribe-btn:hover {
+  background-color: #1a1a1a;
+}

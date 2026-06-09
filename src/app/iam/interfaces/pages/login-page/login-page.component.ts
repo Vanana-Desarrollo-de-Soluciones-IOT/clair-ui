@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -9,12 +9,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { ClairLogoComponent } from '../../../../shared/interfaces/components/clair-logo/clair-logo.component';
-import { AuthCommandServiceImpl } from '../../../application/internal/commandservices/auth-command-service.impl';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ClairLogoComponent } from '../../components/icons/clair-logo/clair-logo.component';
+import { GoogleIconComponent } from '../../components/icons/google/google-icon.component';
+import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { createEmail } from '../../../domain/model/valueobjects/email.value-object';
 import { createPassword } from '../../../domain/model/valueobjects/password.value-object';
 import { createSignInCommand } from '../../../domain/model/commands/sign-in.command';
 import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
+import { jwtDecode } from 'jwt-decode';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NOTIFICATIONS_CONTEXT_FACADE,
+  NotificationsContextFacade,
+} from '../../../../notifications/interfaces/acl/notifications-context-facade';
 
 @Component({
   selector: 'app-login-page',
@@ -29,17 +37,22 @@ import { TokenStorageGateway, TOKEN_STORAGE_GATEWAY } from '../../../infrastruct
     MatIconModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatSnackBarModule,
     RouterLink,
     ClairLogoComponent,
+    GoogleIconComponent,
   ],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.css',
 })
 export class LoginPageComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly authCommandService = inject(AuthCommandServiceImpl);
+  private readonly authCommandService = inject(AUTH_COMMAND_SERVICE) as AuthCommandService;
   private readonly tokenStorage = inject(TOKEN_STORAGE_GATEWAY);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationsContextFacade = inject(NOTIFICATIONS_CONTEXT_FACADE) as NotificationsContextFacade;
+  private readonly destroyRef = inject(DestroyRef);
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -49,6 +62,11 @@ export class LoginPageComponent {
   loading = false;
   errorMessage: string | null = null;
   hidePassword = true;
+
+  onGoogleSignIn(): void {
+    const authorizeUrl = this.authCommandService.getGoogleAuthorizeUrl();
+    window.location.href = authorizeUrl;
+  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -68,11 +86,24 @@ export class LoginPageComponent {
 
       console.log('[Login] Sending sign-in request...', { email });
 
-      this.authCommandService.handleSignIn(command).subscribe({
+      this.authCommandService.handleSignIn(command).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (result) => {
           console.log('[Login] Success');
           this.loading = false;
-          this.tokenStorage.setTokens(result.accessToken.value, result.refreshToken.value);
+          const token = result.accessToken.value;
+          this.tokenStorage.setTokens(token, result.refreshToken.value);
+
+          try {
+            const payload = jwtDecode<{ sub: string }>(token);
+            if (payload && payload.sub) {
+              this.notificationsContextFacade.loginUser(payload.sub);
+              this.notificationsContextFacade.requestPermission();
+            }
+          } catch (e) {
+            console.error('[Login] Error decoding token for OneSignal:', e);
+          }
+
+          this.snackBar.open('Login successful', 'Close', { duration: 2500 });
           this.router.navigate(['/']);
         },
         error: (err) => {
@@ -84,6 +115,10 @@ export class LoginPageComponent {
             this.errorMessage = 'Cannot connect to server. Is the backend running?';
           } else {
             this.errorMessage = err?.error?.message || 'An unexpected error occurred. Please try again.';
+          }
+
+          if (this.errorMessage) {
+            this.snackBar.open(this.errorMessage, 'Close', { duration: 4000 });
           }
         },
       });

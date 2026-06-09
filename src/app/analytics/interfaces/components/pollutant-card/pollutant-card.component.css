@@ -1,0 +1,97 @@
+.pollutant-card {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.pollutant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
+
+.pollutant-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.pollutant-value strong {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: var(--app-font-headline);
+}
+
+.pollutant-value span {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.pollutant-delta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.delta-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delta.positive {
+  color: #10b981;
+}
+
+.delta.negative {
+  color: #ef4444;
+}
+
+.delta-null {
+  color: #6b7280;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.dot.warning {
+  color: #f59e0b;
+  background: #f59e0b;
+}
+
+.dot.success {
+  color: #10b981;
+  background: #10b981;
+}
+
+.dot.info {
+  color: #38bdf8;
+  background: #38bdf8;
+}
+
+.dot.muted {
+  color: #6b7280;
+  background: #6b7280;
+}
