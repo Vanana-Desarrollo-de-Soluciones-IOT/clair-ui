@@ -18,10 +18,9 @@ export const pushNotificationLogResourceToDomain = (
     alertId: resource.alertId,
     title: resource.title,
     message: resource.message,
-    sent: resource.sent,
+    sent: resource.status === 'SENT',
     errorMessage: resource.errorMessage,
     createdAt: resource.createdAt,
-    updatedAt: resource.updatedAt,
   });
 };
 

@@ -4,8 +4,7 @@ export interface PushNotificationLogResource {
   readonly alertId: string | null;
   readonly title: string;
   readonly message: string;
-  readonly sent: boolean;
+  readonly status: 'SENT' | 'FAILED';
   readonly errorMessage: string | null;
   readonly createdAt: string;
-  readonly updatedAt: string;
 }
