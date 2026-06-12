@@ -20,6 +20,7 @@ export const routes: Routes = [
   { path: 'checkout', loadComponent: () => import('./billing/interfaces/pages/premium-checkout/premium-checkout.component').then(c => c.PremiumCheckoutComponent), canActivate: [authGuard] },
   { path: 'space-devices', loadComponent: () => import('./device/interfaces/pages/space-devices-page/space-devices-page.component').then(c => c.SpaceDevicesPageComponent), canActivate: [authGuard] },
   { path: 'analytics', loadComponent: () => import('./analytics/interfaces/pages/analytics-page/analytics-page.component').then(c => c.AnalyticsPageComponent), canActivate: [authGuard] },
+  { path: 'reports', loadComponent: () => import('./analytics/interfaces/pages/reports-page/reports-page.component').then(c => c.ReportsPageComponent), canActivate: [authGuard] },
   { path: 'alerts', loadComponent: () => import('./alerting/interfaces/pages/alerts-page/alerts-page.component').then(c => c.AlertsPageComponent), canActivate: [authGuard] },
   { path: 'select-plan', loadComponent: () => import('./billing/interfaces/pages/select-plan/select-plan.component').then(c => c.SelectPlanComponent), canActivate: [authGuard] },
   { path: 'checkout-premium', loadComponent: () => import('./billing/interfaces/pages/premium-checkout/premium-checkout.component').then(c => c.PremiumCheckoutComponent), canActivate: [authGuard] },
