@@ -1,26 +1,14 @@
-.layout {
-  min-height: 100vh;
-  background: #000000;
-}
-
-.body-layout {
-  display: flex;
-  min-height: calc(100vh - 84px);
-}
-
-.content {
-  flex: 1;
+.settings-container {
+  width: min(100%, 640px);
+  margin: 0 auto;
+  padding: 32px 24px 40px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 32px 24px;
   gap: 20px;
+  box-sizing: border-box;
 }
 
 .page-title {
-  width: 100%;
-  max-width: 560px;
   margin: 0;
   color: #f5f5f5;
   font-size: 28px;
@@ -29,7 +17,6 @@
 
 .settings-card {
   width: 100%;
-  max-width: 560px;
   background: #141414;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
@@ -58,7 +45,8 @@
 }
 
 .language-field {
-  width: 100%}
+  width: 100%;
+}
 
 .status {
   margin-top: 16px;
@@ -72,7 +60,8 @@
 }
 
 @media (max-width: 768px) {
-  .content {
-    padding: 24px 16px;
+  .settings-container {
+    width: 100%;
+    padding: 24px 16px 32px;
   }
 }
