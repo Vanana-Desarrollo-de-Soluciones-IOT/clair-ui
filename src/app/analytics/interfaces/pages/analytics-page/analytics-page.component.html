@@ -1,11 +1,4 @@
-<div class="page-layout">
-  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
-
-  <div class="page-body">
-    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
-
-    <main class="content">
-      <div class="analytics-container">
+<div class="analytics-container">
         <div class="dashboard-header">
           <div class="header-left">
             <h1 class="page-title">{{ 'analytics.title' | translate }}</h1>
@@ -168,6 +161,3 @@
 
 
       </div>
-    </main>
-  </div>
-</div>

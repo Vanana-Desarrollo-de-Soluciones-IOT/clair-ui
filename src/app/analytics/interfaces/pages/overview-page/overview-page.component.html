@@ -1,10 +1,4 @@
-<div class="page-layout">
-  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
-
-  <div class="page-body">
-    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
-    <main class="content">
-      <section class="overview-container">
+<section class="overview-container">
         <ng-container *ngIf="viewState$ | async as viewState">
           <ng-container [ngSwitch]="viewState.status">
             <section *ngSwitchCase="'loading'" class="overview-info-state">
@@ -116,6 +110,3 @@
           </section>
         </ng-template>
       </section>
-    </main>
-  </div>
-</div>

@@ -5,8 +5,6 @@ import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
-import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
 import { DeviceDetailPanelComponent } from '../../components/device-detail-panel/device-detail-panel.component';
 import { DeviceListComponent, DeviceViewMode } from '../../components/device-list/device-list.component';
@@ -27,8 +25,6 @@ import { SpaceDevicesPageActionsService } from './space-devices-page-actions.ser
     MatButtonModule,
     MatIconModule,
     TranslatePipe,
-    SidebarComponent,
-    HeaderComponent,
     OrganizationsPanelComponent,
     DeviceDetailPanelComponent,
     SpaceDetailHeaderComponent,
@@ -55,7 +51,6 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   private statusPollingResetTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private trackedStatusDeviceId: string | null = null;
 
-  isSidebarOpen = true;
   isOrganizationsDrawerOpen = false;
   selectedSpace: Space | null = null;
   selectedDevice: Device | null = null;
@@ -98,14 +93,6 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
     this.stopListTelemetryPolling();
     this.stopStatusPolling();
     this.subscriptions.unsubscribe();
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
   }
 
   openOrganizationsDrawer(): void {

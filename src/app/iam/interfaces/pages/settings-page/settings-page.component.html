@@ -1,13 +1,6 @@
-<div class="layout">
-  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
+<h1 class="page-title">{{ 'settings.title' | translate }}</h1>
 
-  <div class="body-layout">
-    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
-
-    <main class="content">
-      <h1 class="page-title">{{ 'settings.title' | translate }}</h1>
-
-      <mat-card class="settings-card" appearance="outlined">
+<mat-card class="settings-card" appearance="outlined">
         <div class="card-header-text">
           <h2 class="card-title">{{ 'settings.languageCard.title' | translate }}</h2>
           <p class="card-subtitle">{{ 'settings.languageCard.subtitle' | translate }}</p>
@@ -36,6 +29,3 @@
 
         <p class="status" *ngIf="statusMessage">{{ statusMessage }}</p>
       </mat-card>
-    </main>
-  </div>
-</div>

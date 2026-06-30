@@ -1,11 +1,4 @@
-<div class="page-layout">
-  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
-
-  <div class="page-body">
-    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
-
-    <main class="content">
-      <div class="workspace">
+<div class="workspace">
         <div class="desktop-organizations-panel">
           <app-organizations-panel
             [selectedSpaceId]="selectedSpace?.id?.value ?? null"
@@ -60,9 +53,6 @@
           </ng-template>
         </section>
       </div>
-    </main>
-  </div>
-</div>
 
 <div *ngIf="isOrganizationsDrawerOpen" class="organizations-drawer-backdrop open" (click)="closeOrganizationsDrawer()"></div>
 <aside *ngIf="isOrganizationsDrawerOpen" class="organizations-drawer open" [attr.aria-label]="'spaceDevices.organizationsAndSpacesAria' | translate">

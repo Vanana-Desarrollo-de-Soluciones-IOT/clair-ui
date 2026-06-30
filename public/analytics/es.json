@@ -27,9 +27,9 @@
     "categories": {
       "good": "Bueno",
       "moderate": "Moderado",
-      "unhealthyForSensitive": "No saludable para grupos sensibles",
-      "unhealthy": "No saludable",
-      "veryUnhealthy": "Muy no saludable",
+      "unhealthyForSensitive": "Insalubre para grupos sensibles",
+      "unhealthy": "Insalubre",
+      "veryUnhealthy": "Muy insalubre",
       "hazardous": "Peligroso"
     }
   },
@@ -89,7 +89,7 @@
     },
     "trendChart": {
       "titlePrefix": "TENDENCIA",
-      "empty": "No hay datos históricos en este rango de tiempo. Intenta seleccionar un rango diferente o verificar la conectividad del dispositivo.",
+      "empty": "No hay datos históricos en este rango de tiempo. Prueba a seleccionar un rango distinto o a comprobar la conectividad del dispositivo.",
       "deltaNull": "N/A"
     },
     "error": {

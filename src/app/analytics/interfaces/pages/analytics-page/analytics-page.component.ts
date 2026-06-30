@@ -14,8 +14,6 @@ import { Subscription, interval, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
-import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { ExternalDeviceService } from '../../../application/internal/outboundservices/acl/external-device.service';
 import { AnalyticsQueryService, DashboardMetrics, LiveTelemetry } from '../../../domain/services/analytics-query-service';
 import {
@@ -56,8 +54,6 @@ import { TrendChartCardComponent } from '../../components/trend-chart-card/trend
     MatSelectModule,
     MatInputModule,
     MatDatepickerModule,
-    SidebarComponent,
-    HeaderComponent,
     AqiGaugeCardComponent,
     MetricCardComponent,
     TrendChartCardComponent,
@@ -71,8 +67,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly translate = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
-
-  isSidebarOpen = true;
   loading = false;
   error: string | null = null;
   liveUnavailable = false;
@@ -105,14 +99,6 @@ export class AnalyticsPageComponent implements OnInit, OnDestroy {
   private refreshSubscription?: Subscription;
   private secondsCounterSubscription?: Subscription;
   private liveStreamSubscription?: Subscription;
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
-  }
 
   ngOnInit(): void {
     this.loadOrganizations();

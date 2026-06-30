@@ -15,8 +15,6 @@ import { takeUntil } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
-import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { ExternalDeviceService } from '../../../application/internal/outboundservices/acl/external-device.service';
 import {
   FacadeOrganization,
@@ -71,8 +69,6 @@ const MONTHLY_WINDOW = 12;
     MatSelectModule,
     MatInputModule,
     MatDatepickerModule,
-    SidebarComponent,
-    HeaderComponent,
     ReportDonutCardComponent,
     ReportRangesCardComponent,
     ReportTrendCardComponent,
@@ -89,8 +85,6 @@ export class ReportsPageComponent implements OnInit, OnDestroy {
 
   readonly metrics = REPORT_METRICS;
   readonly rangeMetrics = RANGE_METRICS;
-
-  isSidebarOpen = true;
 
   // Dropdown data
   organizations: FacadeOrganization[] = [];
@@ -134,14 +128,6 @@ export class ReportsPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
   }
 
   // --- Plan -----------------------------------------------------------------

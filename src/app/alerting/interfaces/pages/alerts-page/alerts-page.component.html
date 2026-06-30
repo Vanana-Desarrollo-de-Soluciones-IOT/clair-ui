@@ -1,11 +1,4 @@
-<div class="page-layout">
-  <app-header [isSidebarOpen]="isSidebarOpen" (sidebarToggleRequested)="toggleSidebar()"></app-header>
-
-  <div class="page-body">
-    <app-sidebar [isOpen]="isSidebarOpen" (closeRequested)="closeSidebar()"></app-sidebar>
-
-    <main class="content">
-      <div class="alerts-container">
+<div class="alerts-container">
         <!-- Header -->
         <div class="page-header">
           <h1 class="page-title">{{ 'alerts.title' | translate }}</h1>
@@ -44,6 +37,3 @@
           </button>
         </div>
       </div>
-    </main>
-  </div>
-</div>

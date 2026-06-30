@@ -7,7 +7,7 @@
       "secondsAgo": "hace {{seconds}} segundos"
     },
     "tab": {
-      "active": "Alertas activas",
+      "active": "Activas",
       "history": "Historial"
     },
     "pagination": {
@@ -52,7 +52,7 @@
   },
   "alertStatus": {
     "active": "ACTIVA",
-    "acknowledged": "RECONOCIDA",
+    "acknowledged": "ATENDIDA",
     "resolved": "RESUELTA"
   },
   "alertSeverity": {

@@ -9,8 +9,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
-import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { AUTH_COMMAND_SERVICE, AuthCommandService } from '../../../domain/services/auth-command-service';
 import { TOKEN_STORAGE_GATEWAY } from '../../../infrastructure/storage/token-storage.gateway';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,8 +31,6 @@ import { LanguageService, SupportedLanguage } from '../../../../shared/interface
     MatFormFieldModule,
     MatSelectModule,
     TranslatePipe,
-    SidebarComponent,
-    HeaderComponent,
   ],
   templateUrl: './settings-page.component.html',
   styleUrl: './settings-page.component.css',
@@ -50,21 +46,12 @@ export class SettingsPageComponent {
   private readonly translate = inject(TranslateService);
 
   isLoggingOut = false;
-  isSidebarOpen = true;
   statusMessage = '';
   currentLanguage: SupportedLanguage = this.languageService.getCurrentLanguage();
 
   onLanguageChange(language: SupportedLanguage): void {
     this.languageService.setLanguage(language);
     this.currentLanguage = language;
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
   }
 
   logout(): void {

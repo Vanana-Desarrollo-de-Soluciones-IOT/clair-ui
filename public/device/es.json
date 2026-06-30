@@ -2,7 +2,7 @@
   "spaceDevices": {
     "currentSpaceEyebrow": "Espacio actual",
     "selectSpace": "Selecciona un espacio",
-    "drawerEyebrow": "Espacio de trabajo",
+    "drawerEyebrow": "Área de trabajo",
     "drawerTitle": "Organizaciones",
     "changeOrgSpaceAria": "Cambiar organización o espacio",
     "organizationsAndSpacesAria": "Organizaciones y espacios",
@@ -94,27 +94,27 @@
   },
   "spaceDetailHeader": {
     "subtitle": "Se actualiza cada minuto",
-    "claimSensorAria": "Reclamar sensor",
-    "pairSensorHardwareAria": "Emparejar hardware del sensor",
+    "claimSensorAria": "Vincular sensor",
+    "pairSensorHardwareAria": "Vincular hardware del sensor",
     "moreOptionsAria": "Más opciones",
     "editSpace": "Editar espacio",
     "deleteSpace": "Eliminar espacio"
   },
   "claimDeviceDialog": {
-    "title": "Reclamar sensor",
-    "description": "Ingresa el token de reclamo de la etiqueta del sensor o del código QR.",
-    "tokenLabel": "Token de reclamo",
+    "title": "Vincular sensor",
+    "description": "Ingresa el token de vinculación de la etiqueta del sensor o del código QR.",
+    "tokenLabel": "Token de vinculación",
     "tokenPlaceholder": "AB45-F3B1",
-    "tokenRequired": "El token de reclamo es obligatorio",
-    "tokenPattern": "Formato de token de reclamo inválido",
+    "tokenRequired": "El token de vinculación es obligatorio",
+    "tokenPattern": "Formato de token de vinculación inválido",
     "cancel": "Cancelar",
-    "claim": "Reclamar"
+    "claim": "Vincular"
   },
   "pairDeviceDialog": {
-    "title": "Emparejar hardware del sensor",
-    "description": "Empareja un sensor físico de CO2/PM2.5 por ID de hardware para crear u obtener su token de reclamo.",
+    "title": "Vincular hardware del sensor",
+    "description": "Vincula un sensor físico de CO2/PM2.5 mediante su ID de hardware para crear u obtener su token de vinculación.",
     "hardwareIdLabel": "ID de hardware",
-    "hardwareIdPlaceholder": "CLAIR-0001",
+    "hardwareIdPlaceholder": "CLAIR-00001",
     "hardwareIdRequired": "El ID de hardware es obligatorio",
     "hardwareIdPattern": "El ID de hardware debe coincidir con CLAIR-00001",
     "cancel": "Cancelar",
@@ -134,8 +134,8 @@
     "goToDeviceAria": "Ir al dispositivo"
   },
   "deviceInfoCard": {
-    "goBackAria": "Volver atrás",
-    "togglePowerAria": "Alternar encendido",
+    "goBackAria": "Volver",
+    "togglePowerAria": "Encender o apagar",
     "moreOptionsAria": "Más opciones",
     "editDevice": "Editar dispositivo",
     "deleteDevice": "Eliminar dispositivo",
@@ -145,8 +145,8 @@
     "lastUpdateLabel": "ÚLTIMA ACTUALIZACIÓN",
     "networkLabel": "RED:",
     "locationLabel": "UBICACIÓN:",
-    "connectivityUnit": "dBM",
-    "lastUpdateUnit": "m",
+    "connectivityUnit": "dBm",
+    "lastUpdateUnit": "min",
     "healthUnit": "%",
     "uptime": {
       "seconds": "{{seconds}}s",
@@ -157,7 +157,7 @@
   },
   "deviceThresholdsCard": {
     "title": "Umbrales",
-    "subtitle": "Pueden afectar la salud del dispositivo",
+    "subtitle": "Pueden afectar el estado del dispositivo",
     "editAria": "Editar umbrales",
     "metrics": {
       "pm25": { "label": "PM2.5", "unit": "µg/m³" },
@@ -168,7 +168,7 @@
   },
   "editThresholdsDialog": {
     "closeAria": "Cerrar umbrales",
-    "sliderAriaSuffix": "deslizador de umbral",
+    "sliderAriaSuffix": "control deslizante de umbral",
     "maxLabel": "máx",
     "reset": "REINICIAR",
     "save": "GUARDAR",
@@ -189,9 +189,9 @@
     }
   },
   "deviceActions": {
-    "sensorClaimed": "Sensor reclamado",
+    "sensorClaimed": "Sensor vinculado",
     "sensorPaired": "Sensor emparejado",
-    "claimTokenPrefix": "Token de reclamo: {{claimToken}}",
+    "claimTokenPrefix": "Token de vinculación: {{claimToken}}",
     "spaceUpdated": "Espacio actualizado",
     "spaceDeleted": "Espacio eliminado",
     "deviceUpdated": "Dispositivo actualizado",
@@ -199,7 +199,7 @@
     "decommissionedCommand": "El dispositivo está fuera de servicio y no puede recibir comandos",
     "commandQueued": "Comando en cola: {{commandType}}",
     "error": {
-      "claimSensor": "Error al reclamar sensor",
+      "claimSensor": "Error al vincular sensor",
       "pairSensor": "Error al emparejar sensor",
       "updateSpace": "Error al actualizar espacio",
       "deleteSpace": "Error al eliminar espacio",

@@ -8,7 +8,7 @@
     "notificationsTitle": "Notificaciones",
     "closeNotificationsAria": "Cerrar notificaciones",
     "emptyNotifications": "No hay notificaciones nuevas",
-    "notificationFailedToSend": "Error al enviar",
+    "notificationFailedToSend": "No se pudo enviar",
     "userProfileAria": "Perfil de usuario",
     "unreadCount99plus": "99+",
     "relativeTime": {
@@ -27,12 +27,12 @@
       "reports": "Reportes",
       "spaceDevices": "Espacios y dispositivos"
     },
-    "upgradePlan": "Mejorar plan",
+    "upgradePlan": "Mejorar el plan",
     "settings": "Configuración"
   },
   "icon": {
-    "clairLyrics": "Letras de Clair",
-    "clairLogo": "Logo de Clair",
+    "clairLyrics": "Texto de Clair",
+    "clairLogo": "Logotipo de Clair",
     "google": "Icono de Google",
     "overview": "Icono de resumen",
     "airQuality": "Icono de calidad del aire",

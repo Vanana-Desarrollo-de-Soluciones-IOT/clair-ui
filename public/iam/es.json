@@ -17,7 +17,7 @@
     "registerLink": "Regístrate",
     "error": {
       "invalidCredentials": "Correo electrónico o contraseña inválidos.",
-      "cannotConnect": "No se puede conectar al servidor. ¿El backend está ejecutándose?",
+      "cannotConnect": "No se puede conectar al servidor. ¿El backend está en ejecución?",
       "unexpected": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
     },
     "validationError": "Error de validación",
@@ -88,7 +88,7 @@
   },
   "settings": {
     "title": "Configuración",
-    "subtitle": "Administra la sesión de tu cuenta.",
+    "subtitle": "Gestiona la sesión de tu cuenta.",
     "languageCard": {
       "title": "Idioma",
       "subtitle": "Elige el idioma que deseas usar en toda la aplicación."

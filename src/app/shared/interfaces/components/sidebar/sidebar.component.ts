@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,7 +39,6 @@ type AccessTokenPayload = {
 })
 export class SidebarComponent implements OnInit {
   @Input() isOpen = true;
-  @Output() closeRequested = new EventEmitter<void>();
 
   isUpgradeVisible = false;
 
@@ -78,9 +77,7 @@ export class SidebarComponent implements OnInit {
   }
 
   onNavItemClick(): void {
-    if (window.innerWidth <= 768) {
-      this.closeRequested.emit();
-    }
+    // Keep the sidebar open while navigating so the layout feels stable on mobile.
   }
 
   readonly navItems: NavItem[] = [

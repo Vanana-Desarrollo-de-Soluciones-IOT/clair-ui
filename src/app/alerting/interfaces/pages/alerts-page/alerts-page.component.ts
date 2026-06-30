@@ -7,9 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
-import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
-
 import { Alert, AlertPage, DailyAlertCount } from '../../../domain/services/alert-query-service';
 import { AlertStatus_ACTIVE, AlertStatus_ACKNOWLEDGED, AlertStatus_RESOLVED } from '../../../domain/model/valueobjects/alert-status.value-object';
 import { createGetAlertDailySummaryQuery } from '../../../domain/model/queries/get-alert-daily-summary.query';
@@ -26,8 +23,6 @@ type AlertTab = 'active' | 'history';
     CommonModule,
     TranslatePipe,
     MatIconModule,
-    SidebarComponent,
-    HeaderComponent,
     AlertDailyChartComponent,
     AlertTableComponent,
   ],
@@ -41,8 +36,6 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef,
     private readonly translate: TranslateService
   ) {}
-
-  isSidebarOpen = true;
 
   // Daily chart
   dailySummary: DailyAlertCount[] | null = null;
@@ -74,14 +67,6 @@ export class AlertsPageComponent implements OnInit, OnDestroy {
     if (this.secondsCounterSubscription) {
       clearInterval(this.secondsCounterSubscription);
     }
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
   }
 
   setTab(tab: AlertTab): void {
