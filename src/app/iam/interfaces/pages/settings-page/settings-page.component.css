@@ -45,6 +45,11 @@ p {
   margin: 0 8px;
 }
 
+.language-field {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
 @media (max-width: 768px) {
   .content {
     padding: 16px;

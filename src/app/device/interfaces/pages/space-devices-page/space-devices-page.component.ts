@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
 import { OrganizationsPanelComponent } from '../../components/organizations-panel/organizations-panel.component';
@@ -25,6 +26,7 @@ import { SpaceDevicesPageActionsService } from './space-devices-page-actions.ser
     CommonModule,
     MatButtonModule,
     MatIconModule,
+    TranslatePipe,
     SidebarComponent,
     HeaderComponent,
     OrganizationsPanelComponent,
@@ -39,6 +41,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
   private readonly navigationState = inject(SpaceDevicesNavigationStateService);
   private readonly selectionHydration = inject(SpaceDevicesSelectionHydrationService);
   private readonly pageActions = inject(SpaceDevicesPageActionsService);
+  private readonly translate = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -333,7 +336,7 @@ export class SpaceDevicesPageComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: () => {
-          this.errorDevices = 'Failed to load devices';
+          this.errorDevices = this.translate.instant('spaceDevices.errorLoadDevices');
           this.loadingDevices = false;
           this.stopListTelemetryPolling();
           this.cdr.markForCheck();

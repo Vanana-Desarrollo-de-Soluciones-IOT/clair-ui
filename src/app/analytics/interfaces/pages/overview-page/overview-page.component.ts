@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, map, Observable, of, startWith } from 'rxjs';
 import { SidebarComponent } from '../../../../shared/interfaces/components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../shared/interfaces/components/header/header.component';
@@ -21,6 +22,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    TranslatePipe,
     SidebarComponent,
     HeaderComponent,
     AqiCardComponent,
