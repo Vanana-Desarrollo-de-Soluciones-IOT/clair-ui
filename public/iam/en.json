@@ -89,6 +89,14 @@
   "settings": {
     "title": "Settings",
     "subtitle": "Manage your account session.",
+    "languageCard": {
+      "title": "Language",
+      "subtitle": "Choose the language you want to use throughout the application."
+    },
+    "sessionCard": {
+      "title": "Account Session",
+      "subtitle": "Sign out of your account on this device."
+    },
     "languageLabel": "Language",
     "languageEnglish": "English",
     "languageSpanish": "Spanish",
